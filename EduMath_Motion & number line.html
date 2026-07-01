@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数轴动点：PQ匀速 + C折返（分段详解）</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: #eef2f7;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      margin: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 960px;
+      width: 100%;
+      background: white;
+      border-radius: 24px;
+      padding: 24px 28px 32px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a2634;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .problem-box {
+      background: #f8faff;
+      border-left: 6px solid #2a7de1;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 1.8;
+      color: #1e2a3a;
+      margin-bottom: 18px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .problem-box strong { color: #c0392b; }
+    .canvas-wrapper {
+      position: relative;
+      background: #fafdff;
+      border: 1px solid #d0d9e5;
+      border-radius: 16px;
+      padding: 4px;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      background: #ffffff;
+      cursor: pointer;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 20px;
+      margin: 14px 0 10px;
+    }
+    .controls label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 15px;
+    }
+    .controls input[type="range"] {
+      width: 260px;
+      cursor: pointer;
+      accent-color: #2a7de1;
+    }
+    .controls .time-display {
+      min-width: 60px;
+      font-weight: 600;
+      color: #1a2634;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .btn {
+      padding: 6px 16px;
+      border: none;
+      border-radius: 30px;
+      background: #e4e9f2;
+      color: #1a2634;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .btn:hover { background: #d0d8e6; }
+    .btn.active {
+      background: #2a7de1;
+      color: white;
+      box-shadow: 0 2px 6px rgba(42,125,225,0.3);
+    }
+    .btn-play { background: #27ae60; color: white; }
+    .btn-play:hover { background: #1e8449; }
+    .btn-play.active { background: #e67e22; }
+    .btn-reset { background: #95a5a6; color: white; }
+    .btn-reset:hover { background: #7f8c8d; }
+
+    .info-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+      gap: 8px 16px;
+      background: #f7f9fc;
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin-top: 12px;
+      font-size: 15px;
+      border: 1px solid #e8edf4;
+    }
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+    .info-item .label {
+      font-size: 13px;
+      color: #5a6b7a;
+    }
+    .info-item .value {
+      font-weight: 600;
+      font-size: 16px;
+      color: #1a2634;
+    }
+    .info-item .formula {
+      font-size: 14px;
+      color: #2980b9;
+      background: #eaf4ff;
+      padding: 0 6px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 2px;
+    }
+    .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+    .dot-p { background: #e74c3c; }   /* 红色 */
+    .dot-q { background: #2980b9; }   /* 蓝色 */
+    .dot-c { background: #2ecc71; }   /* 绿色 */
+    .highlight {
+      background: #f1c40f;
+      padding: 0 8px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+    .footnote {
+      text-align: center;
+      color: #7f8c8d;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    /* ----- 新增版权样式 ----- */
+    .copyright {
+      text-align: center;
+      color: #b0b8c4;
+      font-size: 13px;
+      margin-top: 18px;
+      border-top: 1px solid #e8edf4;
+      padding-top: 12px;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="title">📐 数轴动点综合 · 参数讨论</div>
+
+  <!-- 题目内容 -->
+  <div class="problem-box">
+    <strong>题目：</strong>点 A、B 在数轴上，点 A 是 <strong>﹣17</strong>，点 B 是 <strong>15</strong>，线段 AB 的长是 32；PQ 是一条定长的线段（点 P 在点 Q 的左侧），它在数轴上从左向右匀速运动，线段 PQ 的长为 8；线段 PQ 运动的速度为 2 个单位长度/秒；当动线段 PQ 运动到点 Q 与点 A 重合时，与此同时，点 C 从点 P 出发，在动线段 PQ 上，以 1 个单位长度/秒的速度向点 Q 运动，遇到点 Q 后，点 C 立即原速返回，向点 P 运动，遇到点 P 后也立即原速返回，向点 Q 运动。设动线段 PQ 以及点 C 同时运动的时间为 t 秒（0 &lt; t ≤ 20），当 <strong>4PC − QB = 4</strong> 时，求 t 的值。
+  </div>
+
+  <!-- 画布 -->
+  <div class="canvas-wrapper">
+    <canvas id="canvas" width="900" height="240"></canvas>
+  </div>
+
+  <!-- 控制栏 -->
+  <div class="controls">
+    <label>
+      时间 t：
+      <input type="range" id="tSlider" min="0" max="20" step="0.02" value="0">
+      <span class="time-display" id="tDisplay">0.00</span> s
+    </label>
+
+    <div class="btn-group">
+      <button class="btn active" data-mode="all">整体 0~20</button>
+      <button class="btn" data-mode="seg1">① 0~8</button>
+      <button class="btn" data-mode="seg2">② 8~16</button>
+      <button class="btn" data-mode="seg3">③ 16~20</button>
+    </div>
+
+    <button id="playBtn" class="btn btn-play">▶ 播放</button>
+    <button id="resetBtn" class="btn btn-reset">⟲ 重置</button>
+  </div>
+
+  <!-- 信息面板：显示数值和代数式 -->
+  <div class="info-panel" id="infoPanel">
+    <div class="info-item"><span class="label"><span class="dot dot-p"></span>P 坐标</span><span class="value" id="pVal">-25.00</span><span class="formula" id="pFormula">P = -25+2t</span></div>
+    <div class="info-item"><span class="label"><span class="dot dot-q"></span>Q 坐标</span><span class="value" id="qVal">-17.00</span><span class="formula" id="qFormula">Q = -17+2t</span></div>
+    <div class="info-item"><span class="label"><span class="dot dot-c"></span>C 坐标</span><span class="value" id="cVal">-25.00</span><span class="formula" id="cFormula">C = P+PC</span></div>
+    <div class="info-item"><span class="label">📏 PC</span><span class="value" id="pcVal">0.00</span><span class="formula" id="pcFormula">PC = t</span></div>
+    <div class="info-item"><span class="label">📏 QB</span><span class="value" id="qbVal">32.00</span><span class="formula" id="qbFormula">QB = 32−2t</span></div>
+    <div class="info-item" style="grid-column: span 2;"><span class="label">⭐ 4PC − QB</span><span class="value" id="exprVal" style="font-size:20px; background:#f1c40f; padding:0 12px; border-radius:12px;">-32.00</span></div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot dot-p"></span> P（红色）</span>
+    <span><span class="dot dot-q"></span> Q（蓝色）</span>
+    <span><span class="dot dot-c"></span> C（绿色，折返）</span>
+    <span style="color:#8e44ad;">▎ A（﹣17）</span>
+    <span style="color:#8e44ad;">▎ B（15）</span>
+  </div>
+  <div class="footnote">🎯 当 4PC − QB = 4 时，t = 6、14、18（绿色标记）。点击分段按钮可聚焦对应区间。</div>
+
+  <!-- ========== 新增版权信息 ========== -->
+  <div class="copyright">© Twolobster丨EduMath Motion &amp; number line</div>
+
+</div>
+
+<script>
+  (function() {
+    // ---------- 常数 ----------
+    const A = -17, B = 15;
+    const PQ_LEN = 8;
+    const V_PQ = 2;
+    const V_C = 1;
+
+    // DOM 元素
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const W = 900, H = 240;
+    const Y_AXIS = 140;
+
+    const tSlider = document.getElementById('tSlider');
+    const tDisplay = document.getElementById('tDisplay');
+    const pVal = document.getElementById('pVal');
+    const qVal = document.getElementById('qVal');
+    const cVal = document.getElementById('cVal');
+    const pcVal = document.getElementById('pcVal');
+    const qbVal = document.getElementById('qbVal');
+    const exprVal = document.getElementById('exprVal');
+    const pFormula = document.getElementById('pFormula');
+    const qFormula = document.getElementById('qFormula');
+    const cFormula = document.getElementById('cFormula');
+    const pcFormula = document.getElementById('pcFormula');
+    const qbFormula = document.getElementById('qbFormula');
+
+    const playBtn = document.getElementById('playBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const modeBtns = document.querySelectorAll('[data-mode]');
+
+    // ---------- 计算物理量 ----------
+    function calc(t) {
+      // 正确位置：Q 从 A 开始，P 在 Q 左侧 8 个单位
+      const xQ = A + V_PQ * t;          // -17 + 2t
+      const xP = xQ - PQ_LEN;           // -25 + 2t
+
+      // C 在 PQ 上的相对位移 PC (0 ~ 8)，锯齿波周期16
+      const period = 16;
+      const r = t % period;
+      let PC;
+      if (r <= 8) PC = r;
+      else PC = 16 - r;
+      const xC = xP + PC;
+
+      const QB = Math.abs(xQ - B);      // |2t - 32|
+      const expr = 4 * PC - QB;
+
+      return { xP, xQ, xC, PC, QB, expr };
+    }
+
+    // ---------- 获取当前模式的区间 ----------
+    function getModeRange(mode) {
+      if (mode === 'seg1') return { min: 0, max: 8 };
+      if (mode === 'seg2') return { min: 8, max: 16 };
+      if (mode === 'seg3') return { min: 16, max: 20 };
+      return { min: 0, max: 20 }; // all
+    }
+
+    // ---------- 获取当前段的代数式 ----------
+    function getFormulas(t, mode) {
+      let seg;
+      if (mode === 'seg1') seg = 1;
+      else if (mode === 'seg2') seg = 2;
+      else if (mode === 'seg3') seg = 3;
+      else {
+        if (t <= 8) seg = 1;
+        else if (t <= 16) seg = 2;
+        else seg = 3;
+      }
+      let pcExpr, qbExpr, cExpr;
+      if (seg === 1) {
+        pcExpr = 'PC = t';
+        qbExpr = 'QB = 32 − 2t';
+        cExpr = 'C = P + t';
+      } else if (seg === 2) {
+        pcExpr = 'PC = 16 − t';
+        qbExpr = 'QB = 32 − 2t';
+        cExpr = 'C = P + (16−t)';
+      } else {
+        pcExpr = 'PC = t − 16';
+        qbExpr = 'QB = 2t − 32';
+        cExpr = 'C = P + (t−16)';
+      }
+      return { pcExpr, qbExpr, cExpr };
+    }
+
+    // ---------- 绘图 ----------
+    function draw() {
+      const t = parseFloat(tSlider.value);
+      const { xP, xQ, xC, PC, QB, expr } = calc(t);
+
+      // 获取当前模式
+      let mode = 'all';
+      for (let btn of modeBtns) {
+        if (btn.classList.contains('active')) {
+          mode = btn.dataset.mode;
+          break;
+        }
+      }
+
+      // 更新数值显示
+      tDisplay.textContent = t.toFixed(2);
+      pVal.textContent = xP.toFixed(2);
+      qVal.textContent = xQ.toFixed(2);
+      cVal.textContent = xC.toFixed(2);
+      pcVal.textContent = PC.toFixed(2);
+      qbVal.textContent = QB.toFixed(2);
+      exprVal.textContent = expr.toFixed(2);
+
+      // 获取公式
+      const { pcExpr, qbExpr, cExpr } = getFormulas(t, mode);
+      pcFormula.textContent = pcExpr;
+      qbFormula.textContent = qbExpr;
+      cFormula.textContent = cExpr;
+      pFormula.textContent = 'P = −25 + 2t';
+      qFormula.textContent = 'Q = −17 + 2t';
+
+      const isTarget = Math.abs(expr - 4) < 0.01;
+      exprVal.style.background = isTarget ? '#2ecc71' : '#f1c40f';
+      exprVal.style.color = isTarget ? 'white' : 'black';
+
+      // 清空画布
+      ctx.clearRect(0, 0, W, H);
+
+      // ---------- 坐标变换 ----------
+      const xMin = -30, xMax = 30;
+      function mathToX(x) {
+        return 50 + ((x - xMin) / (xMax - xMin)) * (W - 100);
+      }
+
+      // ---------- 绘制数轴 ----------
+      ctx.beginPath();
+      ctx.moveTo(30, Y_AXIS);
+      ctx.lineTo(W - 30, Y_AXIS);
+      ctx.strokeStyle = '#2c3e50';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(W - 30, Y_AXIS);
+      ctx.lineTo(W - 38, Y_AXIS - 6);
+      ctx.moveTo(W - 30, Y_AXIS);
+      ctx.lineTo(W - 38, Y_AXIS + 6);
+      ctx.stroke();
+
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = '#2c3e50';
+      for (let x = -28; x <= 28; x += 2) {
+        const cx = mathToX(x);
+        if (cx < 25 || cx > W - 25) continue;
+        ctx.beginPath();
+        ctx.moveTo(cx, Y_AXIS - 4);
+        ctx.lineTo(cx, Y_AXIS + 4);
+        ctx.stroke();
+        ctx.fillText(x, cx, Y_AXIS + 8);
+      }
+
+      const xA = mathToX(A);
+      const xB = mathToX(B);
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textBaseline = 'bottom';
+      ctx.fillStyle = '#8e44ad';
+      ctx.fillText('A ( −17 )', xA, Y_AXIS - 12);
+      ctx.fillStyle = '#8e44ad';
+      ctx.fillText('B ( 15 )', xB, Y_AXIS - 12);
+      ctx.beginPath();
+      ctx.arc(xA, Y_AXIS, 4, 0, 2*Math.PI);
+      ctx.fillStyle = '#8e44ad';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(xB, Y_AXIS, 4, 0, 2*Math.PI);
+      ctx.fill();
+
+      // ---------- 绘制线段 PQ (用粗线) ----------
+      const xPx = mathToX(xP);
+      const xQx = mathToX(xQ);
+      ctx.beginPath();
+      ctx.moveTo(xPx, Y_AXIS - 20);
+      ctx.lineTo(xQx, Y_AXIS - 20);
+      ctx.strokeStyle = '#2c3e50';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(xPx, Y_AXIS - 24);
+      ctx.lineTo(xPx, Y_AXIS - 16);
+      ctx.moveTo(xQx, Y_AXIS - 24);
+      ctx.lineTo(xQx, Y_AXIS - 16);
+      ctx.strokeStyle = '#2c3e50';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // 标注 P（红色）、Q（蓝色）
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textBaseline = 'bottom';
+      ctx.fillStyle = '#e74c3c';
+      ctx.fillText('P', xPx, Y_AXIS - 28);
+      ctx.fillStyle = '#2980b9';
+      ctx.fillText('Q', xQx, Y_AXIS - 28);
+
+      ctx.font = '12px sans-serif';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = '#555';
+      const midPQ = (xPx + xQx)/2;
+      ctx.fillText('PQ=8', midPQ - 20, Y_AXIS - 36);
+
+      // ---------- 绘制点 C（绿色） ----------
+      const xCx = mathToX(xC);
+      ctx.beginPath();
+      ctx.arc(xCx, Y_AXIS, 10, 0, 2*Math.PI);
+      ctx.fillStyle = '#2ecc71';
+      ctx.fill();
+      ctx.strokeStyle = '#27ae60';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.font = 'bold 15px sans-serif';
+      ctx.textBaseline = 'bottom';
+      ctx.fillStyle = '#27ae60';
+      ctx.fillText('C', xCx, Y_AXIS - 18);
+      ctx.font = '11px sans-serif';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = '#27ae60';
+      ctx.fillText(xC.toFixed(1), xCx + 8, Y_AXIS + 14);
+
+      // ---------- 高亮目标时刻 ----------
+      const targets = [6, 14, 18];
+      if (targets.some(v => Math.abs(t - v) < 0.01)) {
+        ctx.beginPath();
+        ctx.moveTo(xCx, Y_AXIS - 70);
+        ctx.lineTo(xCx, Y_AXIS + 10);
+        ctx.strokeStyle = '#27ae60';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([6, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textBaseline = 'bottom';
+        ctx.fillStyle = '#27ae60';
+        ctx.fillText('✔ t=' + t.toFixed(2), xCx + 14, Y_AXIS - 60);
+      }
+
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = '#1a2634';
+      ctx.fillText('t = ' + t.toFixed(2) + ' s', 20, 10);
+      ctx.font = '16px sans-serif';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = '#1a2634';
+      ctx.fillText('4PC − QB = ' + expr.toFixed(2), 20, 34);
+      if (isTarget) {
+        ctx.fillStyle = '#27ae60';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText(' ★ 等于 4 ！', 200, 34);
+      }
+
+      let segLabel = '';
+      if (t <= 8) segLabel = '① C 从 P→Q (0~8)';
+      else if (t <= 16) segLabel = '② C 从 Q→P (8~16)';
+      else segLabel = '③ C 从 P→Q (16~20)';
+      ctx.font = '14px sans-serif';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = '#34495e';
+      ctx.fillText(segLabel, 20, 58);
+    }
+
+    // ---------- 控制逻辑 ----------
+    let playing = false;
+    let animId = null;
+
+    function stopPlay() {
+      if (animId) { cancelAnimationFrame(animId); animId = null; }
+      playing = false;
+      playBtn.textContent = '▶ 播放';
+      playBtn.classList.remove('active');
+    }
+
+    function startPlay() {
+      if (playing) return;
+      playing = true;
+      playBtn.textContent = '⏸ 暂停';
+      playBtn.classList.add('active');
+      let lastTime = performance.now();
+      let dt = 0;
+      function step(now) {
+        if (!playing) { return; }
+        const delta = (now - lastTime) / 1000;
+        lastTime = now;
+        dt += delta;
+        if (dt > 0.04) {
+          let val = parseFloat(tSlider.value) + 0.04;
+          let mode = 'all';
+          for (let btn of modeBtns) {
+            if (btn.classList.contains('active')) { mode = btn.dataset.mode; break; }
+          }
+          const range = getModeRange(mode);
+          if (val > range.max) val = range.min;
+          tSlider.value = val;
+          draw();
+          dt = 0;
+        }
+        animId = requestAnimationFrame(step);
+      }
+      animId = requestAnimationFrame(step);
+    }
+
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (playing) stopPlay();
+        modeBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const mode = this.dataset.mode;
+        const range = getModeRange(mode);
+        tSlider.min = range.min;
+        tSlider.max = range.max;
+        let val = parseFloat(tSlider.value);
+        if (val < range.min || val > range.max) {
+          tSlider.value = range.min;
+        }
+        draw();
+      });
+    });
+
+    tSlider.addEventListener('input', function() {
+      if (playing) stopPlay();
+      draw();
+    });
+
+    playBtn.addEventListener('click', function() {
+      if (playing) { stopPlay(); }
+      else { startPlay(); }
+    });
+
+    resetBtn.addEventListener('click', function() {
+      stopPlay();
+      let mode = 'all';
+      for (let btn of modeBtns) {
+        if (btn.classList.contains('active')) { mode = btn.dataset.mode; break; }
+      }
+      const range = getModeRange(mode);
+      tSlider.value = range.min;
+      draw();
+    });
+
+    canvas.addEventListener('click', function() { playBtn.click(); });
+
+    // 初始化
+    document.querySelector('[data-mode="all"]').classList.add('active');
+    tSlider.min = 0; tSlider.max = 20;
+    draw();
+  })();
+</script>
+</body>
+</html>

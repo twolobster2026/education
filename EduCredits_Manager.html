@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>课外班管理丨Twolobster · Credits Manager</title>
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f0f4f9;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px 16px;
+            color: #0f172a;
+            transition: background 0.3s ease;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;  /* 从20px调整为24px，增加模块间间距 */
+        }
+
+        /* ===== 顶部标题卡片 ===== */
+        .hero-card {
+            background: linear-gradient(135deg, #ff9a3c 0%, #ff6b6b 100%);
+            border-radius: 40px;
+            padding: 18px 28px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.18);
+            transition: background 0.3s ease;
+        }
+        .hero-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .hero-badge {
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-weight: 500;
+        }
+        .hero-sub {
+            opacity: 0.85;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* ===== 通用卡片 ===== */
+        .card {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            padding: 22px 26px;  /* 略微增加内边距，让内容更舒展 */
+            border: 1px solid #eef2ff;
+            transition: all 0.2s;
+        }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 18px;  /* 从16px增至18px，增加标题与内容的间距 */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 5px solid #3b82f6;
+            padding-left: 14px;
+            letter-spacing: -0.3px;
+        }
+
+        /* ===== 按钮 ===== */
+        .btn-primary {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+        .btn-success {
+            background: #10b981;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        .btn-danger {
+            background: #ef4444;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            color: #475569;
+            padding: 7px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .btn-outline:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: #f8fafc;
+        }
+        .btn-sm {
+            padding: 4px 14px;
+            font-size: 0.75rem;
+        }
+        .btn-secondary {
+            background: #475569;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-secondary:hover {
+            background: #334155;
+            transform: translateY(-1px);
+        }
+
+        /* ===== 输入框 ===== */
+        input,
+        select {
+            border-radius: 40px;
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            background: #f8fafc;
+            transition: border 0.2s;
+            font-family: inherit;
+            min-width: 0;
+        }
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+        }
+        input[type="date"],
+        input[type="number"] {
+            min-width: 130px;
+        }
+
+        /* ===== 班级列表 ===== */
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 6px;
+        }
+        .class-card {
+            background: white;
+            border-radius: 28px;
+            padding: 18px 20px;
+            border: 1px solid #eef2ff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .class-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.07);
+            border-color: #dbeafe;
+        }
+        .class-card:active {
+            transform: scale(0.97);
+        }
+        .class-card .name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .class-card .name .del-btn {
+            font-size: 0.9rem;
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            border-radius: 30px;
+            padding: 2px 14px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background 0.2s;
+        }
+        .class-card .name .del-btn:hover {
+            background: #fecaca;
+        }
+        .class-card .remain {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #92400e;
+            background: #fef3c7;
+            padding: 6px 16px;
+            border-radius: 30px;
+            display: inline-block;
+            align-self: flex-start;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .class-card .remain span {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #b45309;
+        }
+        .class-card .empty-tip {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        /* ===== 详情页 ===== */
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .detail-header .back-btn {
+            background: #eef2ff;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .detail-header .back-btn:hover {
+            background: #dbeafe;
+        }
+        .detail-header .class-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            flex: 1;
+        }
+        .detail-header .del-class-btn {
+            background: #fee2e2;
+            border: none;
+            color: #ef4444;
+            border-radius: 40px;
+            padding: 6px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .detail-header .del-class-btn:hover {
+            background: #fecaca;
+        }
+        .detail-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        /* 统计概览 */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        .stat-item {
+            background: #f8fafc;
+            border-radius: 24px;
+            padding: 14px 12px;
+            text-align: center;
+            border: 1px solid #eef2ff;
+        }
+        .stat-item .num {
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+        .stat-item .label {
+            font-size: 0.7rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .stat-item.buy .num {
+            color: #1d4ed8;
+        }
+        .stat-item.done .num {
+            color: #15803d;
+        }
+        .stat-item.left .num {
+            color: #92400e;
+        }
+        .stat-item.money .num {
+            color: #b45309;
+        }
+
+        /* 打卡 & 交费 区域（卡片内） */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;  /* 从10px增至12px */
+            align-items: flex-end;
+            margin-bottom: 16px;  /* 从14px增至16px */
+        }
+        .form-row .field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .form-row .field label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .form-row .field input {
+            padding: 7px 14px;
+            font-size: 0.85rem;
+        }
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            background: #f8fafc;
+            padding: 12px 18px;  /* 从10px 16px 增至12px 18px */
+            border-radius: 40px;
+            margin-bottom: 14px;  /* 从12px增至14px */
+        }
+        .filter-row label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #475569;
+        }
+        .filter-row input {
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            min-width: 120px;
+        }
+        .filter-row select {
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            min-width: 100px;
+        }
+
+        /* 记录列表 */
+        .record-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 8px;
+        }
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .record-item:last-child {
+            border-bottom: none;
+        }
+        .record-item .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .record-item .left .date {
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .record-item .left .weekday {
+            font-size: 0.75rem;
+            color: #64748b;
+            background: #eef2ff;
+            padding: 2px 10px;
+            border-radius: 30px;
+        }
+        .record-item .right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        .record-item .right .amount {
+            color: #b45309;
+        }
+        .record-item .right .hours {
+            color: #1d4ed8;
+        }
+        .record-item .del-rec {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0 8px;
+            transition: color 0.2s;
+        }
+        .record-item .del-rec:hover {
+            color: #ef4444;
+        }
+        .empty-records {
+            text-align: center;
+            color: #94a3b8;
+            padding: 20px 0;
+            font-size: 0.9rem;
+        }
+        .filter-summary {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            padding: 6px 0 10px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-summary .pagination {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .filter-summary .pagination button {
+            background: #eef2ff;
+            border: none;
+            border-radius: 30px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+        .filter-summary .pagination button:hover {
+            background: #dbeafe;
+        }
+        .filter-summary .pagination button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .filter-summary .pagination .page-info {
+            padding: 0 8px;
+            font-weight: 600;
+        }
+
+        /* ===== 模态框 ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 40px;
+            padding: 28px 30px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+            animation: modalIn 0.25s ease;
+        }
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.92) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .modal-box h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-box .form-group {
+            margin-bottom: 14px;
+        }
+        .modal-box .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+        .modal-box .form-group input {
+            width: 100%;
+            padding: 10px 16px;
+        }
+        .modal-box .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        .modal-box .modal-actions .btn-cancel {
+            background: #e2e8f0;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .modal-box .modal-actions .btn-cancel:hover {
+            background: #cbd5e1;
+        }
+
+        /* ===== 底部工具栏 ===== */
+        .footer-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer-toolbar .left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .copyright {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .theme-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .theme-buttons span {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .theme-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.15s;
+        }
+        .theme-btn:hover {
+            transform: scale(1.15);
+        }
+        .theme-btn.active-theme-dot {
+            border: 3px solid #0f172a;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+        }
+
+        /* ===== 主题 ===== */
+        body.theme-pink {
+            background: #fdf2f8;
+        }
+        body.theme-grayblue {
+            background: #eef2f7;
+        }
+        body.theme-mint {
+            background: #ecfdf5;
+        }
+        body.theme-purple {
+            background: #faf5ff;
+        }
+
+        /* ===== 隐藏工具 ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 750px) {
+            body {
+                padding: 12px 10px;
+            }
+            .container {
+                gap: 18px;  /* 移动端适当缩小，但仍比原来20px略小，保持舒适 */
+            }
+            .card {
+                padding: 16px 18px;  /* 从14px 16px 增至16px 18px */
+                border-radius: 24px;
+            }
+            .hero-card {
+                padding: 14px 18px;
+                border-radius: 32px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            .hero-title {
+                font-size: 1.2rem;
+            }
+            .hero-sub {
+                font-size: 0.7rem;
+            }
+            .hero-badge {
+                font-size: 0.65rem;
+                padding: 3px 10px;
+            }
+            .section-title {
+                font-size: 1rem;
+                padding-left: 12px;
+                margin-bottom: 14px;
+            }
+            .class-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+            .class-card .name {
+                font-size: 1.2rem;
+            }
+            .class-card .remain {
+                font-size: 1rem;
+            }
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .stat-item .num {
+                font-size: 1.3rem;
+            }
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .form-row .field {
+                width: 100%;
+            }
+            .form-row .field input {
+                width: 100%;
+            }
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+                border-radius: 24px;
+                padding: 14px 16px;
+            }
+            .filter-row input,
+            .filter-row select {
+                width: 100%;
+                min-width: unset;
+            }
+            .detail-header {
+                flex-wrap: wrap;
+            }
+            .detail-header .class-name {
+                font-size: 1.2rem;
+                width: 100%;
+                order: 3;
+            }
+            .detail-toolbar {
+                margin-left: 0;
+                width: 100%;
+                order: 4;
+            }
+            .modal-box {
+                padding: 20px 18px;
+                margin: 10px;
+            }
+            .record-item {
+                font-size: 0.82rem;
+                padding: 8px 10px;
+            }
+            .record-item .left {
+                gap: 6px;
+            }
+            .footer-toolbar {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .footer-toolbar .left {
+                justify-content: center;
+            }
+            .theme-buttons {
+                justify-content: center;
+            }
+            .btn-primary,
+            .btn-success,
+            .btn-danger,
+            .btn-secondary {
+                padding: 8px 16px;
+                font-size: 0.8rem;
+                justify-content: center;
+            }
+            .btn-outline {
+                padding: 6px 14px;
+                font-size: 0.78rem;
+            }
+            .filter-summary {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .filter-summary .pagination {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+        @media (max-width: 400px) {
+            .container {
+                gap: 14px;
+            }
+            .card {
+                padding: 12px 14px;
+            }
+            .stat-item .num {
+                font-size: 1.1rem;
+            }
+            .stat-item .label {
+                font-size: 0.6rem;
+            }
+            .hero-title {
+                font-size: 1rem;
+            }
+            .class-card .name {
+                font-size: 1rem;
+            }
+            .class-card .remain {
+                font-size: 0.9rem;
+            }
+            .record-item {
+                font-size: 0.75rem;
+                padding: 6px 8px;
+            }
+            .record-item .left .weekday {
+                font-size: 0.65rem;
+                padding: 1px 8px;
+            }
+            .section-title {
+                font-size: 0.95rem;
+                margin-bottom: 12px;
+            }
+            .form-row {
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            .filter-row {
+                padding: 10px 12px;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* ===== 滚动条美化 ===== */
+        .record-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .record-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        .record-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .record-list::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* ===== 空状态 ===== */
+        .empty-state {
+            text-align: center;
+            padding: 30px 10px;
+            color: #94a3b8;
+        }
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 8px;
+        }
+        .empty-state .text {
+            font-size: 0.9rem;
+        }
+        .empty-state .sub {
+            font-size: 0.8rem;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+
+        <!-- ===== 顶部标题 ===== -->
+        <div class="hero-card" id="heroCard">
+            <div class="hero-title">
+                课外班管理
+                <span class="hero-badge">EduCredits</span>
+            </div>
+            <div class="hero-sub">上课打卡 · 课时统计 · 缴费记录</div>
+        </div>
+
+        <!-- ===== 班级列表视图 ===== -->
+        <div id="classListView">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                    <div class="section-title" style="margin-bottom:0; border-left-color:#ff9a3c;">📋 我的课外班</div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn-primary" id="addClassBtn">＋ 添加班级</button>
+                        <button class="btn-secondary" id="exportMainBtn">📤 导出</button>
+                        <button class="btn-secondary" id="importMainBtn">📥 导入</button>
+                        <input type="file" id="importMainFile" accept=".json" style="display:none;">
+                    </div>
+                </div>
+                <div id="classGrid" class="class-grid">
+                    <!-- 动态渲染 -->
+                </div>
+                <div id="emptyClassTip" class="empty-state hidden">
+                    <div class="icon">📖</div>
+                    <div class="text">还没有课外班，点击「添加班级」开始记录吧</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 班级详情视图 ===== -->
+        <div id="classDetailView" class="hidden">
+            <!-- 头部卡片 -->
+            <div class="card">
+                <div class="detail-header">
+                    <button class="back-btn" id="backToListBtn">‹ 返回</button>
+                    <span class="class-name" id="detailClassName">班级名称</span>
+                    <div class="detail-toolbar">
+                        <button class="btn-secondary btn-sm" id="exportDetailBtn">📤 导出</button>
+                        <button class="btn-secondary btn-sm" id="importDetailBtn">📥 导入</button>
+                        <input type="file" id="importDetailFile" accept=".json" style="display:none;">
+                        <button class="del-class-btn" id="delClassBtn">🗑️ 删除</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计概览卡片 -->
+            <div class="card">
+                <div class="section-title">📊 数据概览</div>
+                <div class="stats-overview" id="statsOverview">
+                    <div class="stat-item buy"><div class="num" id="statBuy">0</div><div class="label">总买入课时</div></div>
+                    <div class="stat-item done"><div class="num" id="statDone">0</div><div class="label">已上课</div></div>
+                    <div class="stat-item left"><div class="num" id="statLeft">0</div><div class="label">剩余课时</div></div>
+                    <div class="stat-item money"><div class="num" id="statMoney">¥0</div><div class="label">总交费</div></div>
+                </div>
+            </div>
+
+            <!-- 上课打卡卡片 -->
+            <div class="card">
+                <div class="section-title">✅ 上课打卡</div>
+                <div class="form-row">
+                    <div class="field">
+                        <label>上课日期</label>
+                        <input type="date" id="recordDate">
+                    </div>
+                    <button class="btn-success" id="addRecordBtn">打卡</button>
+                    <span style="font-size:0.8rem; color:#64748b; align-self:center;" id="recordWeekday"></span>
+                </div>
+
+                <div class="filter-row">
+                    <label>📅 筛选：</label>
+                    <input type="date" id="recStartDate">
+                    <span style="color:#94a3b8;">~</span>
+                    <input type="date" id="recEndDate">
+                    <label style="margin-left:4px;">排序：</label>
+                    <select id="recSortOrder">
+                        <option value="asc">由远到近 ↑</option>
+                        <option value="desc" selected>由近到远 ↓</option>
+                    </select>
+                    <button class="btn-outline btn-sm" id="filterRecordsBtn">筛选</button>
+                    <button class="btn-outline btn-sm" id="resetRecFilterBtn">重置</button>
+                </div>
+                <div class="filter-summary" id="recFilterSummary">
+                    <span>共 0 次打卡</span>
+                    <div class="pagination" id="recPagination"></div>
+                </div>
+                <div class="record-list" id="recordList">
+                    <div class="empty-records">暂无打卡记录</div>
+                </div>
+            </div>
+
+            <!-- 交费记录卡片 -->
+            <div class="card">
+                <div class="section-title">💰 交费记录</div>
+                <div class="form-row">
+                    <div class="field">
+                        <label>交费日期</label>
+                        <input type="date" id="payDate">
+                    </div>
+                    <div class="field">
+                        <label>金额 (元)</label>
+                        <input type="number" id="payAmount" placeholder="0" step="0.01" min="0">
+                    </div>
+                    <div class="field">
+                        <label>买入课时</label>
+                        <input type="number" id="payHours" placeholder="0" step="1" min="0">
+                    </div>
+                    <button class="btn-primary" id="addPayBtn">添加</button>
+                </div>
+
+                <div class="filter-row">
+                    <label>📅 筛选：</label>
+                    <input type="date" id="payStartDate">
+                    <span style="color:#94a3b8;">~</span>
+                    <input type="date" id="payEndDate">
+                    <label style="margin-left:4px;">排序：</label>
+                    <select id="paySortOrder">
+                        <option value="asc">由远到近 ↑</option>
+                        <option value="desc" selected>由近到远 ↓</option>
+                    </select>
+                    <button class="btn-outline btn-sm" id="filterPayBtn">筛选</button>
+                    <button class="btn-outline btn-sm" id="resetPayFilterBtn">重置</button>
+                </div>
+                <div class="filter-summary" id="payFilterSummary">
+                    <span>共 0 笔，总额 ¥0</span>
+                    <div class="pagination" id="payPagination"></div>
+                </div>
+                <div class="record-list" id="payList">
+                    <div class="empty-records">暂无交费记录</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 底部工具栏 ===== -->
+        <div class="footer-toolbar">
+            <div class="left">
+                <span class="copyright">© Twolobster 丨 EduCredits Manager</span>
+            </div>
+            <div class="theme-buttons">
+                <span>🎨 主题：</span>
+                <div class="theme-btn active-theme-dot" style="background:linear-gradient(135deg,#ff9a3c,#ff6b6b);" data-theme="orange"></div>
+                <div class="theme-btn" style="background:linear-gradient(135deg,#ff9a9e,#fecfef);" data-theme="pink"></div>
+                <div class="theme-btn" style="background:linear-gradient(135deg,#2c3e50,#3498db);" data-theme="grayblue"></div>
+                <div class="theme-btn" style="background:linear-gradient(135deg,#11998e,#38ef7d);" data-theme="mint"></div>
+                <div class="theme-btn" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb);" data-theme="purple"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 添加班级模态框 ===== -->
+    <div id="addClassModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3>📚 添加课外班</h3>
+            <div class="form-group">
+                <label>班级名称</label>
+                <input type="text" id="newClassName" placeholder="如：数学思维、英语启蒙..." autofocus>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="cancelAddClass">取消</button>
+                <button class="btn-primary" id="confirmAddClass">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  数据层
+        // ============================================================
+        const STORAGE_KEY = 'twolobster_class_manager_v1';
+
+        function getDefaultData() {
+            return { classes: [] };
+        }
+
+        function loadData() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    if (data && typeof data === 'object' && Array.isArray(data.classes)) {
+                        // 兼容旧数据：为没有id的记录生成id
+                        data.classes.forEach(cls => {
+                            if (Array.isArray(cls.records)) {
+                                cls.records.forEach(r => {
+                                    if (!r.id) {
+                                        r.id = 'rec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+                                    }
+                                });
+                            }
+                            if (Array.isArray(cls.payments)) {
+                                cls.payments.forEach(p => {
+                                    if (!p.id) {
+                                        p.id = 'pay_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+                                    }
+                                });
+                            }
+                        });
+                        saveData(data); // 保存更新后的数据
+                        return data;
+                    }
+                }
+            } catch (_) { /* ignore */ }
+            return getDefaultData();
+        }
+
+        function saveData(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function getClasses() {
+            return loadData().classes;
+        }
+
+        function setClasses(classes) {
+            const data = loadData();
+            data.classes = classes;
+            saveData(data);
+        }
+
+        function findClass(id) {
+            return getClasses().find(c => c.id === id) || null;
+        }
+
+        function nextId() {
+            const classes = getClasses();
+            if (classes.length === 0) return 1;
+            return Math.max(...classes.map(c => c.id)) + 1;
+        }
+
+        function genRecordId() {
+            return 'rec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        }
+
+        function genPaymentId() {
+            return 'pay_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        }
+
+        // 工具：日期格式化
+        function formatDate(d) {
+            const dt = new Date(d + 'T00:00:00');
+            const y = dt.getFullYear();
+            const m = String(dt.getMonth() + 1).padStart(2, '0');
+            const day = String(dt.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function getWeekday(dateStr) {
+            const dt = new Date(dateStr + 'T00:00:00');
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            return weekdays[dt.getDay()];
+        }
+
+        function todayStr() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function isValidDate(str) {
+            return /^\d{4}-\d{2}-\d{2}$/.test(str);
+        }
+
+        // ============================================================
+        //  核心业务 (使用唯一ID)
+        // ============================================================
+        function addClass(name) {
+            const classes = getClasses();
+            const cls = {
+                id: nextId(),
+                name: name.trim(),
+                createdAt: todayStr(),
+                records: [],
+                payments: []
+            };
+            classes.push(cls);
+            setClasses(classes);
+            return cls;
+        }
+
+        function deleteClass(id) {
+            let classes = getClasses();
+            classes = classes.filter(c => c.id !== id);
+            setClasses(classes);
+        }
+
+        function addRecord(classId, dateStr) {
+            const classes = getClasses();
+            const cls = classes.find(c => c.id === classId);
+            if (!cls) return null;
+            const exists = cls.records.some(r => r.date === dateStr);
+            if (exists) return null;
+            const newRec = { id: genRecordId(), date: dateStr };
+            cls.records.push(newRec);
+            setClasses(classes);
+            return cls;
+        }
+
+        function deleteRecord(classId, recordId) {
+            const classes = getClasses();
+            const cls = classes.find(c => c.id === classId);
+            if (!cls) return null;
+            cls.records = cls.records.filter(r => r.id !== recordId);
+            setClasses(classes);
+            return cls;
+        }
+
+        function addPayment(classId, dateStr, amount, hours) {
+            const classes = getClasses();
+            const cls = classes.find(c => c.id === classId);
+            if (!cls) return null;
+            const newPay = {
+                id: genPaymentId(),
+                date: dateStr,
+                amount: parseFloat(amount) || 0,
+                hours: parseInt(hours) || 0
+            };
+            cls.payments.push(newPay);
+            setClasses(classes);
+            return cls;
+        }
+
+        function deletePayment(classId, paymentId) {
+            const classes = getClasses();
+            const cls = classes.find(c => c.id === classId);
+            if (!cls) return null;
+            cls.payments = cls.payments.filter(p => p.id !== paymentId);
+            setClasses(classes);
+            return cls;
+        }
+
+        function getStats(classId) {
+            const cls = findClass(classId);
+            if (!cls) return { buy: 0, done: 0, left: 0, money: 0 };
+            const buy = cls.payments.reduce((sum, p) => sum + (p.hours || 0), 0);
+            const done = cls.records.length;
+            const left = buy - done;
+            const money = cls.payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+            return { buy, done, left, money };
+        }
+
+        function getRecordsInRange(classId, startDate, endDate, sortOrder) {
+            const cls = findClass(classId);
+            if (!cls) return [];
+            let list = cls.records.slice();
+            if (startDate) list = list.filter(r => r.date >= startDate);
+            if (endDate) list = list.filter(r => r.date <= endDate);
+            if (sortOrder === 'asc') {
+                list.sort((a, b) => a.date.localeCompare(b.date));
+            } else {
+                list.sort((a, b) => b.date.localeCompare(a.date));
+            }
+            return list;
+        }
+
+        function getPaymentsInRange(classId, startDate, endDate, sortOrder) {
+            const cls = findClass(classId);
+            if (!cls) return [];
+            let list = cls.payments.slice();
+            if (startDate) list = list.filter(p => p.date >= startDate);
+            if (endDate) list = list.filter(p => p.date <= endDate);
+            if (sortOrder === 'asc') {
+                list.sort((a, b) => a.date.localeCompare(b.date));
+            } else {
+                list.sort((a, b) => b.date.localeCompare(a.date));
+            }
+            return list;
+        }
+
+        // ============================================================
+        //  导出 / 导入
+        // ============================================================
+        function exportAllData() {
+            const data = loadData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `class_backup_${todayStr()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importAllData(file, callback) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported && typeof imported === 'object' && Array.isArray(imported.classes)) {
+                        imported.classes.forEach(cls => {
+                            if (Array.isArray(cls.records)) {
+                                cls.records.forEach(r => {
+                                    if (!r.id) {
+                                        r.id = 'rec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+                                    }
+                                });
+                            }
+                            if (Array.isArray(cls.payments)) {
+                                cls.payments.forEach(p => {
+                                    if (!p.id) {
+                                        p.id = 'pay_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+                                    }
+                                });
+                            }
+                        });
+                        saveData(imported);
+                        if (callback) callback(true);
+                    } else {
+                        alert('数据格式无效，请检查文件。');
+                        if (callback) callback(false);
+                    }
+                } catch (err) {
+                    alert('文件解析失败：' + err.message);
+                    if (callback) callback(false);
+                }
+            };
+            reader.onerror = () => {
+                alert('读取文件失败');
+                if (callback) callback(false);
+            };
+            reader.readAsText(file);
+        }
+
+        // ============================================================
+        //  UI 渲染 (含分页 + 排序)
+        // ============================================================
+        let currentClassId = null;
+        let currentRecFilter = { start: '', end: '', sort: 'desc' };
+        let currentPayFilter = { start: '', end: '', sort: 'desc' };
+        let recPage = 1;
+        let payPage = 1;
+        const PAGE_SIZE = 5;
+
+        // ---- 班级列表 ----
+        function renderClassList() {
+            const classes = getClasses();
+            const grid = document.getElementById('classGrid');
+            const emptyTip = document.getElementById('emptyClassTip');
+
+            if (classes.length === 0) {
+                grid.innerHTML = '';
+                emptyTip.classList.remove('hidden');
+                return;
+            }
+            emptyTip.classList.add('hidden');
+
+            grid.innerHTML = '';
+            classes.forEach(cls => {
+                const stats = getStats(cls.id);
+                const card = document.createElement('div');
+                card.className = 'class-card';
+                card.innerHTML = `
+                    <div class="name">
+                        <span>${escapeHtml(cls.name)}</span>
+                        <button class="del-btn" data-id="${cls.id}">✕</button>
+                    </div>
+                    <div class="remain">剩余课时：<span>${stats.left}</span></div>
+                    <div class="empty-tip">点击卡片查看详情</div>
+                `;
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.del-btn')) return;
+                    openDetail(cls.id);
+                });
+                const delBtn = card.querySelector('.del-btn');
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (confirm(`确定删除「${cls.name}」吗？所有记录将丢失。`)) {
+                        deleteClass(cls.id);
+                        renderClassList();
+                        if (currentClassId === cls.id) {
+                            document.getElementById('classDetailView').classList.add('hidden');
+                            document.getElementById('classListView').classList.remove('hidden');
+                            currentClassId = null;
+                        }
+                    }
+                });
+                grid.appendChild(card);
+            });
+        }
+
+        // ---- 详情页 ----
+        function openDetail(classId) {
+            const cls = findClass(classId);
+            if (!cls) return;
+            currentClassId = classId;
+            recPage = 1;
+            payPage = 1;
+            document.getElementById('classListView').classList.add('hidden');
+            document.getElementById('classDetailView').classList.remove('hidden');
+
+            document.getElementById('detailClassName').textContent = cls.name;
+
+            const today = todayStr();
+            document.getElementById('recordDate').value = today;
+            document.getElementById('payDate').value = today;
+            document.getElementById('recStartDate').value = '';
+            document.getElementById('recEndDate').value = '';
+            document.getElementById('payStartDate').value = '';
+            document.getElementById('payEndDate').value = '';
+            document.getElementById('recSortOrder').value = 'desc';
+            document.getElementById('paySortOrder').value = 'desc';
+            currentRecFilter = { start: '', end: '', sort: 'desc' };
+            currentPayFilter = { start: '', end: '', sort: 'desc' };
+
+            renderDetail(classId);
+            updateWeekdayDisplay(today);
+        }
+
+        function renderDetail(classId) {
+            const cls = findClass(classId);
+            if (!cls) return;
+
+            const stats = getStats(classId);
+            document.getElementById('statBuy').textContent = stats.buy;
+            document.getElementById('statDone').textContent = stats.done;
+            document.getElementById('statLeft').textContent = stats.left;
+            document.getElementById('statMoney').textContent = `¥${stats.money}`;
+
+            renderRecords(classId);
+            renderPayments(classId);
+        }
+
+        // ---- 渲染打卡记录 (分页+排序) ----
+        function renderRecords(classId) {
+            const cls = findClass(classId);
+            if (!cls) return;
+            const sortOrder = document.getElementById('recSortOrder').value;
+            currentRecFilter.sort = sortOrder;
+            const allList = getRecordsInRange(classId, currentRecFilter.start, currentRecFilter.end, sortOrder);
+            const total = allList.length;
+            const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+            if (recPage > totalPages) recPage = totalPages;
+            if (recPage < 1) recPage = 1;
+            const start = (recPage - 1) * PAGE_SIZE;
+            const end = Math.min(start + PAGE_SIZE, total);
+            const pageList = allList.slice(start, end);
+
+            const container = document.getElementById('recordList');
+            const summary = document.getElementById('recFilterSummary');
+
+            summary.innerHTML = `
+                <span>共 ${total} 次打卡</span>
+                <div class="pagination" id="recPagination">
+                    <button class="rec-page-btn" data-page="${recPage - 1}" ${recPage <= 1 ? 'disabled' : ''}>‹</button>
+                    <span class="page-info">${recPage} / ${totalPages}</span>
+                    <button class="rec-page-btn" data-page="${recPage + 1}" ${recPage >= totalPages ? 'disabled' : ''}>›</button>
+                </div>
+            `;
+            document.querySelectorAll('.rec-page-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const page = parseInt(this.dataset.page);
+                    if (page >= 1 && page <= totalPages) {
+                        recPage = page;
+                        renderRecords(classId);
+                    }
+                });
+            });
+
+            if (pageList.length === 0) {
+                container.innerHTML = '<div class="empty-records">暂无打卡记录</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            pageList.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'record-item';
+                const wd = getWeekday(item.date);
+                div.innerHTML = `
+                    <div class="left">
+                        <span class="date">${item.date}</span>
+                        <span class="weekday">周${wd}</span>
+                    </div>
+                    <div class="right">
+                        <button class="del-rec" data-id="${item.id}">✕</button>
+                    </div>
+                `;
+                const delBtn = div.querySelector('.del-rec');
+                delBtn.addEventListener('click', () => {
+                    if (confirm(`删除 ${item.date} 的打卡记录？`)) {
+                        deleteRecord(classId, item.id);
+                        recPage = 1;
+                        renderDetail(classId);
+                    }
+                });
+                container.appendChild(div);
+            });
+        }
+
+        // ---- 渲染交费记录 (分页+排序) ----
+        function renderPayments(classId) {
+            const cls = findClass(classId);
+            if (!cls) return;
+            const sortOrder = document.getElementById('paySortOrder').value;
+            currentPayFilter.sort = sortOrder;
+            const allList = getPaymentsInRange(classId, currentPayFilter.start, currentPayFilter.end, sortOrder);
+            const total = allList.length;
+            const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+            if (payPage > totalPages) payPage = totalPages;
+            if (payPage < 1) payPage = 1;
+            const start = (payPage - 1) * PAGE_SIZE;
+            const end = Math.min(start + PAGE_SIZE, total);
+            const pageList = allList.slice(start, end);
+
+            const container = document.getElementById('payList');
+            const summary = document.getElementById('payFilterSummary');
+            const totalAmount = allList.reduce((s, p) => s + (p.amount || 0), 0);
+
+            summary.innerHTML = `
+                <span>共 ${total} 笔，总额 ¥${totalAmount.toFixed(2)}</span>
+                <div class="pagination" id="payPagination">
+                    <button class="pay-page-btn" data-page="${payPage - 1}" ${payPage <= 1 ? 'disabled' : ''}>‹</button>
+                    <span class="page-info">${payPage} / ${totalPages}</span>
+                    <button class="pay-page-btn" data-page="${payPage + 1}" ${payPage >= totalPages ? 'disabled' : ''}>›</button>
+                </div>
+            `;
+            document.querySelectorAll('.pay-page-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const page = parseInt(this.dataset.page);
+                    if (page >= 1 && page <= totalPages) {
+                        payPage = page;
+                        renderPayments(classId);
+                    }
+                });
+            });
+
+            if (pageList.length === 0) {
+                container.innerHTML = '<div class="empty-records">暂无交费记录</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            pageList.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'record-item';
+                div.innerHTML = `
+                    <div class="left">
+                        <span class="date">${item.date}</span>
+                        <span class="hours">${item.hours || 0} 课时</span>
+                    </div>
+                    <div class="right">
+                        <span class="amount">¥${(item.amount || 0).toFixed(2)}</span>
+                        <button class="del-rec" data-id="${item.id}">✕</button>
+                    </div>
+                `;
+                const delBtn = div.querySelector('.del-rec');
+                delBtn.addEventListener('click', function() {
+                    const payId = this.dataset.id;
+                    if (!payId) return;
+                    if (confirm(`删除 ${item.date} 的交费记录？`)) {
+                        deletePayment(classId, payId);
+                        payPage = 1;
+                        renderDetail(classId);
+                    }
+                });
+                container.appendChild(div);
+            });
+        }
+
+        function updateWeekdayDisplay(dateStr) {
+            const el = document.getElementById('recordWeekday');
+            if (dateStr && isValidDate(dateStr)) {
+                const wd = getWeekday(dateStr);
+                el.textContent = `周${wd}`;
+            } else {
+                el.textContent = '';
+            }
+        }
+
+        // ============================================================
+        //  事件绑定
+        // ============================================================
+        function initEvents() {
+
+            // ---- 添加班级 ----
+            document.getElementById('addClassBtn').addEventListener('click', () => {
+                document.getElementById('addClassModal').classList.remove('hidden');
+                document.getElementById('newClassName').value = '';
+                setTimeout(() => document.getElementById('newClassName').focus(), 100);
+            });
+            document.getElementById('cancelAddClass').addEventListener('click', () => {
+                document.getElementById('addClassModal').classList.add('hidden');
+            });
+            document.getElementById('confirmAddClass').addEventListener('click', () => {
+                const name = document.getElementById('newClassName').value.trim();
+                if (!name) { alert('请输入班级名称'); return; }
+                addClass(name);
+                document.getElementById('addClassModal').classList.add('hidden');
+                renderClassList();
+            });
+            document.getElementById('addClassModal').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) {
+                    document.getElementById('addClassModal').classList.add('hidden');
+                }
+            });
+            document.getElementById('newClassName').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') document.getElementById('confirmAddClass').click();
+                if (e.key === 'Escape') document.getElementById('cancelAddClass').click();
+            });
+
+            // ---- 返回列表 ----
+            document.getElementById('backToListBtn').addEventListener('click', () => {
+                document.getElementById('classDetailView').classList.add('hidden');
+                document.getElementById('classListView').classList.remove('hidden');
+                currentClassId = null;
+                renderClassList();
+            });
+
+            // ---- 删除班级（详情页） ----
+            document.getElementById('delClassBtn').addEventListener('click', () => {
+                if (!currentClassId) return;
+                const cls = findClass(currentClassId);
+                if (!cls) return;
+                if (confirm(`确定删除「${cls.name}」吗？所有记录将丢失。`)) {
+                    deleteClass(currentClassId);
+                    document.getElementById('classDetailView').classList.add('hidden');
+                    document.getElementById('classListView').classList.remove('hidden');
+                    currentClassId = null;
+                    renderClassList();
+                }
+            });
+
+            // ---- 打卡 ----
+            document.getElementById('addRecordBtn').addEventListener('click', () => {
+                if (!currentClassId) return;
+                const date = document.getElementById('recordDate').value;
+                if (!date) { alert('请选择日期'); return; }
+                const result = addRecord(currentClassId, date);
+                if (!result) {
+                    alert('该日期已打卡，请勿重复打卡');
+                    return;
+                }
+                recPage = 1;
+                renderDetail(currentClassId);
+                updateWeekdayDisplay(date);
+            });
+
+            document.getElementById('recordDate').addEventListener('change', (e) => {
+                updateWeekdayDisplay(e.target.value);
+            });
+
+            // ---- 打卡筛选 + 排序 ----
+            document.getElementById('filterRecordsBtn').addEventListener('click', () => {
+                if (!currentClassId) return;
+                const start = document.getElementById('recStartDate').value;
+                const end = document.getElementById('recEndDate').value;
+                if (start && end && start > end) {
+                    alert('开始日期不能晚于结束日期');
+                    return;
+                }
+                currentRecFilter.start = start;
+                currentRecFilter.end = end;
+                recPage = 1;
+                renderRecords(currentClassId);
+            });
+            document.getElementById('resetRecFilterBtn').addEventListener('click', () => {
+                document.getElementById('recStartDate').value = '';
+                document.getElementById('recEndDate').value = '';
+                document.getElementById('recSortOrder').value = 'desc';
+                currentRecFilter = { start: '', end: '', sort: 'desc' };
+                recPage = 1;
+                renderRecords(currentClassId);
+            });
+            document.getElementById('recSortOrder').addEventListener('change', () => {
+                if (!currentClassId) return;
+                recPage = 1;
+                renderRecords(currentClassId);
+            });
+
+            // ---- 添加交费 ----
+            document.getElementById('addPayBtn').addEventListener('click', function() {
+                if (!currentClassId) {
+                    alert('请先选择一个班级');
+                    return;
+                }
+                const date = document.getElementById('payDate').value;
+                const amount = parseFloat(document.getElementById('payAmount').value);
+                const hours = parseInt(document.getElementById('payHours').value);
+
+                if (!date) { alert('请选择交费日期'); return; }
+                if (isNaN(amount) || amount <= 0) { alert('请输入有效的金额 (大于0)'); return; }
+                if (isNaN(hours) || hours <= 0) { alert('请输入有效的课时数 (大于0)'); return; }
+
+                const result = addPayment(currentClassId, date, amount, hours);
+                if (result) {
+                    document.getElementById('payAmount').value = '';
+                    document.getElementById('payHours').value = '';
+                    payPage = 1;
+                    renderDetail(currentClassId);
+                } else {
+                    alert('添加失败，请检查班级是否存在');
+                }
+            });
+
+            // ---- 交费筛选 + 排序 ----
+            document.getElementById('filterPayBtn').addEventListener('click', () => {
+                if (!currentClassId) return;
+                const start = document.getElementById('payStartDate').value;
+                const end = document.getElementById('payEndDate').value;
+                if (start && end && start > end) {
+                    alert('开始日期不能晚于结束日期');
+                    return;
+                }
+                currentPayFilter.start = start;
+                currentPayFilter.end = end;
+                payPage = 1;
+                renderPayments(currentClassId);
+            });
+            document.getElementById('resetPayFilterBtn').addEventListener('click', () => {
+                document.getElementById('payStartDate').value = '';
+                document.getElementById('payEndDate').value = '';
+                document.getElementById('paySortOrder').value = 'desc';
+                currentPayFilter = { start: '', end: '', sort: 'desc' };
+                payPage = 1;
+                renderPayments(currentClassId);
+            });
+            document.getElementById('paySortOrder').addEventListener('change', () => {
+                if (!currentClassId) return;
+                payPage = 1;
+                renderPayments(currentClassId);
+            });
+
+            // ---- 导出 / 导入 (主页面) ----
+            document.getElementById('exportMainBtn').addEventListener('click', exportAllData);
+            document.getElementById('importMainBtn').addEventListener('click', () => {
+                document.getElementById('importMainFile').click();
+            });
+            document.getElementById('importMainFile').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    importAllData(file, (success) => {
+                        if (success) {
+                            renderClassList();
+                            if (currentClassId) {
+                                renderDetail(currentClassId);
+                            }
+                            alert('数据导入成功！');
+                        }
+                        document.getElementById('importMainFile').value = '';
+                    });
+                }
+            });
+
+            // ---- 导出 / 导入 (详情页面) ----
+            document.getElementById('exportDetailBtn').addEventListener('click', exportAllData);
+            document.getElementById('importDetailBtn').addEventListener('click', () => {
+                document.getElementById('importDetailFile').click();
+            });
+            document.getElementById('importDetailFile').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    importAllData(file, (success) => {
+                        if (success) {
+                            renderClassList();
+                            if (currentClassId) {
+                                const cls = findClass(currentClassId);
+                                if (cls) {
+                                    renderDetail(currentClassId);
+                                } else {
+                                    document.getElementById('classDetailView').classList.add('hidden');
+                                    document.getElementById('classListView').classList.remove('hidden');
+                                    currentClassId = null;
+                                    renderClassList();
+                                }
+                            } else {
+                                renderClassList();
+                            }
+                            alert('数据导入成功！');
+                        }
+                        document.getElementById('importDetailFile').value = '';
+                    });
+                }
+            });
+
+            // ---- 键盘快捷键 ----
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('addClassModal');
+                    if (!modal.classList.contains('hidden')) {
+                        modal.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        // ============================================================
+        //  主题切换
+        // ============================================================
+        function setTheme(themeName) {
+            const hero = document.getElementById('heroCard');
+            const gradients = {
+                orange: 'linear-gradient(135deg, #ff9a3c 0%, #ff6b6b 100%)',
+                pink: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+                grayblue: 'linear-gradient(135deg, #2c3e50 0%, #3498db 100%)',
+                mint: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                purple: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)'
+            };
+            hero.style.background = gradients[themeName] || gradients.orange;
+            const body = document.body;
+            ['orange', 'pink', 'grayblue', 'mint', 'purple'].forEach(t => body.classList.remove(`theme-${t}`));
+            if (themeName !== 'orange') body.classList.add(`theme-${themeName}`);
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme-dot'));
+            const activeBtn = document.querySelector(`.theme-btn[data-theme="${themeName}"]`);
+            if (activeBtn) activeBtn.classList.add('active-theme-dot');
+            localStorage.setItem('twolobster_class_theme', themeName);
+        }
+
+        function initTheme() {
+            const saved = localStorage.getItem('twolobster_class_theme') || 'orange';
+            setTheme(saved);
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const t = btn.dataset.theme;
+                    if (t) setTheme(t);
+                });
+            });
+        }
+
+        // ============================================================
+        //  工具
+        // ============================================================
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // ============================================================
+        //  初始化
+        // ============================================================
+        function init() {
+            loadData();
+
+            const classes = getClasses();
+            if (classes.length === 0) {
+                const demo = addClass('数学思维');
+                addRecord(demo.id, '2026-06-28');
+                addRecord(demo.id, '2026-06-21');
+                addRecord(demo.id, '2026-06-14');
+                addRecord(demo.id, '2026-06-07');
+                addRecord(demo.id, '2026-05-31');
+                addRecord(demo.id, '2026-05-24');
+                addRecord(demo.id, '2026-05-17');
+                addPayment(demo.id, '2026-06-01', 2000, 20);
+                addPayment(demo.id, '2026-07-01', 2000, 20);
+                addPayment(demo.id, '2026-05-01', 1800, 18);
+                const demo2 = addClass('英语启蒙');
+                addRecord(demo2.id, '2026-06-27');
+                addRecord(demo2.id, '2026-06-20');
+                addRecord(demo2.id, '2026-06-13');
+                addPayment(demo2.id, '2026-06-05', 1800, 16);
+                addPayment(demo2.id, '2026-05-05', 1600, 14);
+                const demo3 = addClass('编程入门');
+                addRecord(demo3.id, '2026-06-29');
+                addRecord(demo3.id, '2026-06-22');
+                addPayment(demo3.id, '2026-06-10', 2500, 24);
+                addPayment(demo3.id, '2026-05-10', 2000, 20);
+            }
+
+            renderClassList();
+            initEvents();
+            initTheme();
+
+            const today = todayStr();
+            document.getElementById('recordDate').value = today;
+            document.getElementById('payDate').value = today;
+            updateWeekdayDisplay(today);
+
+            console.log('📚 课外班管理已启动 | 间距优化版');
+        }
+
+        init();
+    </script>
+</body>
+</html>

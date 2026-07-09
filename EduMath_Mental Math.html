@@ -140,11 +140,10 @@
             border-color: #ff9a3c;
             background: #fff7ed;
         }
+        /* active 样式由 JavaScript 内联控制，此处只保留基础色作为 fallback */
         .type-btn.active {
-            background: #ff9a3c;
             color: white;
-            border-color: #ff9a3c;
-            box-shadow: 0 2px 8px rgba(255, 154, 60, 0.35);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
         }
 
         /* 倒计时区域 */
@@ -737,6 +736,8 @@
                         <button class="type-btn" data-type="乘法口诀乘除法">乘法口诀乘除法</button>
                         <button class="type-btn" data-type="平方数口算">平方数口算 (10-25)</button>
                         <button class="type-btn" data-type="四位数加法">四位数+四位数</button>
+                        <!-- 修改：显示文字改为 "三位数÷一位数" -->
+                        <button class="type-btn" data-type="3位数除以1位数">三位数÷一位数</button>
                     </div>
                 </div>
             </div>
@@ -830,6 +831,16 @@
 
     <script>
         (function() {
+            // ============ 全局主题颜色配置 ============
+            const THEME_COLORS = {
+                'orange': { bg: '#ff9a3c', border: '#ff9a3c' },
+                'pink': { bg: '#ff9a9e', border: '#ff9a9e' },
+                'grayblue': { bg: '#3498db', border: '#3498db' },
+                'mint': { bg: '#11998e', border: '#11998e' },
+                'purple': { bg: '#a18cd1', border: '#a18cd1' },
+            };
+            let currentTheme = 'orange';
+
             // ============ 状态变量 ============
             let questions = [];
             let currentType = '100以内加减法';
@@ -841,6 +852,7 @@
             let isFinished = false;
             let answersRevealed = false;
             let audioCtx = null;
+            let activeTypeBtn = null; // 当前选中的题型按钮
 
             // ============ DOM 引用 ============
             const questionCountInput = document.getElementById('questionCount');
@@ -910,6 +922,33 @@
                 } catch (e) { /* 静默处理 */ }
             }
 
+            // ============ 工具：清除所有题型按钮的内联样式 ============
+            function clearAllTypeBtnInlineStyles() {
+                typeButtons.querySelectorAll('.type-btn').forEach(b => {
+                    b.style.background = '';
+                    b.style.borderColor = '';
+                });
+            }
+
+            // ============ 工具：设置单个按钮的主题色 ============
+            function applyThemeToBtn(btn, themeName) {
+                if (!btn) return;
+                const colors = THEME_COLORS[themeName] || THEME_COLORS['orange'];
+                btn.style.background = colors.bg;
+                btn.style.borderColor = colors.border;
+            }
+
+            // ============ 工具：更新当前 active 按钮的颜色 ============
+            function updateActiveBtnTheme() {
+                const activeBtn = typeButtons.querySelector('.type-btn.active');
+                if (activeBtn) {
+                    applyThemeToBtn(activeBtn, currentTheme);
+                    activeTypeBtn = activeBtn;
+                } else {
+                    activeTypeBtn = null;
+                }
+            }
+
             // ============ 题目生成 ============
             function randInt(min, max) {
                 return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -975,6 +1014,16 @@
                             const a = randInt(1000, 9999);
                             const b = randInt(1000, 9999);
                             qs.push({ text: `${a} + ${b} = ?`, answer: a + b, userAnswer: null });
+                        }
+                        break;
+                    case '3位数除以1位数':
+                        for (let i = 0; i < count; i++) {
+                            const d = randInt(1, 9);
+                            const minQ = Math.ceil(100 / d);
+                            const maxQ = Math.floor(999 / d);
+                            const q = randInt(minQ, maxQ);
+                            const dividend = d * q;
+                            qs.push({ text: `${dividend} ÷ ${d} = ?`, answer: q, userAnswer: null });
                         }
                         break;
                     default:
@@ -1447,14 +1496,28 @@
             });
             generateBtn.addEventListener('click', generateNewQuestions);
 
+            // ============ 题型按钮点击 + 主题色同步 ============
             typeButtons.addEventListener('click', (e) => {
                 const btn = e.target.closest('.type-btn');
                 if (!btn) return;
                 if (isRunning && !isFinished) {
                     if (!confirm('切换题型将重置所有题目，确定吗？')) return;
                 }
+
+                // 1. 移除所有按钮的 active 类
                 typeButtons.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+
+                // 2. 清除所有按钮的内联样式（重置为未选中状态）
+                clearAllTypeBtnInlineStyles();
+
+                // 3. 当前按钮添加 active 类
                 btn.classList.add('active');
+                activeTypeBtn = btn;
+
+                // 4. 使用当前主题色设置当前按钮样式
+                applyThemeToBtn(btn, currentTheme);
+
+                // 5. 更新题型
                 currentType = btn.dataset.type;
                 resetAll();
                 questions = [];
@@ -1506,6 +1569,9 @@
 
             // ============ 主题切换 ============
             function setTheme(themeName) {
+                currentTheme = themeName;
+
+                // 更新顶部卡片渐变
                 let gradient = '';
                 switch (themeName) {
                     case 'orange':
@@ -1527,28 +1593,23 @@
                         gradient = 'linear-gradient(135deg, #ff9a3c 0%, #ff6b6b 100%)';
                 }
                 heroCard.style.background = gradient;
+
+                // 更新 body 背景
                 const body = document.body;
                 ['orange', 'pink', 'grayblue', 'mint', 'purple'].forEach(t => body.classList.remove(
                     `theme-${t}`));
                 if (themeName !== 'orange') {
                     body.classList.add(`theme-${themeName}`);
                 }
-                const activeTypeBtn = typeButtons.querySelector('.type-btn.active');
-                if (activeTypeBtn) {
-                    const themeColors = {
-                        'orange': { bg: '#ff9a3c', border: '#ff9a3c' },
-                        'pink': { bg: '#ff9a9e', border: '#ff9a9e' },
-                        'grayblue': { bg: '#3498db', border: '#3498db' },
-                        'mint': { bg: '#11998e', border: '#11998e' },
-                        'purple': { bg: '#a18cd1', border: '#a18cd1' },
-                    };
-                    const colors = themeColors[themeName] || themeColors['orange'];
-                    activeTypeBtn.style.background = colors.bg;
-                    activeTypeBtn.style.borderColor = colors.border;
-                }
+
+                // 更新当前 active 题型按钮的颜色
+                updateActiveBtnTheme();
+
+                // 主题圆点高亮
                 document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme-dot'));
                 const activeThemeBtn = document.querySelector(`.theme-btn[data-theme="${themeName}"]`);
                 if (activeThemeBtn) activeThemeBtn.classList.add('active-theme-dot');
+
                 localStorage.setItem('oral_math_theme', themeName);
             }
 

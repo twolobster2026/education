@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>阶梯电价 · 第三问交互可视化 (移动优化)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+    }
+    body {
+      background: #f4f7fb;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 12px;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background: white;
+      padding: 16px 16px 25px;
+      border-radius: 28px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+      transition: all 0.2s;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a2634;
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    /* 题目区域 */
+    .question-box {
+      background: #f8faff;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      border: 1px solid #e2e9f2;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #1e2f40;
+    }
+    .question-box .title {
+      font-weight: 600;
+      font-size: 15px;
+      color: #0b2a44;
+      margin-bottom: 4px;
+    }
+    .question-box .q-row {
+      margin: 2px 0;
+    }
+    .question-box .highlight {
+      background: #fef9f4;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border-left: 3px solid #f97316;
+      margin: 6px 0;
+    }
+    .sub-tip {
+      font-size: 13px;
+      color: #4a5a6e;
+      background: #f1f6fd;
+      padding: 8px 14px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      border-left: 4px solid #3b82f6;
+    }
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 12px 12px 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      border: 1px solid #eef2f6;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    canvas {
+      display: block;
+      width: 100% !important;
+      height: auto !important;
+      background: #fafcff;
+      border-radius: 14px;
+      border: 1px solid #e9edf2;
+      touch-action: none;
+    }
+    .controls {
+      margin-top: 18px;
+      padding: 16px 14px 14px;
+      background: #f8faff;
+      border-radius: 20px;
+      border: 1px solid #e2e9f2;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .slider-row label {
+      font-weight: 500;
+      color: #1e2a3a;
+      font-size: 15px;
+      min-width: 100px;
+    }
+    .slider-row input[type="range"] {
+      flex: 1;
+      min-width: 120px;
+      height: 8px;
+      background: #d0d9e6;
+      border-radius: 10px;
+      -webkit-appearance: none;
+      appearance: none;
+      outline: none;
+      touch-action: none;
+    }
+    .slider-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      background: #f97316;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid white;
+      box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3);
+    }
+    .slider-row input[type="range"]::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      background: #f97316;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3);
+    }
+    .slider-value {
+      font-weight: 700;
+      font-size: 20px;
+      color: #1e293b;
+      min-width: 60px;
+      text-align: center;
+      background: white;
+      padding: 2px 10px;
+      border-radius: 40px;
+      border: 1px solid #dce3ec;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: white;
+      border: 1px solid #cdd8e6;
+      padding: 12px 18px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 15px;
+      color: #1e2a3a;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      touch-action: manipulation;
+      flex: 1 1 auto;
+      min-width: 100px;
+      text-align: center;
+    }
+    .btn-primary {
+      background: #f97316;
+      border: 1px solid #f97316;
+      color: white;
+      box-shadow: 0 4px 10px rgba(249, 115, 22, 0.25);
+    }
+    .btn-primary:hover {
+      background: #ea580c;
+      transform: scale(0.98);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #bcc9db;
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .info-panel {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      background: white;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid #e6edf6;
+      align-items: center;
+    }
+    .info-item {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .info-item .label {
+      color: #5a6f87;
+      font-size: 13px;
+    }
+    .info-item .value {
+      font-weight: 700;
+      font-size: 18px;
+      color: #0b1a2a;
+    }
+    .info-item .value.green {
+      color: #16a34a;
+    }
+    .info-item .value.orange {
+      color: #f97316;
+    }
+    .badge-match,
+    .badge-nomatch {
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+    .badge-match {
+      background: #dcfce7;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+    .badge-nomatch {
+      background: #fee2e2;
+      color: #991b1b;
+      border-color: #fca5a5;
+    }
+    .step-detail {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: #f1f6fd;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #1e2f40;
+      border-left: 4px solid #3b82f6;
+    }
+    .step-detail strong {
+      color: #0f2b44;
+    }
+    .footnote {
+      font-size: 12px;
+      color: #667e9c;
+      margin-top: 12px;
+      text-align: center;
+    }
+    .copyright {
+      text-align: center;
+      font-size: 12px;
+      color: #8899b0;
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+    }
+    @media (max-width: 600px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      .container {
+        padding: 12px;
+      }
+      .slider-row label {
+        min-width: 80px;
+        font-size: 14px;
+      }
+      .slider-value {
+        font-size: 18px;
+        min-width: 50px;
+      }
+      .btn {
+        font-size: 14px;
+        padding: 10px 14px;
+        min-width: 80px;
+      }
+      .info-item .value {
+        font-size: 16px;
+      }
+      .badge-match,
+      .badge-nomatch {
+        font-size: 13px;
+        padding: 4px 12px;
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+      }
+      .step-detail {
+        font-size: 13px;
+        padding: 10px 12px;
+      }
+      .card {
+        padding: 8px 8px 10px;
+      }
+      .question-box {
+        font-size: 13px;
+        padding: 12px 14px;
+      }
+    }
+    @media (max-width: 400px) {
+      .slider-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .slider-row label {
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>⚡ 阶梯电价 · 第三问 交互图解</h1>
+
+  <!-- 完整题目 -->
+  <div class="question-box">
+    <div class="title">📋 原题</div>
+    <div class="q-row">某市居民用电电费目前实行梯度价格表：</div>
+    <div class="q-row" style="background:#f2f6fc; border-radius:8px; padding:6px 10px; margin:4px 0;">
+      • 180 千瓦时及以内：0.5 元/千瓦时<br>
+      • 大于等于 181 且小于等于 400 的部分：0.6 元/千瓦时<br>
+      • 401 千瓦时及以上部分：0.8 元/千瓦时
+    </div>
+    <div class="q-row"><strong>(1)</strong> 若月用电 150 千瓦时，应交电费 ____ 元；若月用电 250 千瓦时，应交电费 ____ 元；</div>
+    <div class="q-row"><strong>(2)</strong> 若居民王大爷家 12 月应交电费 150 元，请计算他们家 12 月的用电量；</div>
+    <div class="highlight">
+      <strong>(3)</strong> 若居民李大爷家 11、12 月份共用电 480 千瓦时（其中 11 月份用电量少于 12 月份），共交电费 262.6 元。请直接写出李大爷家这两个月的用电量。
+    </div>
+  </div>
+
+  <div class="sub-tip">
+    💡 拖动下方滑块调整 11 月用电量，图表和数据实时更新，自动验证是否满足条件。
+  </div>
+
+  <div class="grid-2col">
+    <div class="card">
+      <div class="card-title">📈 电费函数曲线</div>
+      <canvas id="feeChart"></canvas>
+      <div style="font-size:11px;color:#7a8aa0;text-align:center;margin-top:4px;">蓝色折线 · 橙色点为当前月份电费</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 双月电费对比</div>
+      <canvas id="barChart"></canvas>
+      <div style="font-size:11px;color:#7a8aa0;text-align:center;margin-top:4px;">蓝色=11月 · 橙色=12月 · 虚线为目标总电费 262.6</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="slider-row">
+      <label for="xSlider">🌙 11月用电 (千瓦时)</label>
+      <input type="range" id="xSlider" min="1" max="239" value="78" step="1">
+      <span class="slider-value" id="xDisplay">78</span>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="autoBtn">▶ 自动演示</button>
+      <button class="btn btn-outline" id="resetBtn">⟳ 重置 78</button>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+      <div class="info-item"><span class="label">11月电费</span><span class="value" id="fee1Display">39.0</span></div>
+      <div class="info-item"><span class="label">12月电费</span><span class="value" id="fee2Display">223.6</span></div>
+      <div class="info-item"><span class="label">合计</span><span class="value" id="totalDisplay">262.6</span></div>
+      <div id="matchBadge" class="badge-match">✅ 答案匹配</div>
+    </div>
+
+    <div class="step-detail" id="stepDetail">
+      <strong>📝 当前推导：</strong> 11月用电 <span id="stepX">78</span> 千瓦时，12月用电 <span id="stepY">402</span> 千瓦时。<br>
+      11月：<span id="stepCalc1">78 × 0.5 = 39.0</span> 元。<br>
+      12月：<span id="stepCalc2">180×0.5 + 220×0.6 + 2×0.8 = 223.6</span> 元。<br>
+      <strong>合计 = <span id="stepTotal">262.6</span> 元 </strong>
+    </div>
+  </div>
+  <div class="footnote">💡 拖动滑块或点击“自动演示”，观察电量变化对电费的影响，精准定位 x=78。</div>
+  <div class="copyright">©Twolobster丨EduMath Tiered Pricing</div>
+</div>
+
+<script>
+  (function() {
+    // ----- 核心计算 -----
+    function calcFee(usage) {
+      if (usage <= 0) return 0;
+      if (usage <= 180) return 0.5 * usage;
+      if (usage <= 400) return 90 + 0.6 * (usage - 180);
+      return 222 + 0.8 * (usage - 400);
+    }
+
+    // DOM 元素
+    const canvasFee = document.getElementById('feeChart');
+    const ctxFee = canvasFee.getContext('2d');
+    const canvasBar = document.getElementById('barChart');
+    const ctxBar = canvasBar.getContext('2d');
+
+    const xSlider = document.getElementById('xSlider');
+    const xDisplay = document.getElementById('xDisplay');
+
+    const fee1Display = document.getElementById('fee1Display');
+    const fee2Display = document.getElementById('fee2Display');
+    const totalDisplay = document.getElementById('totalDisplay');
+    const matchBadge = document.getElementById('matchBadge');
+
+    const stepX = document.getElementById('stepX');
+    const stepY = document.getElementById('stepY');
+    const stepCalc1 = document.getElementById('stepCalc1');
+    const stepCalc2 = document.getElementById('stepCalc2');
+    const stepTotal = document.getElementById('stepTotal');
+
+    const autoBtn = document.getElementById('autoBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let autoInterval = null;
+    let currentX = 78;
+
+    // ----- 设置 canvas 尺寸 (自适应) -----
+    function setupCanvas(canvas) {
+      const container = canvas.parentElement;
+      const containerWidth = container.clientWidth - 16; // padding
+      const ratio = 0.65; // 宽高比
+      let width = Math.min(containerWidth, 600);
+      let height = width * ratio;
+      if (width > 600) { width = 600; height = width * ratio; }
+      canvas.width = width;
+      canvas.height = height;
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+    }
+
+    // ----- 绘制主函数 -----
+    function drawAll(x1) {
+      currentX = x1;
+      const x2 = 480 - x1;
+      const f1 = calcFee(x1);
+      const f2 = calcFee(x2);
+      const total = f1 + f2;
+
+      // 更新数值
+      xDisplay.textContent = x1;
+      fee1Display.textContent = f1.toFixed(1);
+      fee2Display.textContent = f2.toFixed(1);
+      totalDisplay.textContent = total.toFixed(1);
+
+      const match = Math.abs(total - 262.6) < 0.01;
+      if (match) {
+        matchBadge.className = 'badge-match';
+        matchBadge.textContent = '✅ 答案匹配 262.6';
+      } else {
+        matchBadge.className = 'badge-nomatch';
+        matchBadge.textContent = `❌ 合计 ${total.toFixed(1)} 元 (目标 262.6)`;
+      }
+
+      // 推导文字
+      stepX.textContent = x1;
+      stepY.textContent = x2;
+      let desc1 = '', desc2 = '';
+      let calc1 = '', calc2 = '';
+
+      if (x1 <= 180) {
+        desc1 = `(≤180) 按 0.5 元计`;
+        calc1 = `${x1} × 0.5 = ${f1.toFixed(1)}`;
+      } else if (x1 <= 400) {
+        desc1 = `(181~400) 按 0.6 元计`;
+        calc1 = `90 + (${x1}-180)×0.6 = ${f1.toFixed(1)}`;
+      } else {
+        desc1 = `(>400) 按三档计`;
+        calc1 = `222 + (${x1}-400)×0.8 = ${f1.toFixed(1)}`;
+      }
+
+      if (x2 <= 180) {
+        desc2 = `(≤180) 按 0.5 元计`;
+        calc2 = `${x2} × 0.5 = ${f2.toFixed(1)}`;
+      } else if (x2 <= 400) {
+        desc2 = `(181~400) 按 0.6 元计`;
+        calc2 = `90 + (${x2}-180)×0.6 = ${f2.toFixed(1)}`;
+      } else {
+        desc2 = `(>400) 按三档计`;
+        calc2 = `222 + (${x2}-400)×0.8 = ${f2.toFixed(1)}`;
+      }
+
+      stepCalc1.textContent = `${desc1}：${calc1}`;
+      stepCalc2.textContent = `${desc2}：${calc2}`;
+      stepTotal.textContent = total.toFixed(1);
+
+      // ----- 绘制曲线图 (feeChart) -----
+      setupCanvas(canvasFee);
+      const W = canvasFee.width, H = canvasFee.height;
+      const pad = { top: 20, bottom: 28, left: 32, right: 16 };
+      const plotW = W - pad.left - pad.right;
+      const plotH = H - pad.top - pad.bottom;
+      const maxX = 480, maxY = 320;
+
+      function toPixelX(x) { return pad.left + (x / maxX) * plotW; }
+      function toPixelY(y) { return pad.top + plotH - (y / maxY) * plotH; }
+
+      ctxFee.clearRect(0, 0, W, H);
+
+      // 坐标轴
+      ctxFee.beginPath();
+      ctxFee.strokeStyle = '#b0c0d0';
+      ctxFee.lineWidth = 1.2;
+      ctxFee.moveTo(pad.left, pad.top);
+      ctxFee.lineTo(pad.left, pad.top + plotH);
+      ctxFee.lineTo(pad.left + plotW, pad.top + plotH);
+      ctxFee.stroke();
+
+      // 网格
+      ctxFee.strokeStyle = '#e5ebf2';
+      ctxFee.lineWidth = 0.6;
+      for (let y = 0; y <= maxY; y += 50) {
+        ctxFee.beginPath();
+        ctxFee.moveTo(pad.left, toPixelY(y));
+        ctxFee.lineTo(pad.left + plotW, toPixelY(y));
+        ctxFee.stroke();
+        ctxFee.fillStyle = '#6a7f99';
+        ctxFee.font = '9px sans-serif';
+        ctxFee.textAlign = 'right';
+        ctxFee.fillText(y, pad.left - 4, toPixelY(y) + 3);
+      }
+      for (let x = 0; x <= maxX; x += 100) {
+        ctxFee.beginPath();
+        ctxFee.moveTo(toPixelX(x), pad.top);
+        ctxFee.lineTo(toPixelX(x), pad.top + plotH);
+        ctxFee.stroke();
+        ctxFee.fillStyle = '#6a7f99';
+        ctxFee.textAlign = 'center';
+        ctxFee.fillText(x, toPixelX(x), pad.top + plotH + 14);
+      }
+      ctxFee.fillStyle = '#6a7f99';
+      ctxFee.textAlign = 'center';
+      ctxFee.font = '9px sans-serif';
+      ctxFee.fillText('用电量 (千瓦时)', pad.left + plotW/2, pad.top + plotH + 24);
+      ctxFee.save();
+      ctxFee.translate(12, pad.top + plotH/2);
+      ctxFee.rotate(-Math.PI/2);
+      ctxFee.fillStyle = '#6a7f99';
+      ctxFee.textAlign = 'center';
+      ctxFee.font = '9px sans-serif';
+      ctxFee.fillText('电费 (元)', 0, 0);
+      ctxFee.restore();
+
+      // 阶梯函数分段
+      function drawSegment(xStart, xEnd, yStart, yEnd) {
+        ctxFee.beginPath();
+        ctxFee.moveTo(toPixelX(xStart), toPixelY(yStart));
+        ctxFee.lineTo(toPixelX(xEnd), toPixelY(yEnd));
+        ctxFee.strokeStyle = '#2563eb';
+        ctxFee.lineWidth = 2.5;
+        ctxFee.stroke();
+      }
+      drawSegment(0, 180, 0, 90);
+      drawSegment(180, 400, 90, 222);
+      drawSegment(400, 480, 222, 286);
+
+      // 拐点
+      ctxFee.fillStyle = '#2563eb';
+      ctxFee.beginPath();
+      ctxFee.arc(toPixelX(180), toPixelY(90), 4, 0, 2 * Math.PI);
+      ctxFee.fill();
+      ctxFee.beginPath();
+      ctxFee.arc(toPixelX(400), toPixelY(222), 4, 0, 2 * Math.PI);
+      ctxFee.fill();
+
+      // 当前月份红点
+      function drawPoint(x, y, label) {
+        const px = toPixelX(x), py = toPixelY(y);
+        ctxFee.beginPath();
+        ctxFee.arc(px, py, 6, 0, 2 * Math.PI);
+        ctxFee.fillStyle = '#f97316';
+        ctxFee.fill();
+        ctxFee.strokeStyle = 'white';
+        ctxFee.lineWidth = 2;
+        ctxFee.stroke();
+        ctxFee.fillStyle = '#1e293b';
+        ctxFee.font = 'bold 10px sans-serif';
+        ctxFee.textAlign = 'left';
+        ctxFee.fillText(`${label} (${y.toFixed(1)})`, px + 8, py - 4);
+      }
+      drawPoint(x1, f1, '11月');
+      drawPoint(x2, f2, '12月');
+
+      // ----- 绘制柱状图 (barChart) -----
+      setupCanvas(canvasBar);
+      const Wb = canvasBar.width, Hb = canvasBar.height;
+      const padB = { top: 20, bottom: 28, left: 36, right: 16 };
+      const plotWb = Wb - padB.left - padB.right;
+      const plotHb = Hb - padB.top - padB.bottom;
+      const maxBar = Math.max(f1, f2, 260);
+
+      function toPixelXb(x) { return padB.left + (x / 480) * plotWb; }
+      function toPixelYb(y) { return padB.top + plotHb - (y / maxBar) * plotHb; }
+
+      ctxBar.clearRect(0, 0, Wb, Hb);
+
+      // 网格
+      ctxBar.strokeStyle = '#e5ebf2';
+      ctxBar.lineWidth = 0.6;
+      for (let y = 0; y <= maxBar; y += 50) {
+        ctxBar.beginPath();
+        ctxBar.moveTo(padB.left, toPixelYb(y));
+        ctxBar.lineTo(padB.left + plotWb, toPixelYb(y));
+        ctxBar.stroke();
+        ctxBar.fillStyle = '#6a7f99';
+        ctxBar.font = '9px sans-serif';
+        ctxBar.textAlign = 'right';
+        ctxBar.fillText(y, padB.left - 4, toPixelYb(y) + 3);
+      }
+
+      const barW = Math.min(30, plotWb * 0.12);
+      const gap = 16;
+      const mid = padB.left + plotWb / 2;
+      const xPos1 = mid - barW - gap/2;
+      const xPos2 = mid + gap/2;
+
+      // 11月柱
+      const h1 = (f1 / maxBar) * plotHb;
+      ctxBar.fillStyle = '#3b82f6';
+      ctxBar.shadowColor = 'rgba(59,130,246,0.2)';
+      ctxBar.shadowBlur = 4;
+      ctxBar.fillRect(xPos1, padB.top + plotHb - h1, barW, h1);
+      ctxBar.shadowBlur = 0;
+      ctxBar.fillStyle = '#1e293b';
+      ctxBar.font = 'bold 10px sans-serif';
+      ctxBar.textAlign = 'center';
+      ctxBar.fillText('11月', xPos1 + barW/2, padB.top + plotHb + 16);
+      ctxBar.fillText(f1.toFixed(1), xPos1 + barW/2, padB.top + plotHb - h1 - 4);
+
+      // 12月柱
+      const h2 = (f2 / maxBar) * plotHb;
+      ctxBar.fillStyle = '#f97316';
+      ctxBar.shadowColor = 'rgba(249,115,22,0.2)';
+      ctxBar.shadowBlur = 4;
+      ctxBar.fillRect(xPos2, padB.top + plotHb - h2, barW, h2);
+      ctxBar.shadowBlur = 0;
+      ctxBar.fillStyle = '#1e293b';
+      ctxBar.font = 'bold 10px sans-serif';
+      ctxBar.fillText('12月', xPos2 + barW/2, padB.top + plotHb + 16);
+      ctxBar.fillText(f2.toFixed(1), xPos2 + barW/2, padB.top + plotHb - h2 - 4);
+
+      // 目标虚线
+      const targetY = 262.6;
+      if (targetY < maxBar) {
+        const pyTarget = toPixelYb(targetY);
+        ctxBar.beginPath();
+        ctxBar.setLineDash([5, 5]);
+        ctxBar.strokeStyle = '#16a34a';
+        ctxBar.lineWidth = 1.8;
+        ctxBar.moveTo(padB.left, pyTarget);
+        ctxBar.lineTo(padB.left + plotWb, pyTarget);
+        ctxBar.stroke();
+        ctxBar.setLineDash([]);
+        ctxBar.fillStyle = '#16a34a';
+        ctxBar.font = 'bold 9px sans-serif';
+        ctxBar.textAlign = 'right';
+        ctxBar.fillText('目标 262.6', padB.left + plotWb - 4, pyTarget - 4);
+      }
+    }
+
+    // ----- 滑块事件 -----
+    function handleSlider() {
+      let val = parseInt(xSlider.value, 10);
+      if (val < 1) val = 1;
+      if (val > 239) val = 239;
+      xSlider.value = val;
+      drawAll(val);
+    }
+
+    xSlider.addEventListener('input', handleSlider);
+
+    // ----- 自动演示 -----
+    function startAuto() {
+      if (autoInterval) {
+        clearInterval(autoInterval);
+        autoInterval = null;
+        autoBtn.textContent = '▶ 自动演示';
+        return;
+      }
+      autoBtn.textContent = '⏹ 停止';
+      let current = parseInt(xSlider.value, 10);
+      let direction = 1;
+
+      autoInterval = setInterval(() => {
+        let next = current + direction;
+        if (next > 239) { next = 238; direction = -1; }
+        if (next < 1) { next = 2; direction = 1; }
+        current = next;
+        xSlider.value = current;
+        drawAll(current);
+      }, 25);
+    }
+
+    autoBtn.addEventListener('click', startAuto);
+
+    // ----- 重置 -----
+    resetBtn.addEventListener('click', function() {
+      if (autoInterval) {
+        clearInterval(autoInterval);
+        autoInterval = null;
+        autoBtn.textContent = '▶ 自动演示';
+      }
+      xSlider.value = 78;
+      drawAll(78);
+    });
+
+    // ----- 窗口resize 重绘 -----
+    let resizeTimer = null;
+    window.addEventListener('resize', function() {
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const val = parseInt(xSlider.value, 10);
+        drawAll(val);
+        resizeTimer = null;
+      }, 100);
+    });
+
+    // ----- 初始化 -----
+    drawAll(78);
+  })();
+</script>
+</body>
+</html>

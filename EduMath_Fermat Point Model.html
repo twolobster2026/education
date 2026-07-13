@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>费马点模型 · 两种证明（初中生版）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0f0f1a;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #eee;
+            padding: 12px 8px;
+        }
+        .container {
+            max-width: 860px;
+            width: 100%;
+            background: #16213e;
+            padding: 18px 14px 22px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* ---------- 理论 ---------- */
+        .theory {
+            background: #1a1a3e;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border-left: 5px solid #ffd700;
+            transition: border-color 0.3s;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+        }
+        .theory.obtuse-mode {
+            border-left-color: #ef5350;
+        }
+        .theory h3 {
+            color: #ffd700;
+            font-size: 19px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .theory .highlight {
+            color: #ffd54f;
+            font-weight: 600;
+        }
+        .theory p {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #c8d0e0;
+            margin-bottom: 6px;
+        }
+        .theory .case-box {
+            background: #0f1f2f;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin: 8px 0;
+            border: 1px solid #2a4a6a;
+        }
+        .theory .case-box .title {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .theory .case-box .title.gold { color: #ffd700; }
+        .theory .case-box .title.red { color: #ef5350; }
+        .theory .case-box .detail {
+            font-size: 14px;
+            color: #bcc;
+            line-height: 1.6;
+        }
+        .theory .case-box .detail b {
+            color: #81c784;
+        }
+        .theory .case-box .detail .math {
+            color: #ffb74d;
+        }
+        .theory .mode-tag {
+            display: inline-block;
+            background: #2a4a6a;
+            padding: 0 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffd700;
+            margin-left: 4px;
+        }
+        .theory .mode-tag.obtuse-tag {
+            background: #5a2a2a;
+            color: #ef5350;
+        }
+
+        /* ---------- 画布 ---------- */
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            touch-action: none;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 800 / 500;
+            background: #0f3460;
+            border-radius: 16px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
+            cursor: grab;
+            touch-action: none;
+        }
+        canvas:active { cursor: grabbing; }
+
+        /* ---------- 控制区 ---------- */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px 12px;
+        }
+        .info-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px 14px;
+            background: #1a1a3e;
+            padding: 6px 14px;
+            border-radius: 40px;
+            border: 1px solid #2a3a6e;
+            flex: 1 1 auto;
+        }
+        .info-item {
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .info-item .label {
+            color: #9ab;
+            font-weight: 300;
+            font-size: 12px;
+        }
+        .info-item .value {
+            font-weight: 700;
+            font-size: 16px;
+            min-width: 40px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+        .val-blue { color: #4fc3f7; }
+        .val-green { color: #81c784; }
+        .val-orange { color: #ffb74d; }
+        .val-red { color: #ef5350; font-weight: 900; }
+        .val-white { color: #fff; }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        button {
+            background: #ffd700;
+            border: none;
+            padding: 7px 18px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a1a2e;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 0 #b38f00;
+            touch-action: manipulation;
+            min-height: 40px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #b38f00; }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #b38f00; }
+        button.stop {
+            background: #ef5350;
+            box-shadow: 0 4px 0 #b71c1c;
+            color: #fff;
+        }
+        button.stop:hover { box-shadow: 0 6px 0 #b71c1c; }
+        button.stop:active { box-shadow: 0 2px 0 #b71c1c; }
+        button.switch-btn {
+            background: #4a6a8a;
+            box-shadow: 0 4px 0 #2a4a6a;
+            color: #fff;
+        }
+        button.switch-btn:hover { box-shadow: 0 6px 0 #2a4a6a; }
+        button.switch-btn.active {
+            background: #8a3a3a;
+            box-shadow: 0 4px 0 #5a2a2a;
+        }
+        button.locate-btn {
+            background: #4caf50;
+            box-shadow: 0 4px 0 #2e7d32;
+            color: #fff;
+        }
+        button.locate-btn:hover { box-shadow: 0 6px 0 #2e7d32; }
+
+        .status {
+            font-size: 14px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            background: #1a2a4e;
+            border: 1px solid #3a5a8e;
+            text-align: center;
+            flex: 1 1 100%;
+        }
+        .status.done {
+            border-color: #4caf50;
+            color: #a5d6a7;
+            background: #1e3a2e;
+        }
+        .status.obtuse-hint {
+            border-color: #ef5350;
+            color: #ffab91;
+            background: #3a1a1a;
+        }
+
+        .footnote {
+            margin-top: 2px;
+            font-size: 13px;
+            color: #789;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .footnote span { color: #ffd54f; }
+
+        /* ---------- 版权信息 ---------- */
+        .copyright {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #556;
+            text-align: center;
+            border-top: 1px solid #2a3a4a;
+            padding-top: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ---------- 手机适配 ---------- */
+        @media (max-width: 600px) {
+            body { padding: 6px 4px; }
+            .container { padding: 10px 8px 16px; gap: 12px; }
+            .theory { padding: 10px 12px; }
+            .theory h3 { font-size: 17px; }
+            .theory p { font-size: 13px; }
+            .theory .case-box { padding: 6px 10px; }
+            .theory .case-box .detail { font-size: 13px; }
+            .info-panel { padding: 4px 10px; gap: 4px 10px; }
+            .info-item { font-size: 12px; }
+            .info-item .value { font-size: 14px; min-width: 32px; }
+            button { font-size: 13px; padding: 5px 14px; min-height: 36px; }
+            .status { font-size: 12px; padding: 3px 10px; }
+            .footnote { font-size: 11px; }
+            .copyright { font-size: 11px; padding-top: 8px; }
+        }
+        @media (max-width: 420px) {
+            .info-item .label { font-size: 10px; }
+            .info-item .value { font-size: 12px; min-width: 28px; }
+            button { font-size: 12px; padding: 4px 10px; min-height: 32px; }
+            .copyright { font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ========== 理论（初中生友好版） ========== -->
+    <div class="theory" id="theoryBox">
+        <h3>
+            📐 费马点模型
+            <span class="mode-tag" id="modeTag">锐角模式</span>
+        </h3>
+        <p><b>定义：</b>三角形内到三顶点距离之和 <span class="highlight">PA + PB + PC</span> 最小的点。</p>
+
+        <div class="case-box">
+            <div class="title gold">✅ 情况一：所有内角 ＜ 120°</div>
+            <div class="detail">
+                <b>证明（旋转拉直法）：</b> 将 △APC 绕 A 旋转 60° 得 △AP'C'。<br>
+                因为 <span class="math">AP = PP'</span>（等边），<span class="math">PC = P'C'</span>，所以<br>
+                <span class="math">PA + PB + PC = PP' + PB + P'C'</span>，这就是一条 <b>折线</b>。<br>
+                根据“两点之间线段最短”，当折线 <b>B → P → P' → C'</b> 被 <b>拉直</b>（即 B、P、P'、C' 共线）时，总和最小。<br>
+                此时 <span class="math">∠APB = ∠BPC = ∠CPA = 120°</span>，P 就是费马点。
+            </div>
+        </div>
+
+        <div class="case-box" style="border-color:#8a3a3a;">
+            <div class="title red">⚠️ 情况二：有一个内角 ≥ 120°（设 ∠A ≥ 120°）</div>
+            <div class="detail">
+                <b>为什么内部没有费马点？</b> 如果 P 在内部，则旋转后的折线 <b>B → P → P' → C'</b> 永远 <b>拉不直</b>（因为共线位置在三角形外部）。<br>
+                既然无法拉直，那最短的折线就只能“贴着”三角形的两条边走。<br>
+                当 <b>P 与 A 重合</b> 时，折线变成 <b>B → A → A → C'</b>，长度为 <span class="math">AB + AC' = AB + AC</span>（因为 AC'=AC）。<br>
+                <b>直观感受：</b> 拖动下方的红点 P，你会发现总和 <span class="math">PA+PB+PC</span> 总是 ≥ <span class="math">AB+AC</span>，只有 P 在 A 时取等号。<br>
+                <b>结论：</b> 钝角三角形的费马点就是 <b>顶点 A</b>，最小值 = <span class="math">AB + AC</span>。
+            </div>
+        </div>
+        <p style="font-size:13px; color:#889; margin-top:4px;">👇 切换「钝角三角形」后，点击「定位」或拖动 P 到 A，观察总和变化</p>
+    </div>
+
+    <!-- ========== 画布 ========== -->
+    <div class="canvas-wrapper">
+        <canvas id="canvas" width="800" height="500"></canvas>
+    </div>
+
+    <!-- ========== 控制区 ========== -->
+    <div class="controls">
+        <div class="info-panel">
+            <div class="info-item"><span class="label">📐 总长</span><span class="value val-red" id="totalLen">0.00</span></div>
+            <div class="info-item"><span class="label">🔵 BP</span><span class="value val-blue" id="lenBP">0.00</span></div>
+            <div class="info-item"><span class="label">🟢 PP'</span><span class="value val-green" id="lenPP">0.00</span></div>
+            <div class="info-item"><span class="label">🟠 P'C'</span><span class="value val-orange" id="lenPC">0.00</span></div>
+            <div class="info-item" id="refItem" style="display:none;"><span class="label">🎯 参考值 AB+AC</span><span class="value val-white" id="refVal">0.00</span></div>
+        </div>
+        <div class="btn-group">
+            <button id="switchBtn" class="switch-btn">🔀 切换钝角</button>
+            <button id="locateBtn" class="locate-btn">🎯 定位费马点</button>
+            <button id="autoBtn">▶ 自动演示</button>
+        </div>
+        <div class="status" id="statusMsg">⏳ 拖动红点 P 探索</div>
+    </div>
+
+    <div class="footnote">
+        <span>●</span> 旋转 △APC 得 △AP'C' &nbsp;|&nbsp; <span>●</span> PP' = AP &nbsp;|&nbsp; <span>●</span> 共线 / 顶点处取最小值
+    </div>
+
+    <!-- ========== 版权信息 ========== -->
+    <div class="copyright">© twolobster丨EduMath Fermat Point Model</div>
+
+</div>
+
+<script>
+    (function() {
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // ----- 两组三角形坐标 (钝角已调整，确保旋转后全部可见) -----
+        const ACUTE = {
+            A: { x: 200, y: 100 },
+            B: { x: 600, y: 120 },
+            C: { x: 380, y: 420 }
+        };
+        // 钝角三角形：∠A ≈ 132°，整体下移，旋转点不跑出顶部
+        const OBTUSE = {
+            A: { x: 300, y: 380 },
+            B: { x: 580, y: 250 },
+            C: { x: 120, y: 250 }
+        };
+
+        // 当前状态
+        let isObtuse = false;
+        let A = { ...ACUTE.A };
+        let B = { ...ACUTE.B };
+        let C = { ...ACUTE.C };
+        let P = { x: (A.x+B.x+C.x)/3, y: (A.y+B.y+C.y)/3 };
+
+        let isDragging = false;
+        let autoPlay = false;
+        let autoAngle = 0;
+        let animId = null;
+
+        // DOM
+        const totalLenEl = document.getElementById('totalLen');
+        const lenBPEl = document.getElementById('lenBP');
+        const lenPPEl = document.getElementById('lenPP');
+        const lenPCEl = document.getElementById('lenPC');
+        const refItem = document.getElementById('refItem');
+        const refVal = document.getElementById('refVal');
+        const statusMsg = document.getElementById('statusMsg');
+        const autoBtn = document.getElementById('autoBtn');
+        const switchBtn = document.getElementById('switchBtn');
+        const locateBtn = document.getElementById('locateBtn');
+        const modeTag = document.getElementById('modeTag');
+        const theoryBox = document.getElementById('theoryBox');
+
+        // ----- 工具函数 -----
+        function dist(p1, p2) {
+            return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+        }
+
+        function rotatePoint(point, center, angle) {
+            const dx = point.x - center.x;
+            const dy = point.y - center.y;
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+            return {
+                x: center.x + dx * cos - dy * sin,
+                y: center.y + dx * sin + dy * cos
+            };
+        }
+
+        function pointInTriangle(px, py, a, b, c) {
+            const d1 = (px - a.x) * (b.y - a.y) - (py - a.y) * (b.x - a.x);
+            const d2 = (px - b.x) * (c.y - b.y) - (py - b.y) * (c.x - b.x);
+            const d3 = (px - c.x) * (a.y - c.y) - (py - c.y) * (a.x - c.x);
+            const hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+            const hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+            return !(hasNeg && hasPos);
+        }
+
+        function clampPToTriangle(p) {
+            if (!pointInTriangle(p.x, p.y, A, B, C)) {
+                p.x = (A.x + B.x + C.x) / 3;
+                p.y = (A.y + B.y + C.y) / 3;
+            }
+            return p;
+        }
+
+        // ----- 计算费马点 (锐角用迭代，钝角直接返回A) -----
+        function computeFermatPoint() {
+            if (isObtuse) {
+                return { x: A.x, y: A.y };
+            }
+            let p = { x: (A.x+B.x+C.x)/3, y: (A.y+B.y+C.y)/3 };
+            const eps = 1e-6;
+            for (let iter = 0; iter < 100; iter++) {
+                let numX = 0, numY = 0, denom = 0;
+                const dA = dist(p, A);
+                const dB = dist(p, B);
+                const dC = dist(p, C);
+                if (dA < eps || dB < eps || dC < eps) break;
+                numX += A.x / dA + B.x / dB + C.x / dC;
+                numY += A.y / dA + B.y / dB + C.y / dC;
+                denom += 1/dA + 1/dB + 1/dC;
+                const newX = numX / denom;
+                const newY = numY / denom;
+                if (Math.hypot(newX - p.x, newY - p.y) < eps) {
+                    p.x = newX; p.y = newY;
+                    break;
+                }
+                p.x = newX; p.y = newY;
+            }
+            clampPToTriangle(p);
+            return p;
+        }
+
+        // ----- 绘图 -----
+        function draw() {
+            ctx.clearRect(0, 0, 800, 500);
+
+            // 三角形 ABC
+            ctx.beginPath();
+            ctx.moveTo(A.x, A.y);
+            ctx.lineTo(B.x, B.y);
+            ctx.lineTo(C.x, C.y);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(255,255,255,0.04)';
+            ctx.fill();
+            ctx.strokeStyle = '#6a8caf';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 旋转 60°（绕 A）
+            const angle = Math.PI / 3;
+            const P_rot = rotatePoint(P, A, angle);
+            const C_rot = rotatePoint(C, A, angle);
+
+            // 旋转后的三角形 AP'C'
+            ctx.beginPath();
+            ctx.moveTo(A.x, A.y);
+            ctx.lineTo(P_rot.x, P_rot.y);
+            ctx.lineTo(C_rot.x, C_rot.y);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(100,200,255,0.10)';
+            ctx.fill();
+            ctx.strokeStyle = '#4fc3f7';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5,5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 等边三角形 APP'
+            ctx.beginPath();
+            ctx.moveTo(A.x, A.y);
+            ctx.lineTo(P.x, P.y);
+            ctx.lineTo(P_rot.x, P_rot.y);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(255,215,0,0.07)';
+            ctx.fill();
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // 辅助虚线 (PA, PC)
+            ctx.beginPath();
+            ctx.moveTo(P.x, P.y);
+            ctx.lineTo(A.x, A.y);
+            ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4,6]);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(P.x, P.y);
+            ctx.lineTo(C.x, C.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 主折线 B -> P (蓝)
+            ctx.beginPath();
+            ctx.moveTo(B.x, B.y);
+            ctx.lineTo(P.x, P.y);
+            ctx.strokeStyle = '#4fc3f7';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // P -> P' (绿)
+            ctx.beginPath();
+            ctx.moveTo(P.x, P.y);
+            ctx.lineTo(P_rot.x, P_rot.y);
+            ctx.strokeStyle = '#81c784';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // P' -> C' (橙)
+            ctx.beginPath();
+            ctx.moveTo(P_rot.x, P_rot.y);
+            ctx.lineTo(C_rot.x, C_rot.y);
+            ctx.strokeStyle = '#ffb74d';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // 计算长度
+            const lenBP = dist(B, P);
+            const lenPP = dist(P, P_rot);
+            const lenPC = dist(P_rot, C_rot);
+            const total = lenBP + lenPP + lenPC;
+
+            lenBPEl.textContent = lenBP.toFixed(2);
+            lenPPEl.textContent = lenPP.toFixed(2);
+            lenPCEl.textContent = lenPC.toFixed(2);
+            totalLenEl.textContent = total.toFixed(2);
+
+            // 共线判断（仅锐角模式有意义）
+            const v1 = { x: P.x - B.x, y: P.y - B.y };
+            const v2 = { x: P_rot.x - P.x, y: P_rot.y - P.y };
+            const cross = v1.x * v2.y - v1.y * v2.x;
+            const isCollinear = Math.abs(cross) < 10.0;
+
+            // 计算参考值 AB+AC (钝角时使用)
+            const refValue = dist(A, B) + dist(A, C);
+            refVal.textContent = refValue.toFixed(2);
+
+            // 更新状态信息
+            if (isObtuse) {
+                refItem.style.display = 'inline-flex';
+                const distA = dist(P, A);
+                if (distA < 5) {
+                    statusMsg.textContent = '✅ 最小值在顶点 A 取得 (总和 = AB+AC)';
+                    statusMsg.className = 'status done';
+                } else {
+                    const diff = total - refValue;
+                    statusMsg.textContent = `当前总和 ${total.toFixed(2)}，参考值 AB+AC = ${refValue.toFixed(2)}，差值 ${diff.toFixed(2)} (≥0) 拖到 A 点或点击「定位」验证`;
+                    statusMsg.className = 'status obtuse-hint';
+                }
+            } else {
+                refItem.style.display = 'none';
+                if (isCollinear && pointInTriangle(P.x, P.y, A, B, C)) {
+                    statusMsg.textContent = '✅ 共线！此时总和最小 (费马点，三夹角120°)';
+                    statusMsg.className = 'status done';
+                } else {
+                    statusMsg.textContent = '⏳ 拖动 P 使 B-P-P\'-C\' 共线，或点击「定位」';
+                    statusMsg.className = 'status';
+                }
+            }
+
+            // 绘制顶点
+            const drawPoint = (pt, color, label, offset = {x:0, y:0}) => {
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 7, 0, 2*Math.PI);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.font = 'bold 18px sans-serif';
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(label, pt.x + offset.x, pt.y - 10 + offset.y);
+            };
+            drawPoint(A, '#ffd700', 'A', {x: -22, y: -10});
+            drawPoint(B, '#ffd700', 'B', {x: 22, y: -10});
+            drawPoint(C, '#ffd700', 'C', {x: 12, y: 18});
+            drawPoint(P, '#ff6b6b', 'P', {x: -16, y: -16});
+            drawPoint(P_rot, '#4fc3f7', "P'", {x: 16, y: -16});
+            drawPoint(C_rot, '#ffb74d', "C'", {x: 16, y: 18});
+
+            // 标注 60°
+            ctx.font = '14px sans-serif';
+            ctx.fillStyle = '#ffd700';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            const midX = (A.x + P_rot.x)/2 + 12;
+            const midY = (A.y + P_rot.y)/2 - 10;
+            ctx.fillText('60°', midX, midY);
+
+            // 钝角模式：高亮顶点 A 并显示参考线
+            if (isObtuse) {
+                // 画 ★ 标记
+                ctx.font = 'bold 22px sans-serif';
+                ctx.fillStyle = '#ef5350';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.fillText('★ 最小值点', A.x + 20, A.y - 20);
+                // 画两条参考线段 AB 和 AC（加亮）
+                ctx.beginPath();
+                ctx.moveTo(A.x, A.y);
+                ctx.lineTo(B.x, B.y);
+                ctx.strokeStyle = 'rgba(255,80,80,0.5)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4,6]);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(A.x, A.y);
+                ctx.lineTo(C.x, C.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                // 在画布右上角显示参考值
+                ctx.font = '16px sans-serif';
+                ctx.fillStyle = '#ffab91';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'top';
+                ctx.fillText(`参考值 AB+AC = ${refValue.toFixed(2)}`, 780, 10);
+                // 如果总长大于参考值，显示比较
+                if (dist(P, A) > 5) {
+                    ctx.fillStyle = '#ffb74d';
+                    ctx.fillText(`当前总和 ${total.toFixed(2)}`, 780, 35);
+                }
+            }
+        }
+
+        // ----- 切换锐角 / 钝角 -----
+        function switchMode() {
+            isObtuse = !isObtuse;
+            if (isObtuse) {
+                A = { ...OBTUSE.A };
+                B = { ...OBTUSE.B };
+                C = { ...OBTUSE.C };
+                switchBtn.textContent = '🔀 切换锐角';
+                switchBtn.classList.add('active');
+                modeTag.textContent = '钝角模式 (∠A≥120°)';
+                modeTag.className = 'mode-tag obtuse-tag';
+                theoryBox.classList.add('obtuse-mode');
+            } else {
+                A = { ...ACUTE.A };
+                B = { ...ACUTE.B };
+                C = { ...ACUTE.C };
+                switchBtn.textContent = '🔀 切换钝角';
+                switchBtn.classList.remove('active');
+                modeTag.textContent = '锐角模式 (三内角＜120°)';
+                modeTag.className = 'mode-tag';
+                theoryBox.classList.remove('obtuse-mode');
+            }
+            // 重置 P 到重心
+            const center = { x: (A.x+B.x+C.x)/3, y: (A.y+B.y+C.y)/3 };
+            P.x = center.x; P.y = center.y;
+            // 停止自动演示
+            if (autoPlay) {
+                autoPlay = false;
+                autoBtn.textContent = '▶ 自动演示';
+                autoBtn.classList.remove('stop');
+                if (animId) cancelAnimationFrame(animId);
+            }
+            draw();
+        }
+
+        // ----- 定位到费马点 -----
+        function locateFermat() {
+            const target = computeFermatPoint();
+            P.x = target.x;
+            P.y = target.y;
+            draw();
+        }
+
+        // ----- 鼠标 / 触摸事件 -----
+        function getCanvasCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+                e.preventDefault();
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function onPointerDown(e) {
+            e.preventDefault();
+            const pos = getCanvasCoords(e);
+            if (dist(pos, P) < 30) {
+                isDragging = true;
+                canvas.style.cursor = 'grabbing';
+            }
+        }
+
+        function onPointerMove(e) {
+            e.preventDefault();
+            const pos = getCanvasCoords(e);
+            if (isDragging) {
+                P.x = pos.x;
+                P.y = pos.y;
+                clampPToTriangle(P);
+                draw();
+            } else {
+                if (dist(pos, P) < 30) canvas.style.cursor = 'grab';
+                else canvas.style.cursor = 'default';
+            }
+        }
+
+        function onPointerUp(e) {
+            if (isDragging) {
+                isDragging = false;
+                canvas.style.cursor = 'default';
+                draw();
+            }
+        }
+
+        canvas.addEventListener('mousedown', onPointerDown);
+        window.addEventListener('mousemove', (e) => { if (isDragging) onPointerMove(e); });
+        window.addEventListener('mouseup', onPointerUp);
+        canvas.addEventListener('touchstart', onPointerDown, { passive: false });
+        canvas.addEventListener('touchmove', onPointerMove, { passive: false });
+        canvas.addEventListener('touchend', onPointerUp, { passive: false });
+        canvas.addEventListener('touchcancel', onPointerUp, { passive: false });
+
+        // ----- 自动演示 -----
+        function autoDemo() {
+            if (!autoPlay) return;
+            autoAngle += 0.012;
+            const cx = (A.x + B.x + C.x) / 3;
+            const cy = (A.y + B.y + C.y) / 3;
+            const rx = 80, ry = 60;
+            const px = cx + rx * Math.cos(autoAngle) * 0.8 + 40 * Math.sin(autoAngle * 0.7);
+            const py = cy + ry * Math.sin(autoAngle) * 0.9 + 20 * Math.cos(autoAngle * 0.5);
+            const clamped = clampPToTriangle({x: px, y: py});
+            P.x = clamped.x;
+            P.y = clamped.y;
+            draw();
+            animId = requestAnimationFrame(autoDemo);
+        }
+
+        autoBtn.addEventListener('click', () => {
+            autoPlay = !autoPlay;
+            if (autoPlay) {
+                autoBtn.textContent = '⏹ 停止';
+                autoBtn.classList.add('stop');
+                if (animId) cancelAnimationFrame(animId);
+                autoDemo();
+            } else {
+                autoBtn.textContent = '▶ 自动演示';
+                autoBtn.classList.remove('stop');
+                if (animId) {
+                    cancelAnimationFrame(animId);
+                    animId = null;
+                }
+            }
+        });
+
+        // ----- 切换 & 定位 -----
+        switchBtn.addEventListener('click', switchMode);
+        locateBtn.addEventListener('click', locateFermat);
+
+        // ----- 启动 -----
+        clampPToTriangle(P);
+        draw();
+        window.addEventListener('resize', draw);
+    })();
+</script>
+</body>
+</html>

@@ -736,8 +736,9 @@
                         <button class="type-btn" data-type="乘法口诀乘除法">乘法口诀乘除法</button>
                         <button class="type-btn" data-type="平方数口算">平方数口算 (10-25)</button>
                         <button class="type-btn" data-type="四位数加法">四位数+四位数</button>
-                        <!-- 修改：显示文字改为 "三位数÷一位数" -->
                         <button class="type-btn" data-type="3位数除以1位数">三位数÷一位数</button>
+                        <!-- 新增题型 -->
+                        <button class="type-btn" data-type="20以内小数加减法">20以内小数加减法</button>
                     </div>
                 </div>
             </div>
@@ -1026,6 +1027,47 @@
                             qs.push({ text: `${dividend} ÷ ${d} = ?`, answer: q, userAnswer: null });
                         }
                         break;
+                    // 新增：20以内小数加减法
+                    case '20以内小数加减法':
+                        for (let i = 0; i < count; i++) {
+                            let a, b, isAdd, result;
+                            let attempts = 0;
+                            while (attempts < 100) {
+                                // 生成0.1到19.9的一位小数（整数部分0-19，小数位0-9）
+                                let aInt = randInt(1, 199); // 1~199 对应0.1~19.9
+                                let bInt = randInt(1, 199);
+                                a = aInt / 10;
+                                b = bInt / 10;
+                                isAdd = Math.random() > 0.5;
+                                if (isAdd) {
+                                    result = a + b;
+                                    if (result <= 20 && result >= 0) break;
+                                } else {
+                                    if (a >= b) {
+                                        result = a - b;
+                                        if (result <= 20 && result >= 0) break;
+                                    } else {
+                                        // 交换确保非负
+                                        let temp = a;
+                                        a = b;
+                                        b = temp;
+                                        result = a - b;
+                                        if (result <= 20 && result >= 0) break;
+                                    }
+                                }
+                                attempts++;
+                            }
+                            // 保底
+                            if (attempts >= 100) {
+                                a = 1.5;
+                                b = 0.5;
+                                isAdd = true;
+                                result = 2.0;
+                            }
+                            let text = isAdd ? `${a.toFixed(1)} + ${b.toFixed(1)} = ?` : `${a.toFixed(1)} - ${b.toFixed(1)} = ?`;
+                            qs.push({ text: text, answer: result, userAnswer: null });
+                        }
+                        break;
                     default:
                         for (let i = 0; i < count; i++) {
                             const a = randInt(5, 90);
@@ -1092,22 +1134,31 @@
                 }
             }
 
+            // 使用容差比较，适应小数运算
+            function isAnswerCorrect(userAns, correct) {
+                if (userAns === null || userAns === '') return false;
+                const num = Number(userAns);
+                if (isNaN(num)) return false;
+                return Math.abs(num - correct) < 1e-9;
+            }
+
             function updateBadge(idx, q) {
                 const badge = document.getElementById(`q-badge-${idx}`);
                 const icon = document.getElementById(`q-icon-${idx}`);
                 const card = document.getElementById(`q-card-${idx}`);
                 if (!badge || !icon || !card) return;
                 badge.classList.add('visible');
-                badge.textContent = q.answer;
+                // 显示答案，保留最多两位小数
+                badge.textContent = Number.isInteger(q.answer) ? q.answer : q.answer.toFixed(2);
                 icon.classList.add('visible');
 
-                if (q.userAnswer !== null && Number(q.userAnswer) === q.answer) {
+                if (q.userAnswer !== null && isAnswerCorrect(q.userAnswer, q.answer)) {
                     badge.className = 'q-answer-badge visible user-correct';
                     icon.textContent = '✅';
                     icon.className = 'q-result-icon visible';
                     card.classList.add('correct-flash');
                     card.classList.remove('wrong-flash', 'unanswered-flash');
-                } else if (q.userAnswer !== null && Number(q.userAnswer) !== q.answer) {
+                } else if (q.userAnswer !== null && !isAnswerCorrect(q.userAnswer, q.answer)) {
                     badge.className = 'q-answer-badge visible user-wrong';
                     icon.textContent = '❌';
                     icon.className = 'q-result-icon visible';
@@ -1158,7 +1209,7 @@
                 questions.forEach(q => {
                     if (q.userAnswer === null || q.userAnswer === '') {
                         unanswered++;
-                    } else if (Number(q.userAnswer) === q.answer) {
+                    } else if (isAnswerCorrect(q.userAnswer, q.answer)) {
                         correct++;
                     } else {
                         wrong++;

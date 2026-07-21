@@ -737,8 +737,9 @@
                         <button class="type-btn" data-type="平方数口算">平方数口算 (10-25)</button>
                         <button class="type-btn" data-type="四位数加法">四位数+四位数</button>
                         <button class="type-btn" data-type="3位数除以1位数">三位数÷一位数</button>
-                        <!-- 新增题型 -->
                         <button class="type-btn" data-type="20以内小数加减法">20以内小数加减法</button>
+                        <!-- 新增50以内小数加减法 -->
+                        <button class="type-btn" data-type="50以内小数加减法">50以内小数加减法</button>
                     </div>
                 </div>
             </div>
@@ -955,6 +956,12 @@
                 return Math.floor(Math.random() * (max - min + 1)) + min;
             }
 
+            // 辅助：格式化数字，整数时不保留小数位
+            function formatNum(v) {
+                if (Number.isInteger(v)) return v.toString();
+                else return v.toFixed(1);
+            }
+
             function generateQuestions() {
                 const count = parseInt(questionCountInput.value) || 20;
                 const type = currentType;
@@ -1027,14 +1034,13 @@
                             qs.push({ text: `${dividend} ÷ ${d} = ?`, answer: q, userAnswer: null });
                         }
                         break;
-                    // 新增：20以内小数加减法
+                    // 20以内小数加减法
                     case '20以内小数加减法':
                         for (let i = 0; i < count; i++) {
                             let a, b, isAdd, result;
                             let attempts = 0;
                             while (attempts < 100) {
-                                // 生成0.1到19.9的一位小数（整数部分0-19，小数位0-9）
-                                let aInt = randInt(1, 199); // 1~199 对应0.1~19.9
+                                let aInt = randInt(1, 199);
                                 let bInt = randInt(1, 199);
                                 a = aInt / 10;
                                 b = bInt / 10;
@@ -1047,7 +1053,6 @@
                                         result = a - b;
                                         if (result <= 20 && result >= 0) break;
                                     } else {
-                                        // 交换确保非负
                                         let temp = a;
                                         a = b;
                                         b = temp;
@@ -1057,14 +1062,51 @@
                                 }
                                 attempts++;
                             }
-                            // 保底
                             if (attempts >= 100) {
                                 a = 1.5;
                                 b = 0.5;
                                 isAdd = true;
                                 result = 2.0;
                             }
-                            let text = isAdd ? `${a.toFixed(1)} + ${b.toFixed(1)} = ?` : `${a.toFixed(1)} - ${b.toFixed(1)} = ?`;
+                            let text = isAdd ? `${formatNum(a)} + ${formatNum(b)} = ?` : `${formatNum(a)} - ${formatNum(b)} = ?`;
+                            qs.push({ text: text, answer: result, userAnswer: null });
+                        }
+                        break;
+                    // 50以内小数加减法（新增）
+                    case '50以内小数加减法':
+                        for (let i = 0; i < count; i++) {
+                            let a, b, isAdd, result;
+                            let attempts = 0;
+                            while (attempts < 100) {
+                                let aInt = randInt(1, 499); // 0.1~49.9
+                                let bInt = randInt(1, 499);
+                                a = aInt / 10;
+                                b = bInt / 10;
+                                isAdd = Math.random() > 0.5;
+                                if (isAdd) {
+                                    result = a + b;
+                                    if (result <= 50 && result >= 0) break;
+                                } else {
+                                    if (a >= b) {
+                                        result = a - b;
+                                        if (result <= 50 && result >= 0) break;
+                                    } else {
+                                        let temp = a;
+                                        a = b;
+                                        b = temp;
+                                        result = a - b;
+                                        if (result <= 50 && result >= 0) break;
+                                    }
+                                }
+                                attempts++;
+                            }
+                            if (attempts >= 100) {
+                                a = 2.5;
+                                b = 1.5;
+                                isAdd = true;
+                                result = 4.0;
+                            }
+                            let text = isAdd ? `${formatNum(a)} + ${formatNum(b)} = ?` : `${formatNum(a)} - ${formatNum(b)} = ?`;
                             qs.push({ text: text, answer: result, userAnswer: null });
                         }
                         break;

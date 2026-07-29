@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+    <title>两中点距离与动点关系</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+            padding: 16px;
+            color: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.10);
+            padding: 24px 28px 20px;
+            transition: all 0.2s;
+        }
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0 0 6px 0;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        h1 small {
+            font-size: 16px;
+            font-weight: 400;
+            color: #475569;
+        }
+        .subhead {
+            color: #475569;
+            margin-top: -2px;
+            margin-bottom: 18px;
+            font-size: 15px;
+            border-left: 4px solid #3b82f6;
+            padding-left: 14px;
+            background: #f8fafc;
+            border-radius: 0 12px 12px 0;
+            padding: 8px 16px;
+        }
+        .canvas-box {
+            background: #fafcff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 12px 10px 6px 10px;
+            margin-bottom: 8px;
+        }
+        .canvas-box canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 860 / 240;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e9edf2;
+            touch-action: none;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 20px;
+            margin: 10px 0 6px 0;
+        }
+        .controls label {
+            font-weight: 500;
+            font-size: 15px;
+        }
+        .controls input[type="range"] {
+            flex: 2;
+            min-width: 160px;
+            accent-color: #3b82f6;
+            height: 6px;
+            border-radius: 10px;
+        }
+        .controls .val {
+            font-family: 'Courier New', monospace;
+            background: #eef2f6;
+            padding: 2px 14px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+        }
+        .controls button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 15px;
+        }
+        .controls button:hover {
+            background: #2563eb;
+            transform: scale(1.02);
+        }
+        .controls button.secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .controls button.secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .info-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 24px;
+            background: #f1f4f9;
+            border-radius: 16px;
+            padding: 10px 18px;
+            margin: 6px 0 14px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            border: 1px solid #e2e8f0;
+        }
+        .info-panel .item {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            background: white;
+            padding: 2px 14px;
+            border-radius: 30px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .info-panel .item .label {
+            color: #64748b;
+            font-weight: 400;
+        }
+        .info-panel .item .value {
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .info-panel .item .highlight {
+            color: #dc2626;
+            background: #fef2f2;
+            padding: 0 6px;
+            border-radius: 6px;
+        }
+
+        .step-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 18px 0 6px 0;
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 16px 20px;
+            border: 1px solid #e9edf2;
+        }
+        .step-area .formula-box {
+            flex: 2;
+            min-width: 220px;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 12px 18px;
+            border-left: 6px solid #3b82f6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+        .step-area .formula-box .cancel {
+            background: #fef9c3;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            color: #92400e;
+            border: 1px dashed #f59e0b;
+        }
+        .step-area .formula-box .highlight-red {
+            color: #dc2626;
+            font-weight: 700;
+        }
+        .step-area .formula-box .highlight-blue {
+            color: #2563eb;
+            font-weight: 700;
+        }
+        .step-area .explain-text {
+            flex: 1;
+            min-width: 160px;
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 12px 18px;
+            font-size: 14px;
+            line-height: 1.7;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .step-area .explain-text strong {
+            color: #1e40af;
+        }
+        .step-area .explain-text .tag {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            border-radius: 40px;
+            padding: 0 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .conclusion-box {
+            margin-top: 18px;
+            background: linear-gradient(135deg, #eff6ff, #faf5ff);
+            border-radius: 20px;
+            padding: 16px 22px;
+            border: 2px solid #bfdbfe;
+        }
+        .conclusion-box h3 {
+            margin: 0 0 6px 0;
+            color: #1e40af;
+            font-size: 18px;
+        }
+        .conclusion-box p {
+            margin: 6px 0;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 28px;
+            padding-top: 14px;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 700px) {
+            .container { padding: 14px; }
+            h1 { font-size: 20px; }
+            .controls { gap: 8px; }
+            .controls input[type="range"] { min-width: 100px; }
+            .info-panel { font-size: 13px; gap: 6px; }
+            .step-area { flex-direction: column; }
+            .step-area .formula-box { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>
+        📐 两中点距离与动点关系
+    </h1>
+    <div class="subhead">
+        固定点 A、C 与动点 M ， P 是 AM 中点 ， Q 是 CM 中点 ， 所有点都在同一直线上 ， 观察 PQ 恒定
+    </div>
+
+    <!-- 画布 -->
+    <div class="canvas-box">
+        <canvas id="mainCanvas" width="860" height="240"></canvas>
+    </div>
+
+    <!-- 控制栏 -->
+    <div class="controls">
+        <label for="mSlider">动点 M 位置：</label>
+        <input type="range" id="mSlider" min="-3.0" max="7.0" step="0.02" value="2.5" />
+        <span class="val" id="mVal">2.50</span>
+        <button id="playBtn">▶ 自动演示</button>
+        <button id="resetBtn" class="secondary">⟲ 重置</button>
+    </div>
+
+    <!-- 实时数据面板 -->
+    <div class="info-panel" id="infoPanel">
+        <span class="item"><span class="label">A =</span> <span class="value" id="aVal">0.00</span></span>
+        <span class="item"><span class="label">C =</span> <span class="value" id="cVal">2.00</span></span>
+        <span class="item"><span class="label">M =</span> <span class="value highlight" id="mDisplay">2.50</span></span>
+        <span class="item"><span class="label">P = (A+M)/2 =</span> <span class="value" id="pVal">1.25</span></span>
+        <span class="item"><span class="label">Q = (C+M)/2 =</span> <span class="value" id="qVal">2.25</span></span>
+        <span class="item"><span class="label">PQ = |P−Q| =</span> <span class="value" id="pqVal">1.00</span></span>
+    </div>
+
+    <!-- 分步推导 + 抵消展示 -->
+    <div class="step-area">
+        <div class="formula-box" id="formulaBox">
+            <div style="font-weight:600; margin-bottom:4px;">📝 代数推导 · 动点 M 如何抵消</div>
+            <div id="formulaContent">
+                <!-- 初始内容会在 JS 中动态更新，此处仅作占位 -->
+            </div>
+            <div style="margin-top:6px; font-size:14px; color:#475569;">
+                ⚡ <span class="cancel">划掉的部分</span> 就是动点 M 的坐标，<strong>完全抵消</strong>，剩下只与 A、C 有关！
+            </div>
+        </div>
+        <div class="explain-text">
+            <div><span class="tag">💡 核心原因</span></div>
+            <p style="margin-top:8px;">
+                <strong>P</strong> 和 <strong>Q</strong> 都包含了 <strong>同一个 M</strong>，
+                且系数都是 <strong>+1/2</strong>。
+            </p>
+            <p>
+                相减时 <strong>+M/2 − (+M/2) = 0</strong>，
+                所以 M 被彻底消去，<br/>
+                <span style="background:#fef9c3; padding:2px 8px; border-radius:12px;">
+                    PQ 永远等于 |A−C| / 2
+                </span>
+            </p>
+            <p style="font-size:13px; color:#475569; margin-top:4px;">
+                👆 拖动滑块或点击播放，观察 M 移动时 P、Q 同步平移，PQ 不变。
+            </p>
+        </div>
+    </div>
+
+    <!-- 结论 + 口诀 -->
+    <div class="conclusion-box">
+        <h3>🧠 终极结论 · 为什么“中点距离直接减”必然抵消？</h3>
+        <p>
+            <strong>数学本质：</strong> 设两个中点分别为
+            <span style="font-family:monospace; background:#eef2f6; padding:0 8px; border-radius:8px;">P = (A + M)/2</span>
+            和
+            <span style="font-family:monospace; background:#eef2f6; padding:0 8px; border-radius:8px;">Q = (C + M)/2</span>。
+            因为 <strong>两个式子中都含有完全相同的 <span style="color:#dc2626;">+M/2</span></strong>，
+            所以计算距离 <span style="font-family:monospace;">|P − Q|</span> 时，<span style="color:#dc2626; font-weight:700;">+M/2 和 +M/2 正好一减为 0</span>，
+            剩下的只有 <span style="font-family:monospace; background:#fef9c3; padding:0 8px; border-radius:8px;">|A − C| / 2</span>，
+            与动点 M 的位置 <strong>完全无关</strong>！
+        </p>
+        <p style="margin-top:6px; font-weight:500; color:#1e40af;">
+            🎯 口诀：<em>“同点同系数，相减必抵消；中点连中点，距离只由端点定。”</em>
+        </p>
+    </div>
+
+    <div class="copyright">© Twolobster丨EduMath Midpoint and Moving Point</div>
+</div>
+
+<script>
+    (function() {
+        // ----- 固定参数 -----
+        const A = 0;
+        const C = 2;          // 固定 C 点坐标，使 AC = 2，则 PQ = 1 恒定
+        const MIN_M = -3.0;
+        const MAX_M = 7.0;
+
+        // ----- DOM 引用 -----
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('mSlider');
+        const mVal = document.getElementById('mVal');
+        const mDisplay = document.getElementById('mDisplay');
+        const aVal = document.getElementById('aVal');
+        const cVal = document.getElementById('cVal');
+        const pVal = document.getElementById('pVal');
+        const qVal = document.getElementById('qVal');
+        const pqVal = document.getElementById('pqVal');
+        const formulaContent = document.getElementById('formulaContent');
+        const playBtn = document.getElementById('playBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // ----- 状态 -----
+        let M = 2.5;
+        let playing = false;
+        let animId = null;
+        let direction = 1;
+
+        // ----- 绘图函数 (所有点共线) -----
+        function draw(m) {
+            const w = canvas.width;
+            const h = canvas.height;
+            const yBase = 120;          // 数轴垂直位置，所有点都在此水平线上
+            const xMin = -4.0;
+            const xMax = 8.0;
+            const scale = (w - 100) / (xMax - xMin);
+            const offset = 60;
+
+            function toX(x) { return offset + (x - xMin) * scale; }
+
+            ctx.clearRect(0, 0, w, h);
+
+            // ---- 画数轴 ----
+            ctx.beginPath();
+            ctx.moveTo(30, yBase);
+            ctx.lineTo(w - 30, yBase);
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            // 箭头
+            ctx.beginPath();
+            ctx.moveTo(w - 30, yBase);
+            ctx.lineTo(w - 42, yBase - 10);
+            ctx.lineTo(w - 42, yBase + 10);
+            ctx.closePath();
+            ctx.fillStyle = '#94a3b8';
+            ctx.fill();
+
+            // ---- 刻度标签 ----
+            const fixedLabels = [
+                { x: A, label: 'A', color: '#2563eb' },
+                { x: C, label: 'C', color: '#2563eb' }
+            ];
+            fixedLabels.forEach(item => {
+                const x = toX(item.x);
+                ctx.beginPath();
+                ctx.moveTo(x, yBase - 8);
+                ctx.lineTo(x, yBase + 8);
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.label, x, yBase - 22);
+                // 固定点大圆
+                ctx.beginPath();
+                ctx.arc(x, yBase, 8, 0, 2 * Math.PI);
+                ctx.fillStyle = item.color;
+                ctx.fill();
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // ---- 动点 M ----
+            const mx = toX(m);
+            ctx.beginPath();
+            ctx.arc(mx, yBase, 10, 0, 2 * Math.PI);
+            ctx.fillStyle = '#7c3aed';
+            ctx.fill();
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+            ctx.fillStyle = '#7c3aed';
+            ctx.font = 'bold 17px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('M', mx, yBase - 30);
+            // M 坐标值
+            ctx.fillStyle = '#475569';
+            ctx.font = '14px sans-serif';
+            ctx.fillText(`(${m.toFixed(2)})`, mx, yBase + 28);
+
+            // ---- P (AM 中点) ----
+            const P = (A + m) / 2;
+            const px = toX(P);
+            ctx.beginPath();
+            ctx.arc(px, yBase, 8, 0, 2 * Math.PI);
+            ctx.fillStyle = '#0891b2';
+            ctx.fill();
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = '#0891b2';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('P', px, yBase - 30);
+            ctx.fillStyle = '#475569';
+            ctx.font = '13px sans-serif';
+            ctx.fillText(`(${P.toFixed(2)})`, px, yBase + 28);
+
+            // ---- Q (CM 中点) ----
+            const Q = (C + m) / 2;
+            const qx = toX(Q);
+            ctx.beginPath();
+            ctx.arc(qx, yBase, 8, 0, 2 * Math.PI);
+            ctx.fillStyle = '#d97706';
+            ctx.fill();
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = '#d97706';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Q', qx, yBase - 30);
+            ctx.fillStyle = '#475569';
+            ctx.font = '13px sans-serif';
+            ctx.fillText(`(${Q.toFixed(2)})`, qx, yBase + 28);
+
+            // ---- 连线 PQ (红色虚线) ----
+            ctx.beginPath();
+            ctx.moveTo(px, yBase - 6);
+            ctx.lineTo(qx, yBase - 6);
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([6, 6]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            // PQ 长度标签
+            const pq = Math.abs(P - Q);
+            const midX = (px + qx) / 2;
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`PQ = ${pq.toFixed(2)}`, midX, yBase - 18);
+
+            // ---- 从 M 到 P 和 Q 的虚线 (显示中点关系) ----
+            ctx.beginPath();
+            ctx.moveTo(mx, yBase);
+            ctx.lineTo(px, yBase);
+            ctx.strokeStyle = 'rgba(8,145,178,0.3)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 6]);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(mx, yBase);
+            ctx.lineTo(qx, yBase);
+            ctx.strokeStyle = 'rgba(217,119,6,0.3)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // ---- 左上角小标注 ----
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('AC = ' + (C - A).toFixed(2), 20, 30);
+            ctx.fillText('PQ = |A−C|/2 = ' + ((C - A) / 2).toFixed(2), 20, 52);
+
+            // ---- 更新 UI 数值 ----
+            aVal.textContent = A.toFixed(2);
+            cVal.textContent = C.toFixed(2);
+            mDisplay.textContent = m.toFixed(2);
+            mVal.textContent = m.toFixed(2);
+            pVal.textContent = P.toFixed(2);
+            qVal.textContent = Q.toFixed(2);
+            pqVal.textContent = pq.toFixed(2);
+
+            // ---- 更新公式推导 (动态显示) ----
+            const mDisplayStr = Number.isInteger(m) ? m.toFixed(0) : m.toFixed(2);
+            const pStr = P.toFixed(2);
+            const qStr = Q.toFixed(2);
+            const pqStr = pq.toFixed(2);
+            // 计算 M/2 的显示值
+            const halfM = (m / 2).toFixed(2);
+            // 构建完整推导：逐步展示
+            formulaContent.innerHTML = `
+                <span class="highlight-blue">P</span> = (A + M) / 2 = (${A} + ${mDisplayStr}) / 2 = <strong>${pStr}</strong><br/>
+                <span class="highlight-red">Q</span> = (C + M) / 2 = (${C} + ${mDisplayStr}) / 2 = <strong>${qStr}</strong><br/>
+                <span style="font-weight:600;">PQ = |P − Q|</span> <br/>
+                = | (A + M)/2 − (C + M)/2 | <br/>
+                = | (A − C)/2 + M/2 − M/2 | <br/>
+                = | (${A} − ${C})/2 + <span style="color:#dc2626; text-decoration:line-through;">${halfM}</span> − <span style="color:#dc2626; text-decoration:line-through;">${halfM}</span> | <br/>
+                = | (${A} − ${C})/2 | = <strong style="font-size:18px;">${pqStr}</strong>
+                <div style="margin-top:4px; font-size:13px; color:#475569;">
+                    🔄 M 的变化量 <span style="color:#dc2626; font-weight:700;">+${halfM}</span> 和 <span style="color:#dc2626; font-weight:700;">−${halfM}</span> 正好抵消！
+                </div>
+            `;
+        }
+
+        // ----- 更新函数 -----
+        function update() {
+            const val = parseFloat(slider.value);
+            M = Math.min(MAX_M, Math.max(MIN_M, val));
+            draw(M);
+        }
+
+        // ----- 滑块事件 -----
+        slider.addEventListener('input', function() {
+            if (playing) {
+                playing = false;
+                playBtn.textContent = '▶ 自动演示';
+                if (animId) cancelAnimationFrame(animId);
+                animId = null;
+            }
+            update();
+        });
+
+        // ----- 重置 -----
+        resetBtn.addEventListener('click', function() {
+            if (playing) {
+                playing = false;
+                playBtn.textContent = '▶ 自动演示';
+                if (animId) cancelAnimationFrame(animId);
+                animId = null;
+            }
+            slider.value = '2.5';
+            update();
+        });
+
+        // ----- 播放 / 自动演示 -----
+        playBtn.addEventListener('click', function() {
+            if (playing) {
+                playing = false;
+                playBtn.textContent = '▶ 自动演示';
+                if (animId) cancelAnimationFrame(animId);
+                animId = null;
+                return;
+            }
+            playing = true;
+            playBtn.textContent = '⏸ 暂停';
+            let current = parseFloat(slider.value);
+            direction = 1;
+            function step() {
+                if (!playing) return;
+                let val = current + 0.03 * direction;
+                if (val >= MAX_M) { val = MAX_M; direction = -1; }
+                else if (val <= MIN_M) { val = MIN_M; direction = 1; }
+                current = val;
+                slider.value = val;
+                draw(val);
+                animId = requestAnimationFrame(step);
+            }
+            animId = requestAnimationFrame(step);
+        });
+
+        // ----- 触摸 / 鼠标 拖拽画布直接移动 M (增强交互) -----
+        function handleCanvasDrag(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            let clientX;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+            } else {
+                clientX = e.clientX;
+            }
+            const x = (clientX - rect.left) * scaleX;
+            const xMin = -4.0, xMax = 8.0;
+            const w = canvas.width;
+            const scale = (w - 100) / (xMax - xMin);
+            const offset = 60;
+            const val = (x - offset) / scale + xMin;
+            const clamped = Math.min(MAX_M, Math.max(MIN_M, val));
+            if (playing) {
+                playing = false;
+                playBtn.textContent = '▶ 自动演示';
+                if (animId) cancelAnimationFrame(animId);
+                animId = null;
+            }
+            slider.value = clamped;
+            update();
+        }
+
+        canvas.addEventListener('mousedown', function(e) {
+            const onMove = (ev) => handleCanvasDrag(ev);
+            const onUp = () => {
+                window.removeEventListener('mousemove', onMove);
+                window.removeEventListener('mouseup', onUp);
+            };
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+            handleCanvasDrag(e);
+        });
+
+        canvas.addEventListener('touchstart', function(e) {
+            const onMove = (ev) => {
+                ev.preventDefault();
+                handleCanvasDrag(ev);
+            };
+            const onEnd = () => {
+                window.removeEventListener('touchmove', onMove);
+                window.removeEventListener('touchend', onEnd);
+            };
+            window.addEventListener('touchmove', onMove, { passive: false });
+            window.addEventListener('touchend', onEnd);
+            handleCanvasDrag(e);
+        }, { passive: false });
+
+        // ----- 初始化 -----
+        slider.value = '2.5';
+        update();
+
+        // 窗口大小变化时重绘
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                const val = parseFloat(slider.value);
+                draw(val);
+            }, 100);
+        });
+
+    })();
+</script>
+
+</body>
+</html>

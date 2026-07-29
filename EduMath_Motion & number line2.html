@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>线段动点综合 · 整体思想详解</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f8f9fc;
+      margin: 0;
+      padding: 10px;
+      color: #1e293b;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+      padding: 16px 20px 20px;
+    }
+    h1, h2, h3 {
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    h1 {
+      font-size: 24px;
+      color: #0f172a;
+      border-left: 6px solid #3b82f6;
+      padding-left: 14px;
+      margin-top: 0;
+    }
+    .problem-box {
+      background: #f1f5f9;
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      border-left: 4px solid #2563eb;
+      font-size: 15px;
+    }
+    .problem-box p {
+      margin: 6px 0;
+      line-height: 1.6;
+    }
+    .section {
+      margin-top: 32px;
+      border-top: 2px dashed #e2e8f0;
+      padding-top: 24px;
+    }
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .canvas-wrapper {
+      flex: 2;
+      min-width: 280px;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 12px;
+      border: 1px solid #e9edf2;
+    }
+    .canvas-wrapper canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 660 / 200;
+      background: #fafcff;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+    .canvas-wrapper canvas#canvas2,
+    .canvas-wrapper canvas#canvas3 {
+      aspect-ratio: 660 / 240;
+    }
+    .explanation {
+      flex: 1;
+      min-width: 200px;
+      background: #fafcff;
+      border-radius: 20px;
+      padding: 14px 18px;
+      border: 1px solid #e9edf2;
+      overflow-y: auto;
+      max-height: 400px;
+      font-size: 14px;
+    }
+    .explanation h3 {
+      margin-top: 0;
+      color: #1e40af;
+      font-size: 17px;
+      border-bottom: 2px solid #bfdbfe;
+      padding-bottom: 6px;
+    }
+    .explanation ul, .explanation ol {
+      padding-left: 18px;
+      line-height: 1.7;
+    }
+    .explanation .highlight {
+      background: #fef9c3;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 10px 0 4px 0;
+    }
+    .controls label {
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .controls input[type="range"] {
+      flex: 2;
+      min-width: 140px;
+      accent-color: #3b82f6;
+    }
+    .controls button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 14px;
+    }
+    .controls button:hover {
+      background: #2563eb;
+      transform: scale(1.02);
+    }
+    .controls button.secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+    .controls button.secondary:hover {
+      background: #cbd5e1;
+    }
+    .info-panel {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 8px 14px;
+      margin-top: 8px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 20px;
+      align-items: center;
+    }
+    .info-panel .item {
+      background: #eef2f6;
+      padding: 2px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      margin: 12px 0 14px 0;
+      flex-wrap: wrap;
+    }
+    .tab-bar button {
+      background: #eef2f6;
+      border: 1px solid #d1d9e6;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #334155;
+      font-size: 14px;
+    }
+    .tab-bar button.active {
+      background: #1e40af;
+      color: white;
+      border-color: #1e40af;
+    }
+    .tab-bar button:hover:not(.active) {
+      background: #d9e2ef;
+    }
+    .formula-box {
+      background: #eef6ff;
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin: 10px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      border-left: 4px solid #3b82f6;
+      overflow-x: auto;
+    }
+    .badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      border-radius: 40px;
+      padding: 2px 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .footnote {
+      margin-top: 20px;
+      background: #f1f5f9;
+      border-radius: 16px;
+      padding: 14px 18px;
+      border-left: 6px solid #f59e0b;
+      font-size: 14px;
+    }
+    .footnote strong {
+      color: #b45309;
+    }
+    .slogan {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      background: linear-gradient(135deg, #e0f2fe, #fae8ff);
+      padding: 14px 10px;
+      border-radius: 50px;
+      margin: 20px 0 6px 0;
+      letter-spacing: 1px;
+      line-height: 1.6;
+    }
+    .slogan small {
+      font-weight: 400;
+      font-size: 15px;
+      color: #475569;
+    }
+    .copyright {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 14px;
+      border-top: 1px solid #e2e8f0;
+      color: #94a3b8;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+    @media (max-width: 700px) {
+      .container { padding: 10px; }
+      h1 { font-size: 20px; }
+      .explanation { max-height: 280px; }
+      .controls { gap: 8px; }
+      .controls input[type="range"] { min-width: 100px; }
+      .info-panel { font-size: 12px; flex-wrap: wrap; }
+      .info-panel .item { white-space: normal; }
+      .slogan { font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="app">
+
+  <h1>📐 线段动点综合 · 整体思想</h1>
+
+  <!-- 题目 -->
+  <div class="problem-box">
+    <p><strong>题目：</strong></p>
+    <p>(1) 点C是线段AB上一定点，点D从点A，点E从点B同时出发分别沿直线AB向左，向右匀速运动，若点E的运动速度是点D运动速度的3倍，且整个运动过程中始终满足 CE = 3 CD，求 AC : AB 的值；</p>
+    <p>(2) 如果在(1)的条件下，若点M从点B出发沿直线AB向左运动，运动速度是点D速度的3倍。在点D,M运动过程中，P，Q分别是AM, CM的中点，若运动到某一时刻，恰好 CM = 4 PQ，求此时 AD : AB 的值。</p>
+    <p style="margin-top:8px; background:#e6f0ff; padding:4px 14px; border-radius:30px; display:inline-block;"><span class="badge">初始位置</span> A —— C —— B （从左到右）</p>
+  </div>
+
+  <!-- ========== 第一问 ========== -->
+  <div class="section">
+    <h2>🔍 第一问 · 不变量 CE = 3CD 的由来</h2>
+    <div class="flex-row">
+      <div class="canvas-wrapper">
+        <canvas id="canvas1" width="660" height="200"></canvas>
+        <div class="controls">
+          <label>时间 t：</label>
+          <input type="range" id="slider1" min="0" max="2.0" step="0.01" value="0.5">
+          <button id="play1">▶ 播放</button>
+          <button id="reset1" class="secondary">⟲ 重置</button>
+        </div>
+        <div class="info-panel" id="info1">
+          <span class="item" id="display1">CD = 1.50, CE = 4.50, 3CD = 4.50 ✅</span>
+        </div>
+      </div>
+      <div class="explanation">
+        <h3>📘 整体思想 · 抵消</h3>
+        <p>设 D 速度为 v，时间 t，则：</p>
+        <div class="formula-box">
+          AD = vt，BE = 3vt<br>
+          CD = AC + AD = AC + vt<br>
+          CE = CB + BE = CB + 3vt
+        </div>
+        <p>由 CE = 3 CD 得：</p>
+        <div class="formula-box">
+          CB + 3vt = 3(AC + vt) = 3AC + 3vt
+        </div>
+        <p><span class="highlight">两边同时减去 3vt</span>，动态项完美抵消：</p>
+        <div class="formula-box" style="background:#fef9c3;">
+          CB = 3AC  →  AB = 4AC  →  AC:AB = 1:4
+        </div>
+        <p style="margin-top:8px;">💡 <strong>关键：</strong>速度倍数(3倍)使 vt 项相同，等式相减后只剩下固定长度关系，与运动速度和时间无关。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 第二问 ========== -->
+  <div class="section">
+    <h2>🧩 第二问 · 两种解法详解</h2>
+    <div class="tab-bar">
+      <button class="active" data-tab="tab-coord">📊 数轴坐标法</button>
+      <button data-tab="tab-geo">📐 分类讨论几何法</button>
+    </div>
+
+    <!-- 数轴坐标法 -->
+    <div id="tab-coord" class="tab-content">
+      <div class="flex-row">
+        <div class="canvas-wrapper">
+          <canvas id="canvas2" width="660" height="240"></canvas>
+          <div class="controls">
+            <label>时间 t：</label>
+            <input type="range" id="slider2" min="0" max="2.0" step="0.01" value="0.8">
+            <button id="play2">▶ 播放</button>
+            <button id="reset2" class="secondary">⟲ 重置</button>
+          </div>
+          <div class="info-panel" id="info2">
+            <span class="item" id="display2">t = 0.80, AD = 0.80, BM = 2.40, PQ = 0.50 (恒定)</span>
+          </div>
+        </div>
+        <div class="explanation">
+          <h3>📈 坐标法 · 动态抵消 (使用 a, v)</h3>
+          <p>由第一问知 AC:AB = 1:4，设 AC = a，则 AB = 4a，BC = 3a。</p>
+          <p>建立数轴，令 A=0，C=a，B=4a。</p>
+          <p>点D速度 v，时间 t → AD = vt，D 坐标 = −vt。</p>
+          <p>点M速度 3v，从B向左 → BM = 3vt，M 坐标 = 4a − 3vt。</p>
+          <p>P 是 AM 中点：P = (0 + M)/2 = 2a − 1.5vt</p>
+          <p>Q 是 CM 中点：Q = (a + M)/2 = 2.5a − 1.5vt</p>
+          <div class="formula-box" style="background:#e6f7ff;">
+            PQ = |P − Q| = |(2a−1.5vt) − (2.5a−1.5vt)| = 0.5a
+          </div>
+          <p><span class="highlight">−1.5vt 完全抵消</span>，PQ 恒等于 AC/2 = a/2，与 M 位置无关。</p>
+          <p>又 CM = |M − C| = |4a−3vt − a| = 3|a−vt|。</p>
+          <p>令 AD = vt = x，则 CM = 3|a−x|。</p>
+          <p>条件 CM = 4PQ = 4·(a/2) = 2a：</p>
+          <div class="formula-box">
+            3|a−x| = 2a  →  |a−x| = 2a/3  →  x = a/3 或 5a/3
+          </div>
+          <p>所以 AD:AB = x : 4a = 1:12 或 5:12。</p>
+          <p style="color:#2563eb; margin-top:8px;">✅ 无需分类，绝对值自动处理位置。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分类讨论几何法 -->
+    <div id="tab-geo" class="tab-content" style="display:none;">
+      <div class="flex-row">
+        <div class="canvas-wrapper">
+          <canvas id="canvas3" width="660" height="240"></canvas>
+          <div class="controls">
+            <label>时间 t：</label>
+            <input type="range" id="slider3" min="0" max="2.0" step="0.01" value="0.5">
+            <button id="play3">▶ 播放</button>
+            <button id="reset3" class="secondary">⟲ 重置</button>
+          </div>
+          <div class="info-panel" id="info3">
+            <span class="item" id="display3">t = 0.50, M 在 C 右侧, CM = 1.50</span>
+          </div>
+        </div>
+        <div class="explanation">
+          <h3>📐 分类讨论 · 位置变化 (使用 a, v)</h3>
+          <p>同理 AC=a，BC=3a。令 AD=vt=x，则 BM=3x。</p>
+          <p><strong>临界点：</strong> M 到达 C 时 BM = BC = 3a → 3x = 3a → x = a。</p>
+          <div style="background:#fef3c7; padding:8px 12px; border-radius:12px; margin:8px 0;">
+            <b>情况 1：</b> x &lt; a （M在C右侧，BM &lt; BC）<br>
+            CM = BC − BM = 3a − 3x<br>
+            PQ = a/2 (恒等)<br>
+            3a − 3x = 2a → x = a/3 → <span class="highlight">AD:AB = 1:12</span>
+          </div>
+          <div style="background:#dbeafe; padding:8px 12px; border-radius:12px; margin:8px 0;">
+            <b>情况 2：</b> x &gt; a （M在C左侧，BM &gt; BC）<br>
+            CM = BM − BC = 3x − 3a<br>
+            PQ = a/2 (恒等)<br>
+            3x − 3a = 2a → x = 5a/3 → <span class="highlight">AD:AB = 5:12</span>
+          </div>
+          <p>💡 <strong>注意：</strong> x=5a/3 时 M 已越过 A（坐标 −a），但题目只说“沿直线”，故两个解均成立。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 整体思想总结 -->
+  <div class="section" style="border-top: 3px solid #3b82f6;">
+    <h2>🧠 “整体思想”终极总结</h2>
+    <div style="display:flex; flex-wrap:wrap; gap:16px;">
+      <div style="flex:1; min-width:180px; background:#f0fdf4; padding:16px; border-radius:20px;">
+        <h3 style="color:#15803d; margin-top:0;">第一问 · 不变量</h3>
+        <p>CE = 3CD 中，两项都含有 <strong>3vt</strong>，等式相减后完全抵消，得到固定的 CB = 3AC。</p>
+        <p style="font-size:13px; color:#475569;">速度倍数(3)使时间项相同，整体抵消。</p>
+      </div>
+      <div style="flex:1; min-width:180px; background:#fff7ed; padding:16px; border-radius:20px;">
+        <h3 style="color:#b45309; margin-top:0;">第二问 · 动态抵消</h3>
+        <p>P、Q 均为中点，坐标差中 <strong>M 的坐标完全抵消</strong>：</p>
+        <div class="formula-box" style="background:#fff7ed; border-color:#f59e0b;">
+          PQ = |(A+M)/2 − (C+M)/2| = |A−C|/2 = a/2
+        </div>
+        <p>与 M 的位置无关，PQ 恒等于 AC/2。</p>
+        <p>设 AD=vt=x，则 CM=3|a−vt|=3|a−x|，代入得两个解。</p>
+      </div>
+    </div>
+
+    <div class="slogan">
+      <small> 整体思想 · 口诀</small><br>
+      动点问题不要慌，<br>
+      定原点，建坐标，<br>
+      速度时间写位置，<br>
+      中点距离直接减，<br>
+      动态变量全抵消，<br>
+      绝对值里出双解！
+    </div>
+    <div class="footnote">
+      <strong>📌 总结：</strong> 整体思想的核心是 <span class="highlight">“变中找不变”</span>。通过代数表达将动态部分合并或抵消，从而剥离出固定关系。坐标法是最简洁的工具，分类讨论则帮助我们理解位置变化的全貌。<br><br>
+ <strong>定原点，建坐标 </strong>——把固定点A、C、B标上数字（0，a，4a）。<br><br>
+ <strong>速度时间写位置</strong>——把文字描述的“动点”，变成了一个看得见、算得清的代数式，把动点M、D写成含 t 的代数式（如 4a−3vt）。<br><br>
+ <strong>中点距离直接减</strong>——如果要求两个中点（比如P和Q）之间的距离，直接用中点坐标公式写出它们的坐标，然后拿大坐标减小坐标（取绝对值），不用管M跑到哪里，消去动态项M，得到不变量 PQ = a/2。<br><br>
+ <strong>动态变量全抵消 </strong>——只要涉及中点，动点的坐标在相减时必然抵消。<br><br>
+ <strong>绝对值里出双解！ </strong>——最后列方程 CM = 4PQ，因为距离带绝对值，自然解出两个答案。
+    </div>
+  </div>
+
+  <div class="copyright">© Twolobster丨EduMath Motion & number line</div>
+</div>
+
+<script>
+  // ============================================================
+  // 通用绘图辅助：绘制数轴，返回toX函数
+  // ============================================================
+  function drawAxis(ctx, w, h, xMin, xMax, yBase, labels) {
+    const scale = (w - 80) / (xMax - xMin);
+    const offset = 40;
+    function toX(x) { return offset + (x - xMin) * scale; }
+    ctx.clearRect(0, 0, w, h);
+    // 轴线
+    ctx.beginPath();
+    ctx.moveTo(30, yBase);
+    ctx.lineTo(w-20, yBase);
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // 箭头
+    ctx.beginPath();
+    ctx.moveTo(w-20, yBase);
+    ctx.lineTo(w-30, yBase-8);
+    ctx.lineTo(w-30, yBase+8);
+    ctx.closePath();
+    ctx.fillStyle = '#94a3b8';
+    ctx.fill();
+    // 刻度 & 标签
+    labels.forEach(item => {
+      const x = toX(item.x);
+      ctx.beginPath();
+      ctx.moveTo(x, yBase-6);
+      ctx.lineTo(x, yBase+6);
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#1e293b';
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(item.label, x, yBase-18);
+      if (item.color) {
+        ctx.beginPath();
+        ctx.arc(x, yBase, 6, 0, 2*Math.PI);
+        ctx.fillStyle = item.color;
+        ctx.fill();
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    });
+    return { toX, scale, offset };
+  }
+
+  // ============================================================
+  // 第一问 Canvas
+  // ============================================================
+  (function() {
+    const canvas = document.getElementById('canvas1');
+    const ctx = canvas.getContext('2d');
+    const slider = document.getElementById('slider1');
+    const playBtn = document.getElementById('play1');
+    const resetBtn = document.getElementById('reset1');
+    const display = document.getElementById('display1');
+    let playing = false;
+    let animId = null;
+    const AC = 1, CB = 3, AB = 4, v = 1;
+
+    function draw(t) {
+      const w = canvas.width, h = canvas.height;
+      const yBase = 100;
+      const xMin = -2.0, xMax = 6.5;
+      const { toX } = drawAxis(ctx, w, h, xMin, xMax, yBase, [
+        {x:0, label:'A', color:'#2563eb'},
+        {x:1, label:'C', color:'#2563eb'},
+        {x:4, label:'B', color:'#2563eb'}
+      ]);
+
+      // 动点 D, E
+      const xD = -t * v;
+      const xE = 4 + 3 * t * v;
+      // D
+      const dx = toX(xD);
+      ctx.beginPath();
+      ctx.arc(dx, yBase, 8, 0, 2*Math.PI);
+      ctx.fillStyle = '#dc2626';
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#dc2626';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('D', dx, yBase-24);
+      // E
+      const ex = toX(xE);
+      ctx.beginPath();
+      ctx.arc(ex, yBase, 8, 0, 2*Math.PI);
+      ctx.fillStyle = '#16a34a';
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#16a34a';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText('E', ex, yBase-24);
+
+      // 计算长度
+      const CD = AC + t*v;
+      const CE = CB + 3*t*v;
+      const threeCD = 3*CD;
+
+      // 显示线段 CD（上）和 CE（下）
+      ctx.beginPath();
+      ctx.moveTo(toX(1), yBase-30);
+      ctx.lineTo(toX(xD), yBase-30);
+      ctx.strokeStyle = '#f97316';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([]);
+      ctx.stroke();
+      ctx.fillStyle = '#f97316';
+      ctx.font = '13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`CD=${CD.toFixed(2)}`, (toX(1)+toX(xD))/2, yBase-40);
+
+      ctx.beginPath();
+      ctx.moveTo(toX(1), yBase+30);
+      ctx.lineTo(toX(xE), yBase+30);
+      ctx.strokeStyle = '#8b5cf6';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.fillStyle = '#8b5cf6';
+      ctx.fillText(`CE=${CE.toFixed(2)}`, (toX(1)+toX(xE))/2, yBase+48);
+
+      // 更新信息面板
+      const eq = Math.abs(CE - threeCD) < 0.001;
+      display.textContent = `CD = ${CD.toFixed(2)}, CE = ${CE.toFixed(2)}, 3CD = ${threeCD.toFixed(2)} ${eq ? '✅ CE = 3CD' : '❌'}`;
+    }
+
+    function update() {
+      const t = parseFloat(slider.value);
+      draw(t);
+    }
+    slider.addEventListener('input', update);
+    resetBtn.addEventListener('click', ()=>{ slider.value = '0.5'; update(); });
+    playBtn.addEventListener('click', ()=>{
+      if (playing) {
+        playing = false;
+        playBtn.textContent = '▶ 播放';
+        if (animId) cancelAnimationFrame(animId);
+        return;
+      }
+      playing = true;
+      playBtn.textContent = '⏸ 暂停';
+      let direction = 1;
+      function step() {
+        if (!playing) return;
+        let val = parseFloat(slider.value) + 0.01 * direction;
+        if (val >= 2.0) { val = 2.0; direction = -1; }
+        else if (val <= 0) { val = 0; direction = 1; }
+        slider.value = val;
+        update();
+        animId = requestAnimationFrame(step);
+      }
+      animId = requestAnimationFrame(step);
+    });
+    slider.value = '0.5';
+    update();
+  })();
+
+  // ============================================================
+  // 第二问 - 数轴坐标法 Canvas
+  // ============================================================
+  (function() {
+    const canvas = document.getElementById('canvas2');
+    const ctx = canvas.getContext('2d');
+    const slider = document.getElementById('slider2');
+    const playBtn = document.getElementById('play2');
+    const resetBtn = document.getElementById('reset2');
+    const display = document.getElementById('display2');
+    let playing = false, animId = null;
+    const AC = 1, AB = 4, BC = 3;
+
+    function draw(t) {
+      const w = canvas.width, h = canvas.height;
+      const yBase = 110;
+      const xMin = -2.5, xMax = 5.5;
+      const { toX } = drawAxis(ctx, w, h, xMin, xMax, yBase, [
+        {x:0, label:'A', color:'#2563eb'},
+        {x:1, label:'C', color:'#2563eb'},
+        {x:4, label:'B', color:'#2563eb'}
+      ]);
+
+      // 点 D (从A向左)
+      const xD = -t;
+      const dx = toX(xD);
+      ctx.beginPath();
+      ctx.arc(dx, yBase, 8, 0, 2*Math.PI);
+      ctx.fillStyle = '#dc2626';
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#dc2626';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('D', dx, yBase-24);
+
+      // 点 M
+      const xM = 4 - 3*t;
+      const mx = toX(xM);
+      ctx.beginPath();
+      ctx.arc(mx, yBase, 8, 0, 2*Math.PI);
+      ctx.fillStyle = '#7c3aed';
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#7c3aed';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('M', mx, yBase-24);
+
+      // 点 P (AM中点) 和 Q (CM中点) 均在直线上
+      const xP = (0 + xM)/2;
+      const xQ = (1 + xM)/2;
+      const px = toX(xP);
+      const qx = toX(xQ);
+      // P
+      ctx.beginPath();
+      ctx.arc(px, yBase, 6, 0, 2*Math.PI);
+      ctx.fillStyle = '#0891b2';
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#0891b2';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText('P', px, yBase-20);
+      // Q
+      ctx.beginPath();
+      ctx.arc(qx, yBase, 6, 0, 2*Math.PI);
+      ctx.fillStyle = '#d97706';
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#d97706';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText('Q', qx, yBase-20);
+
+      // 连线 PQ (虚线)
+      ctx.beginPath();
+      ctx.moveTo(px, yBase-16);
+      ctx.lineTo(qx, yBase-16);
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4,4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      const pq = Math.abs(xP - xQ);
+      ctx.fillStyle = '#ef4444';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`PQ=${pq.toFixed(2)}`, (px+qx)/2, yBase-28);
+
+      // 更新信息
+      const CM = Math.abs(3 - 3*t);
+      display.textContent = `t = ${t.toFixed(2)}, AD = ${t.toFixed(2)}, BM = ${(3*t).toFixed(2)}, CM = ${CM.toFixed(2)}, PQ = ${pq.toFixed(2)} (恒定 = 0.50)`;
+    }
+
+    function update() {
+      const t = parseFloat(slider.value);
+      draw(t);
+    }
+    slider.addEventListener('input', update);
+    resetBtn.addEventListener('click', ()=>{ slider.value = '0.8'; update(); });
+    playBtn.addEventListener('click', ()=>{
+      if (playing) {
+        playing = false;
+        playBtn.textContent = '▶ 播放';
+        if (animId) cancelAnimationFrame(animId);
+        return;
+      }
+      playing = true;
+      playBtn.textContent = '⏸ 暂停';
+      let dir = 1;
+      function step() {
+        if (!playing) return;
+        let val = parseFloat(slider.value) + 0.01 * dir;
+        if (val >= 2.0) { val = 2.0; dir = -1; }
+        else if (val <= 0) { val = 0; dir = 1; }
+        slider.value = val;
+        update();
+        animId = requestAnimationFrame(step);
+      }
+      animId = requestAnimationFrame(step);
+    });
+    slider.value = '0.8';
+    update();
+  })();
+
+  // ============================================================
+  // 第二问 - 分类讨论几何法 Canvas
+  // ============================================================
+  (function() {
+    const canvas = document.getElementById('canvas3');
+    const ctx = canvas.getContext('2d');
+    const slider = document.getElementById('slider3');
+    const playBtn = document.getElementById('play3');
+    const resetBtn = document.getElementById('reset3');
+    const display = document.getElementById('display3');
+    let playing = false, animId = null;
+    const AC = 1, AB = 4, BC = 3;
+
+    function draw(t) {
+      const w = canvas.width, h = canvas.height;
+      const yBase = 110;
+      const xMin = -2.5, xMax = 5.5;
+      const { toX } = drawAxis(ctx, w, h, xMin, xMax, yBase, [
+        {x:0, label:'A', color:'#2563eb'},
+        {x:1, label:'C', color:'#2563eb'},
+        {x:4, label:'B', color:'#2563eb'}
+      ]);
+
+      // 点 D
+      const xD = -t;
+      const dx = toX(xD);
+      ctx.beginPath();
+      ctx.arc(dx, yBase, 8, 0, 2*Math.PI);
+      ctx.fillStyle = '#dc2626';
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#dc2626';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('D', dx, yBase-24);
+
+      // 点 M
+      const xM = 4 - 3*t;
+      const mx = toX(xM);
+      ctx.beginPath();
+      ctx.arc(mx, yBase, 8, 0, 2*Math.PI);
+      ctx.fillStyle = '#7c3aed';
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#7c3aed';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('M', mx, yBase-24);
+
+      // 点 P, Q (中点)
+      const xP = (0 + xM)/2;
+      const xQ = (1 + xM)/2;
+      const px = toX(xP);
+      const qx = toX(xQ);
+      // P
+      ctx.beginPath();
+      ctx.arc(px, yBase, 6, 0, 2*Math.PI);
+      ctx.fillStyle = '#0891b2';
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#0891b2';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText('P', px, yBase-20);
+      // Q
+      ctx.beginPath();
+      ctx.arc(qx, yBase, 6, 0, 2*Math.PI);
+      ctx.fillStyle = '#d97706';
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#d97706';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText('Q', qx, yBase-20);
+
+      // 高亮区域：根据 t 判断
+      const cPos = toX(1);
+      const mPos = mx;
+      if (t < 1) {
+        ctx.fillStyle = 'rgba(59,130,246,0.1)';
+        ctx.fillRect(cPos, yBase-40, mPos-cPos, 80);
+      } else {
+        ctx.fillStyle = 'rgba(239,68,68,0.1)';
+        ctx.fillRect(mPos, yBase-40, cPos-mPos, 80);
+      }
+
+      // 显示 CM
+      const CM = Math.abs(3 - 3*t);
+      let region = (t < 1) ? 'M 在 C 右侧' : 'M 在 C 左侧';
+      let eq = (t < 1) ? `CM = BC - BM = 3 - 3t = ${CM.toFixed(2)}` : `CM = BM - BC = 3t - 3 = ${CM.toFixed(2)}`;
+      display.textContent = `t = ${t.toFixed(2)}, ${region}, ${eq}`;
+    }
+
+    function update() {
+      const t = parseFloat(slider.value);
+      draw(t);
+    }
+    slider.addEventListener('input', update);
+    resetBtn.addEventListener('click', ()=>{ slider.value = '0.5'; update(); });
+    playBtn.addEventListener('click', ()=>{
+      if (playing) {
+        playing = false;
+        playBtn.textContent = '▶ 播放';
+        if (animId) cancelAnimationFrame(animId);
+        return;
+      }
+      playing = true;
+      playBtn.textContent = '⏸ 暂停';
+      let dir = 1;
+      function step() {
+        if (!playing) return;
+        let val = parseFloat(slider.value) + 0.01 * dir;
+        if (val >= 2.0) { val = 2.0; dir = -1; }
+        else if (val <= 0) { val = 0; dir = 1; }
+        slider.value = val;
+        update();
+        animId = requestAnimationFrame(step);
+      }
+      animId = requestAnimationFrame(step);
+    });
+    slider.value = '0.5';
+    update();
+  })();
+
+  // ============================================================
+  // 标签切换
+  // ============================================================
+  const tabs = document.querySelectorAll('.tab-bar button');
+  const contents = {
+    'tab-coord': document.getElementById('tab-coord'),
+    'tab-geo': document.getElementById('tab-geo')
+  };
+  tabs.forEach(btn => {
+    btn.addEventListener('click', function() {
+      tabs.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const target = this.dataset.tab;
+      Object.keys(contents).forEach(key => {
+        contents[key].style.display = (key === target) ? 'block' : 'none';
+      });
+    });
+  });
+</script>
+</body>
+</html>

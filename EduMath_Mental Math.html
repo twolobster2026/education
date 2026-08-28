@@ -27,7 +27,6 @@
             gap: 24px;
         }
 
-        /* 顶部标题卡片 - 默认橘色主题 */
         .hero-card {
             background: linear-gradient(135deg, #ff9a3c 0%, #ff6b6b 100%);
             border-radius: 48px;
@@ -62,7 +61,6 @@
             font-weight: 500;
         }
 
-        /* 卡片 */
         .card {
             background: white;
             border-radius: 32px;
@@ -83,7 +81,6 @@
             letter-spacing: -0.3px;
         }
 
-        /* 设置区 */
         .settings-row {
             display: flex;
             flex-wrap: wrap;
@@ -140,13 +137,11 @@
             border-color: #ff9a3c;
             background: #fff7ed;
         }
-        /* active 样式由 JavaScript 内联控制，此处只保留基础色作为 fallback */
         .type-btn.active {
             color: white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
         }
 
-        /* 倒计时区域 */
         .timer-section {
             display: flex;
             align-items: center;
@@ -258,7 +253,6 @@
             pointer-events: none;
         }
 
-        /* 速查表按钮样式 */
         .btn-toggle-table {
             padding: 10px 22px;
             border-radius: 40px;
@@ -284,7 +278,6 @@
             color: white;
         }
 
-        /* 暂停遮罩 */
         .questions-wrapper {
             position: relative;
         }
@@ -313,7 +306,6 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         }
 
-        /* 题目网格 */
         .questions-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -386,7 +378,35 @@
             flex: 1;
             min-width: 60px;
             word-break: keep-all;
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2px 4px;
         }
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 2px;
+            font-size: 0.9em;
+            line-height: 1.2;
+        }
+        .frac .num {
+            border-bottom: 1.5px solid #0f172a;
+            padding: 0 4px 1px 4px;
+        }
+        .frac .den {
+            padding: 1px 4px 0 4px;
+        }
+        .mixed-int {
+            margin-right: 2px;
+        }
+        .q-text .frac .num,
+        .q-text .frac .den {
+            font-weight: 700;
+        }
+
         .q-input {
             width: 90px;
             padding: 10px 14px;
@@ -440,7 +460,6 @@
             display: inline;
         }
 
-        /* 得分面板 */
         .score-panel {
             display: none;
             background: linear-gradient(135deg, #eef2ff, #ffffff);
@@ -499,7 +518,6 @@
             color: #3b82f6;
         }
 
-        /* 速查表表格样式 */
         .ref-table {
             width: 100%;
             border-collapse: collapse;
@@ -537,7 +555,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* 底部 */
         .footer-toolbar {
             display: flex;
             justify-content: space-between;
@@ -574,7 +591,6 @@
             box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
         }
 
-        /* 主题 - body class */
         body.theme-pink {
             background: #fdf2f8;
         }
@@ -588,7 +604,6 @@
             background: #faf5ff;
         }
 
-        /* 响应式 */
         @media (max-width: 750px) {
             body {
                 padding: 14px 10px;
@@ -738,8 +753,11 @@
                         <button class="type-btn" data-type="四位数加法">四位数+四位数</button>
                         <button class="type-btn" data-type="3位数除以1位数">三位数÷一位数</button>
                         <button class="type-btn" data-type="20以内小数加减法">20以内小数加减法</button>
-                        <!-- 新增50以内小数加减法 -->
                         <button class="type-btn" data-type="50以内小数加减法">50以内小数加减法</button>
+                        <button class="type-btn" data-type="10以内同分母带分数加减法">同分母带分数加减</button>
+                        <button class="type-btn" data-type="10以内异分母带分数加减法">异分母带分数加减</button>
+                        <button class="type-btn" data-type="分数加减法">真分数加减</button>
+                        <button class="type-btn" data-type="10以内正负数加减">正负数加减</button>
                     </div>
                 </div>
             </div>
@@ -772,7 +790,6 @@
             <div class="pause-overlay" id="pauseOverlay" style="display:none;">
                 <span>已暂停</span>
             </div>
-            <!-- 得分面板 -->
             <div class="score-panel" id="scorePanel">
                 <div style="font-weight:700; color:#64748b; margin-bottom:6px;">练习结果</div>
                 <div class="score-big" id="scoreBig">--</div>
@@ -788,7 +805,6 @@
                 <button id="toggleMultiBtn" class="btn-toggle-table" aria-expanded="false">展开 11-20 乘法口诀表</button>
                 <button id="toggleSpecialBtn" class="btn-toggle-table" aria-expanded="false">展开 24·25 乘法表</button>
             </div>
-            <!-- 平方数表 -->
             <div id="squareTable" style="display:none;">
                 <div class="table-wrapper">
                     <table class="ref-table">
@@ -797,7 +813,6 @@
                     </table>
                 </div>
             </div>
-            <!-- 11-20 乘法口诀表 -->
             <div id="multiTable" style="display:none; margin-top:20px;">
                 <div class="table-wrapper">
                     <table class="ref-table" id="multiTableContent">
@@ -806,7 +821,6 @@
                     </table>
                 </div>
             </div>
-            <!-- 24·25 乘法表 -->
             <div id="specialTable" style="display:none; margin-top:20px;">
                 <div class="table-wrapper">
                     <table class="ref-table" id="specialTableContent">
@@ -854,7 +868,7 @@
             let isFinished = false;
             let answersRevealed = false;
             let audioCtx = null;
-            let activeTypeBtn = null; // 当前选中的题型按钮
+            let activeTypeBtn = null;
 
             // ============ DOM 引用 ============
             const questionCountInput = document.getElementById('questionCount');
@@ -880,7 +894,7 @@
             const multiTable = document.getElementById('multiTable');
             const specialTable = document.getElementById('specialTable');
 
-            // ============ 初始化 AudioContext ============
+            // ============ Audio ============
             function getAudioContext() {
                 if (!audioCtx) {
                     audioCtx = new(window.AudioContext || window.webkitAudioContext)();
@@ -901,7 +915,7 @@
                     gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
                     osc.start(startTime);
                     osc.stop(startTime + duration);
-                } catch (e) { /* 静默处理 */ }
+                } catch (e) { /* 静默 */ }
             }
 
             function playAlertSound() {
@@ -921,10 +935,10 @@
                     gainHigh.gain.exponentialRampToValueAtTime(0.01, now + 1.6);
                     oscHigh.start(now + 1.1);
                     oscHigh.stop(now + 1.6);
-                } catch (e) { /* 静默处理 */ }
+                } catch (e) { /* 静默 */ }
             }
 
-            // ============ 工具：清除所有题型按钮的内联样式 ============
+            // ============ 工具 ============
             function clearAllTypeBtnInlineStyles() {
                 typeButtons.querySelectorAll('.type-btn').forEach(b => {
                     b.style.background = '';
@@ -932,7 +946,6 @@
                 });
             }
 
-            // ============ 工具：设置单个按钮的主题色 ============
             function applyThemeToBtn(btn, themeName) {
                 if (!btn) return;
                 const colors = THEME_COLORS[themeName] || THEME_COLORS['orange'];
@@ -940,7 +953,6 @@
                 btn.style.borderColor = colors.border;
             }
 
-            // ============ 工具：更新当前 active 按钮的颜色 ============
             function updateActiveBtnTheme() {
                 const activeBtn = typeButtons.querySelector('.type-btn.active');
                 if (activeBtn) {
@@ -951,17 +963,100 @@
                 }
             }
 
-            // ============ 题目生成 ============
             function randInt(min, max) {
                 return Math.floor(Math.random() * (max - min + 1)) + min;
             }
 
-            // 辅助：格式化数字，整数时不保留小数位
             function formatNum(v) {
                 if (Number.isInteger(v)) return v.toString();
                 else return v.toFixed(1);
             }
 
+            function gcd(a, b) {
+                a = Math.abs(a);
+                b = Math.abs(b);
+                while (b) { let t = b;
+                    b = a % b;
+                    a = t; }
+                return a;
+            }
+
+            function simplifyFraction(num, den) {
+                if (den === 0) return [0, 1];
+                if (num === 0) return [0, 1];
+                const g = gcd(Math.abs(num), Math.abs(den));
+                const sign = (den < 0) ? -1 : 1;
+                return [num / g * sign, den / g * sign];
+            }
+
+            // 生成带分数的 HTML 表示 (上下堆叠)
+            function buildMixedHTML(integer, numerator, denominator) {
+                let html = '';
+                if (integer !== 0) {
+                    html += `<span class="mixed-int">${integer}</span>`;
+                }
+                if (numerator !== 0) {
+                    html += `<span class="frac"><span class="num">${numerator}</span><span class="den">${denominator}</span></span>`;
+                }
+                if (integer === 0 && numerator === 0) html = '0';
+                return html;
+            }
+
+            // 生成真分数的 HTML
+            function buildFracHTML(num, den) {
+                return `<span class="frac"><span class="num">${num}</span><span class="den">${den}</span></span>`;
+            }
+
+            // 生成带分数 (值在 0 ~ maxVal 之间)
+            function genMixed(denominator, maxVal) {
+                let integer = randInt(0, Math.floor(maxVal));
+                let numerator = 0;
+                if (integer < maxVal) {
+                    numerator = randInt(1, denominator - 1);
+                    while (integer + numerator / denominator > maxVal) {
+                        integer = randInt(0, Math.floor(maxVal) - 1);
+                        numerator = randInt(1, denominator - 1);
+                    }
+                }
+                return { integer, numerator, denominator, value: integer + numerator / denominator };
+            }
+
+            // 生成分数答案的HTML (假分数形式，用于真分数题型)
+            function buildAnswerFractionHTML(num, den) {
+                if (den === 1) return num.toString();
+                let sign = '';
+                let absNum = num;
+                if (num < 0) { sign = '-';
+                    absNum = -num; }
+                return sign + `<span class="frac"><span class="num">${absNum}</span><span class="den">${den}</span></span>`;
+            }
+
+            // 生成带分数答案的HTML (整数+真分数，用于带分数题型)
+            function buildMixedAnswerHTML(num, den) {
+                if (den === 1) return num.toString();
+                if (num === 0) return '0';
+                let sign = '';
+                let absNum = num;
+                if (num < 0) { sign = '-';
+                    absNum = -num; }
+                // 假分数转带分数
+                let intPart = Math.floor(absNum / den);
+                let rem = absNum % den;
+                let html = '';
+                if (intPart !== 0) {
+                    html += sign + `<span class="mixed-int">${intPart}</span>`;
+                } else {
+                    html += sign;
+                }
+                if (rem !== 0) {
+                    html += `<span class="frac"><span class="num">${rem}</span><span class="den">${den}</span></span>`;
+                } else if (intPart === 0) {
+                    html = '0';
+                }
+                return html;
+            }
+
+            // ============ 题目生成 ============
             function generateQuestions() {
                 const count = parseInt(questionCountInput.value) || 20;
                 const type = currentType;
@@ -1034,7 +1129,6 @@
                             qs.push({ text: `${dividend} ÷ ${d} = ?`, answer: q, userAnswer: null });
                         }
                         break;
-                    // 20以内小数加减法
                     case '20以内小数加减法':
                         for (let i = 0; i < count; i++) {
                             let a, b, isAdd, result;
@@ -1068,17 +1162,17 @@
                                 isAdd = true;
                                 result = 2.0;
                             }
-                            let text = isAdd ? `${formatNum(a)} + ${formatNum(b)} = ?` : `${formatNum(a)} - ${formatNum(b)} = ?`;
+                            let text = isAdd ? `${formatNum(a)} + ${formatNum(b)} = ?` :
+                                `${formatNum(a)} - ${formatNum(b)} = ?`;
                             qs.push({ text: text, answer: result, userAnswer: null });
                         }
                         break;
-                    // 50以内小数加减法（新增）
                     case '50以内小数加减法':
                         for (let i = 0; i < count; i++) {
                             let a, b, isAdd, result;
                             let attempts = 0;
                             while (attempts < 100) {
-                                let aInt = randInt(1, 499); // 0.1~49.9
+                                let aInt = randInt(1, 499);
                                 let bInt = randInt(1, 499);
                                 a = aInt / 10;
                                 b = bInt / 10;
@@ -1106,10 +1200,404 @@
                                 isAdd = true;
                                 result = 4.0;
                             }
-                            let text = isAdd ? `${formatNum(a)} + ${formatNum(b)} = ?` : `${formatNum(a)} - ${formatNum(b)} = ?`;
+                            let text = isAdd ? `${formatNum(a)} + ${formatNum(b)} = ?` :
+                                `${formatNum(a)} - ${formatNum(b)} = ?`;
                             qs.push({ text: text, answer: result, userAnswer: null });
                         }
                         break;
+
+                    // ===== 新增题型 =====
+
+                    // 1. 10以内同分母带分数加减法 (答案显示带分数形式)
+                    case '10以内同分母带分数加减法': {
+                        const denoms = [2, 3, 4, 5, 6, 7, 8, 9, 11];
+                        let tries = 0;
+                        while (qs.length < count && tries < 5000) {
+                            tries++;
+                            const d = denoms[randInt(0, denoms.length - 1)];
+                            const m1 = genMixed(d, 10);
+                            const m2 = genMixed(d, 10);
+                            const isAdd = Math.random() > 0.5;
+                            let num1 = m1.integer * d + m1.numerator;
+                            let den1 = d;
+                            let num2 = m2.integer * d + m2.numerator;
+                            let den2 = d;
+                            let resultNum, resultDen;
+                            if (isAdd) {
+                                resultNum = num1 * den2 + num2 * den1;
+                                resultDen = den1 * den2;
+                            } else {
+                                resultNum = num1 * den2 - num2 * den1;
+                                resultDen = den1 * den2;
+                            }
+                            const [sNum, sDen] = simplifyFraction(resultNum, resultDen);
+                            const resultVal = sNum / sDen;
+                            if (Math.abs(resultVal) > 10) continue;
+                            if (Math.abs(resultVal) < 0.5 && Math.random() > 0.3) continue;
+
+                            const html1 = buildMixedHTML(m1.integer, m1.numerator, m1.denominator);
+                            const html2 = buildMixedHTML(m2.integer, m2.numerator, m2.denominator);
+                            const op = isAdd ? ' + ' : ' - ';
+                            const htmlText = html1 + op + html2 + ' = ?';
+
+                            // 使用带分数显示
+                            let displayHTML = buildMixedAnswerHTML(sNum, sDen);
+                            qs.push({
+                                htmlText: htmlText,
+                                answer: resultVal,
+                                userAnswer: null,
+                                isFraction: true,
+                                displayAnswerHTML: displayHTML
+                            });
+                        }
+                        // 补一些题目
+                        while (qs.length < count) {
+                            const d = denoms[randInt(0, denoms.length - 1)];
+                            const m1 = genMixed(d, 5);
+                            const m2 = genMixed(d, 5);
+                            const isAdd = Math.random() > 0.5;
+                            let num1 = m1.integer * d + m1.numerator;
+                            let den1 = d;
+                            let num2 = m2.integer * d + m2.numerator;
+                            let den2 = d;
+                            let resultNum, resultDen;
+                            if (isAdd) {
+                                resultNum = num1 * den2 + num2 * den1;
+                                resultDen = den1 * den2;
+                            } else {
+                                resultNum = num1 * den2 - num2 * den1;
+                                resultDen = den1 * den2;
+                            }
+                            let [sNum, sDen] = simplifyFraction(resultNum, resultDen);
+                            let resultVal = sNum / sDen;
+                            if (Math.abs(resultVal) > 10) { sNum = 0;
+                                sDen = 1;
+                                resultVal = 0; }
+                            const html1 = buildMixedHTML(m1.integer, m1.numerator, m1.denominator);
+                            const html2 = buildMixedHTML(m2.integer, m2.numerator, m2.denominator);
+                            const op = isAdd ? ' + ' : ' - ';
+                            const htmlText = html1 + op + html2 + ' = ?';
+                            let displayHTML = buildMixedAnswerHTML(sNum, sDen);
+                            qs.push({
+                                htmlText: htmlText,
+                                answer: resultVal,
+                                userAnswer: null,
+                                isFraction: true,
+                                displayAnswerHTML: displayHTML
+                            });
+                        }
+                        break;
+                    }
+
+                    // 2. 10以内异分母带分数加减法 (答案显示带分数形式)
+                    case '10以内异分母带分数加减法': {
+                        const denoms = [2, 3, 4, 5, 6, 8];
+                        let tries = 0;
+                        while (qs.length < count && tries < 5000) {
+                            tries++;
+                            let d1, d2;
+                            do {
+                                d1 = denoms[randInt(0, denoms.length - 1)];
+                                d2 = denoms[randInt(0, denoms.length - 1)];
+                            } while (d1 === d2);
+                            const m1 = genMixed(d1, 10);
+                            const m2 = genMixed(d2, 10);
+                            const isAdd = Math.random() > 0.5;
+                            let num1 = m1.integer * d1 + m1.numerator;
+                            let den1 = d1;
+                            let num2 = m2.integer * d2 + m2.numerator;
+                            let den2 = d2;
+                            let resultNum, resultDen;
+                            if (isAdd) {
+                                resultNum = num1 * den2 + num2 * den1;
+                                resultDen = den1 * den2;
+                            } else {
+                                resultNum = num1 * den2 - num2 * den1;
+                                resultDen = den1 * den2;
+                            }
+                            const [sNum, sDen] = simplifyFraction(resultNum, resultDen);
+                            const resultVal = sNum / sDen;
+                            if (Math.abs(resultVal) > 10) continue;
+                            if (Math.abs(resultVal) < 0.5 && Math.random() > 0.3) continue;
+
+                            const html1 = buildMixedHTML(m1.integer, m1.numerator, m1.denominator);
+                            const html2 = buildMixedHTML(m2.integer, m2.numerator, m2.denominator);
+                            const op = isAdd ? ' + ' : ' - ';
+                            const htmlText = html1 + op + html2 + ' = ?';
+                            let displayHTML = buildMixedAnswerHTML(sNum, sDen);
+                            qs.push({
+                                htmlText: htmlText,
+                                answer: resultVal,
+                                userAnswer: null,
+                                isFraction: true,
+                                displayAnswerHTML: displayHTML
+                            });
+                        }
+                        while (qs.length < count) {
+                            let d1, d2;
+                            do {
+                                d1 = denoms[randInt(0, denoms.length - 1)];
+                                d2 = denoms[randInt(0, denoms.length - 1)];
+                            } while (d1 === d2);
+                            const m1 = genMixed(d1, 5);
+                            const m2 = genMixed(d2, 5);
+                            const isAdd = Math.random() > 0.5;
+                            let num1 = m1.integer * d1 + m1.numerator;
+                            let den1 = d1;
+                            let num2 = m2.integer * d2 + m2.numerator;
+                            let den2 = d2;
+                            let resultNum, resultDen;
+                            if (isAdd) {
+                                resultNum = num1 * den2 + num2 * den1;
+                                resultDen = den1 * den2;
+                            } else {
+                                resultNum = num1 * den2 - num2 * den1;
+                                resultDen = den1 * den2;
+                            }
+                            let [sNum, sDen] = simplifyFraction(resultNum, resultDen);
+                            let resultVal = sNum / sDen;
+                            if (Math.abs(resultVal) > 10) { sNum = 0;
+                                sDen = 1;
+                                resultVal = 0; }
+                            const html1 = buildMixedHTML(m1.integer, m1.numerator, m1.denominator);
+                            const html2 = buildMixedHTML(m2.integer, m2.numerator, m2.denominator);
+                            const op = isAdd ? ' + ' : ' - ';
+                            const htmlText = html1 + op + html2 + ' = ?';
+                            let displayHTML = buildMixedAnswerHTML(sNum, sDen);
+                            qs.push({
+                                htmlText: htmlText,
+                                answer: resultVal,
+                                userAnswer: null,
+                                isFraction: true,
+                                displayAnswerHTML: displayHTML
+                            });
+                        }
+                        break;
+                    }
+
+                    // 3. 分数加减法 (真分数) - 答案显示假分数形式
+                    case '分数加减法': {
+                        const denoms = [2, 3, 4, 5, 6, 7, 8];
+                        let tries = 0;
+                        while (qs.length < count && tries < 5000) {
+                            tries++;
+                            const d1 = denoms[randInt(0, denoms.length - 1)];
+                            const d2 = denoms[randInt(0, denoms.length - 1)];
+                            const n1 = randInt(1, d1 - 1);
+                            const n2 = randInt(1, d2 - 1);
+                            const isAdd = Math.random() > 0.5;
+                            let resultNum = isAdd ? n1 * d2 + n2 * d1 : n1 * d2 - n2 * d1;
+                            let resultDen = d1 * d2;
+                            const resultVal = resultNum / resultDen;
+                            if (Math.abs(resultVal) > 10) continue;
+                            const [sNum, sDen] = simplifyFraction(resultNum, resultDen);
+                            if (sNum === 0 && Math.random() > 0.2) continue;
+                            if (sDen === 1 && Math.random() > 0.5) continue;
+
+                            const frac1 = buildFracHTML(n1, d1);
+                            const frac2 = buildFracHTML(n2, d2);
+                            const op = isAdd ? ' + ' : ' - ';
+                            let displayHTML = '';
+                            if (sDen === 1) displayHTML = sNum.toString();
+                            else if (sNum === 0) displayHTML = '0';
+                            else displayHTML = buildAnswerFractionHTML(sNum, sDen);
+                            const htmlText = frac1 + op + frac2 + ' = ?';
+                            qs.push({
+                                htmlText: htmlText,
+                                answer: resultVal,
+                                userAnswer: null,
+                                isFraction: true,
+                                displayAnswerHTML: displayHTML
+                            });
+                        }
+                        while (qs.length < count) {
+                            const d1 = denoms[randInt(0, denoms.length - 1)];
+                            const d2 = denoms[randInt(0, denoms.length - 1)];
+                            const n1 = randInt(1, d1 - 1);
+                            const n2 = randInt(1, d2 - 1);
+                            const isAdd = Math.random() > 0.5;
+                            let resultNum = isAdd ? n1 * d2 + n2 * d1 : n1 * d2 - n2 * d1;
+                            let resultDen = d1 * d2;
+                            const resultVal = resultNum / resultDen;
+                            if (Math.abs(resultVal) > 10) { resultNum = 0;
+                                resultDen = 1; }
+                            const [sNum, sDen] = simplifyFraction(resultNum, resultDen);
+                            const frac1 = buildFracHTML(n1, d1);
+                            const frac2 = buildFracHTML(n2, d2);
+                            const op = isAdd ? ' + ' : ' - ';
+                            let displayHTML = '';
+                            if (sDen === 1) displayHTML = sNum.toString();
+                            else if (sNum === 0) displayHTML = '0';
+                            else displayHTML = buildAnswerFractionHTML(sNum, sDen);
+                            const htmlText = frac1 + op + frac2 + ' = ?';
+                            qs.push({
+                                htmlText: htmlText,
+                                answer: resultVal,
+                                userAnswer: null,
+                                isFraction: true,
+                                displayAnswerHTML: displayHTML
+                            });
+                        }
+                        break;
+                    }
+
+                    // 4. 10以内正负数加减 (7种)
+                    case '10以内正负数加减': {
+                        const types = [
+                            'pos_neg_neg', 'neg_pos_any', 'neg_neg_any',
+                            'neg_neg_neg', 'pos_neg_pos', 'pos_pos_neg', 'neg_pos_neg'
+                        ];
+                        let tries = 0;
+                        while (qs.length < count && tries < 5000) {
+                            tries++;
+                            const typeIdx = randInt(0, types.length - 1);
+                            const type = types[typeIdx];
+                            let a, b, result, text, op;
+                            let valid = false;
+                            let attempts2 = 0;
+                            while (!valid && attempts2 < 200) {
+                                attempts2++;
+                                switch (type) {
+                                    case 'pos_neg_neg': {
+                                        const pos = randInt(1, 9);
+                                        const neg = -randInt(1, 9);
+                                        a = pos;
+                                        b = neg;
+                                        result = a + b;
+                                        op = ' + ';
+                                        valid = (result < 0 && Math.abs(result) <= 10);
+                                        break;
+                                    }
+                                    case 'neg_pos_any': {
+                                        a = -randInt(1, 9);
+                                        b = randInt(1, 9);
+                                        result = a + b;
+                                        op = ' + ';
+                                        valid = (Math.abs(result) <= 10);
+                                        break;
+                                    }
+                                    case 'neg_neg_any': {
+                                        a = -randInt(1, 9);
+                                        b = -randInt(1, 9);
+                                        result = a - b;
+                                        op = ' - ';
+                                        valid = (Math.abs(result) <= 10);
+                                        break;
+                                    }
+                                    case 'neg_neg_neg': {
+                                        a = -randInt(1, 8);
+                                        b = -randInt(1, 8);
+                                        result = a + b;
+                                        op = ' + ';
+                                        valid = (result < 0 && Math.abs(result) <= 10);
+                                        break;
+                                    }
+                                    case 'pos_neg_pos': {
+                                        a = randInt(1, 9);
+                                        b = -randInt(1, 9);
+                                        result = a - b;
+                                        op = ' - ';
+                                        valid = (result > 0 && Math.abs(result) <= 10);
+                                        break;
+                                    }
+                                    case 'pos_pos_neg': {
+                                        a = randInt(1, 9);
+                                        b = randInt(1, 9);
+                                        result = a - b;
+                                        op = ' - ';
+                                        valid = (result < 0 && Math.abs(result) <= 10);
+                                        break;
+                                    }
+                                    case 'neg_pos_neg': {
+                                        a = -randInt(1, 9);
+                                        b = randInt(1, 9);
+                                        result = a - b;
+                                        op = ' - ';
+                                        valid = (result < 0 && Math.abs(result) <= 10);
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!valid) continue;
+                            let displayA = a;
+                            let displayB = b;
+                            if (b < 0 && op === ' + ') {
+                                displayB = '(' + b + ')';
+                            } else if (b < 0 && op === ' - ') {
+                                displayB = '(' + b + ')';
+                            }
+                            const textStr = displayA + op + displayB + ' = ?';
+                            qs.push({ text: textStr, answer: result, userAnswer: null });
+                        }
+                        while (qs.length < count) {
+                            const type = types[randInt(0, types.length - 1)];
+                            let a, b, result, op;
+                            let valid = false;
+                            let attempts2 = 0;
+                            while (!valid && attempts2 < 100) {
+                                attempts2++;
+                                switch (type) {
+                                    case 'pos_neg_neg':
+                                        a = randInt(1, 9);
+                                        b = -randInt(1, 9);
+                                        result = a + b;
+                                        op = ' + ';
+                                        valid = (result < 0 && Math.abs(result) <= 10);
+                                        break;
+                                    case 'neg_pos_any':
+                                        a = -randInt(1, 9);
+                                        b = randInt(1, 9);
+                                        result = a + b;
+                                        op = ' + ';
+                                        valid = (Math.abs(result) <= 10);
+                                        break;
+                                    case 'neg_neg_any':
+                                        a = -randInt(1, 9);
+                                        b = -randInt(1, 9);
+                                        result = a - b;
+                                        op = ' - ';
+                                        valid = (Math.abs(result) <= 10);
+                                        break;
+                                    case 'neg_neg_neg':
+                                        a = -randInt(1, 8);
+                                        b = -randInt(1, 8);
+                                        result = a + b;
+                                        op = ' + ';
+                                        valid = (result < 0 && Math.abs(result) <= 10);
+                                        break;
+                                    case 'pos_neg_pos':
+                                        a = randInt(1, 9);
+                                        b = -randInt(1, 9);
+                                        result = a - b;
+                                        op = ' - ';
+                                        valid = (result > 0 && Math.abs(result) <= 10);
+                                        break;
+                                    case 'pos_pos_neg':
+                                        a = randInt(1, 9);
+                                        b = randInt(1, 9);
+                                        result = a - b;
+                                        op = ' - ';
+                                        valid = (result < 0 && Math.abs(result) <= 10);
+                                        break;
+                                    case 'neg_pos_neg':
+                                        a = -randInt(1, 9);
+                                        b = randInt(1, 9);
+                                        result = a - b;
+                                        op = ' - ';
+                                        valid = (result < 0 && Math.abs(result) <= 10);
+                                        break;
+                                }
+                            }
+                            let displayA = a;
+                            let displayB = b;
+                            if (b < 0 && op === ' + ') displayB = '(' + b + ')';
+                            else if (b < 0 && op === ' - ') displayB = '(' + b + ')';
+                            const textStr = displayA + op + displayB + ' = ?';
+                            qs.push({ text: textStr, answer: result, userAnswer: null });
+                        }
+                        break;
+                    }
+
                     default:
                         for (let i = 0; i < count; i++) {
                             const a = randInt(5, 90);
@@ -1132,14 +1620,22 @@
                     const card = document.createElement('div');
                     card.className = 'q-card';
                     card.id = `q-card-${idx}`;
+
+                    let displayHTML = '';
+                    if (q.htmlText) {
+                        displayHTML = q.htmlText;
+                    } else {
+                        displayHTML = escapeHtml(q.text);
+                    }
+
                     card.innerHTML = `
                         <div class="q-number">${idx + 1}</div>
-                        <span class="q-text">${escapeHtml(q.text)}</span>
+                        <span class="q-text">${displayHTML}</span>
                         <input type="text" class="q-input" id="q-input-${idx}" placeholder="?" 
                                ${isFinished ? 'disabled' : ''} 
                                value="${q.userAnswer !== null ? q.userAnswer : ''}"
-                               autocomplete="off" inputmode="numeric">
-                        <span class="q-answer-badge" id="q-badge-${idx}">${q.answer}</span>
+                               autocomplete="off" inputmode="decimal">
+                        <span class="q-answer-badge" id="q-badge-${idx}"></span>
                         <span class="q-result-icon" id="q-icon-${idx}"></span>
                     `;
                     questionsGrid.appendChild(card);
@@ -1154,7 +1650,23 @@
                         if (val === '' || val === '-') {
                             q.userAnswer = null;
                         } else {
-                            const num = parseFloat(val);
+                            let num;
+                            if (val.includes('/')) {
+                                const parts = val.split('/');
+                                if (parts.length === 2) {
+                                    const n = parseFloat(parts[0]);
+                                    const d = parseFloat(parts[1]);
+                                    if (!isNaN(n) && !isNaN(d) && d !== 0) {
+                                        num = n / d;
+                                    } else {
+                                        num = NaN;
+                                    }
+                                } else {
+                                    num = NaN;
+                                }
+                            } else {
+                                num = parseFloat(val);
+                            }
                             if (!isNaN(num)) {
                                 q.userAnswer = num;
                             } else {
@@ -1176,7 +1688,6 @@
                 }
             }
 
-            // 使用容差比较，适应小数运算
             function isAnswerCorrect(userAns, correct) {
                 if (userAns === null || userAns === '') return false;
                 const num = Number(userAns);
@@ -1190,8 +1701,12 @@
                 const card = document.getElementById(`q-card-${idx}`);
                 if (!badge || !icon || !card) return;
                 badge.classList.add('visible');
-                // 显示答案，保留最多两位小数
-                badge.textContent = Number.isInteger(q.answer) ? q.answer : q.answer.toFixed(2);
+                // 使用 displayAnswerHTML 显示分数样式
+                if (q.isFraction && q.displayAnswerHTML) {
+                    badge.innerHTML = q.displayAnswerHTML;
+                } else {
+                    badge.textContent = Number.isInteger(q.answer) ? q.answer : q.answer.toFixed(2);
+                }
                 icon.classList.add('visible');
 
                 if (q.userAnswer !== null && isAnswerCorrect(q.userAnswer, q.answer)) {
@@ -1276,7 +1791,6 @@
                 const mins = Math.floor(remainingSeconds / 60);
                 const secs = remainingSeconds % 60;
                 timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
                 if (remainingSeconds <= 10 && isRunning && !isPaused) {
                     timerDisplay.classList.add('warning');
                 } else {
@@ -1436,7 +1950,7 @@
                 timerStatus.textContent = '准备就绪 · 点击"开始"启动计时';
             }
 
-            // ============ 速查表生成与切换 ============
+            // ============ 速查表 ============
             function buildSquareTable() {
                 const tbody = document.getElementById('squareTableBody');
                 if (!tbody) return;
@@ -1459,7 +1973,6 @@
                 }
                 headerRow += '</tr>';
                 thead.innerHTML = headerRow;
-
                 tbody.innerHTML = '';
                 for (let n = 11; n <= 20; n++) {
                     let row = `<td><strong>${n}</strong></td>`;
@@ -1487,9 +2000,7 @@
                 }
                 headerRow += '</tr>';
                 thead.innerHTML = headerRow;
-
                 tbody.innerHTML = '';
-                // 24 行
                 let row24 = `<td><strong>24</strong></td>`;
                 for (let m = 1; m <= maxMult; m++) {
                     if (m <= 7) {
@@ -1501,8 +2012,6 @@
                 const tr24 = document.createElement('tr');
                 tr24.innerHTML = row24;
                 tbody.appendChild(tr24);
-
-                // 25 行
                 let row25 = `<td><strong>25</strong></td>`;
                 for (let m = 1; m <= maxMult; m++) {
                     row25 += `<td>${25 * m}</td>`;
@@ -1589,28 +2098,18 @@
             });
             generateBtn.addEventListener('click', generateNewQuestions);
 
-            // ============ 题型按钮点击 + 主题色同步 ============
+            // 题型切换
             typeButtons.addEventListener('click', (e) => {
                 const btn = e.target.closest('.type-btn');
                 if (!btn) return;
                 if (isRunning && !isFinished) {
                     if (!confirm('切换题型将重置所有题目，确定吗？')) return;
                 }
-
-                // 1. 移除所有按钮的 active 类
                 typeButtons.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-
-                // 2. 清除所有按钮的内联样式（重置为未选中状态）
                 clearAllTypeBtnInlineStyles();
-
-                // 3. 当前按钮添加 active 类
                 btn.classList.add('active');
                 activeTypeBtn = btn;
-
-                // 4. 使用当前主题色设置当前按钮样式
                 applyThemeToBtn(btn, currentTheme);
-
-                // 5. 更新题型
                 currentType = btn.dataset.type;
                 resetAll();
                 questions = [];
@@ -1649,7 +2148,6 @@
                 }
             });
 
-            // 速查表切换事件
             toggleSquareBtn.addEventListener('click', () => {
                 toggleTable(toggleSquareBtn, squareTable, '展开 10-25 平方数表', '隐藏 10-25 平方数表');
             });
@@ -1660,11 +2158,9 @@
                 toggleTable(toggleSpecialBtn, specialTable, '展开 24·25 乘法表', '隐藏 24·25 乘法表');
             });
 
-            // ============ 主题切换 ============
+            // ============ 主题 ============
             function setTheme(themeName) {
                 currentTheme = themeName;
-
-                // 更新顶部卡片渐变
                 let gradient = '';
                 switch (themeName) {
                     case 'orange':
@@ -1686,23 +2182,15 @@
                         gradient = 'linear-gradient(135deg, #ff9a3c 0%, #ff6b6b 100%)';
                 }
                 heroCard.style.background = gradient;
-
-                // 更新 body 背景
                 const body = document.body;
-                ['orange', 'pink', 'grayblue', 'mint', 'purple'].forEach(t => body.classList.remove(
-                    `theme-${t}`));
+                ['orange', 'pink', 'grayblue', 'mint', 'purple'].forEach(t => body.classList.remove(`theme-${t}`));
                 if (themeName !== 'orange') {
                     body.classList.add(`theme-${themeName}`);
                 }
-
-                // 更新当前 active 题型按钮的颜色
                 updateActiveBtnTheme();
-
-                // 主题圆点高亮
                 document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme-dot'));
                 const activeThemeBtn = document.querySelector(`.theme-btn[data-theme="${themeName}"]`);
                 if (activeThemeBtn) activeThemeBtn.classList.add('active-theme-dot');
-
                 localStorage.setItem('oral_math_theme', themeName);
             }
 
@@ -1718,7 +2206,7 @@
                 });
             }
 
-            // ============ 工具函数 ============
+            // ============ 工具 ============
             function escapeHtml(str) {
                 if (!str) return '';
                 return str.replace(/[&<>]/g, function(m) {
@@ -1731,8 +2219,8 @@
 
             // ============ 键盘快捷键 ============
             document.addEventListener('keydown', (e) => {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target
-                    .tagName === 'SELECT') {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName ===
+                    'SELECT') {
                     return;
                 }
                 switch (e.key.toLowerCase()) {
@@ -1784,7 +2272,6 @@
             }
 
             init();
-
             console.log('口算练习已就绪 | Twolobster');
             console.log('  快捷键：空格=开始/暂停 | G=生成新题 | R=重置 | A=查看答案');
         })();

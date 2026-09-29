@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>不规则动词学习工具丨Twolobster</title>
+<style>
+    :root {
+        --grad-a: #ff9a3c;
+        --grad-b: #ff6b6b;
+        --accent: #ff9a3c;
+        --accent-soft: #fff7ed;
+        --page-bg: #f0f4f9;
+    }
+    body.theme-pink {
+        --grad-a: #f472b6; --grad-b: #fb7185; --accent: #ec4899;
+        --accent-soft: #fdf2f8; --page-bg: #fdf2f8;
+    }
+    body.theme-grayblue {
+        --grad-a: #2c3e50; --grad-b: #3498db; --accent: #3498db;
+        --accent-soft: #eff6ff; --page-bg: #eef2f7;
+    }
+    body.theme-mint {
+        --grad-a: #11998e; --grad-b: #38ef7d; --accent: #11998e;
+        --accent-soft: #ecfdf5; --page-bg: #ecfdf5;
+    }
+    body.theme-purple {
+        --grad-a: #8b5cf6; --grad-b: #d8b4fe; --accent: #a855f7;
+        --accent-soft: #faf5ff; --page-bg: #faf5ff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        background: var(--page-bg);
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        padding: 24px 20px;
+        color: #0f172a;
+        transition: background 0.3s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* ============ 顶部 ============ */
+    .hero-card {
+        background: linear-gradient(135deg, var(--grad-a) 0%, var(--grad-b) 100%);
+        border-radius: 48px;
+        padding: 20px 32px;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.2);
+        transition: background 0.3s ease;
+    }
+    .hero-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .hero-badge {
+        font-size: 0.8rem;
+        background: rgba(255, 255, 255, 0.22);
+        padding: 4px 14px;
+        border-radius: 40px;
+        font-weight: 500;
+    }
+    .hero-sub {
+        opacity: 0.9;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    /* ============ 卡片 ============ */
+    .card {
+        background: #fff;
+        border-radius: 32px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        padding: 22px 26px;
+        border: 1px solid #eef2ff;
+    }
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-left: 5px solid var(--accent);
+        padding-left: 16px;
+        letter-spacing: -0.3px;
+    }
+
+    /* ============ 按钮通用 ============ */
+    .btn {
+        padding: 11px 26px;
+        border-radius: 40px;
+        border: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-family: inherit;
+        white-space: nowrap;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+
+    .btn-primary {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .btn-primary:hover { filter: brightness(0.94); transform: translateY(-1px); }
+
+    .btn-answer {
+        background: #6366f1;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    .btn-answer:hover { background: #4f46e5; transform: translateY(-1px); }
+
+    .btn-reset {
+        background: #ef4444;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    }
+    .btn-reset:hover { background: #dc2626; transform: translateY(-1px); }
+
+    .btn-ghost {
+        background: #eef2ff;
+        color: #3b82f6;
+    }
+    .btn-ghost:hover { background: #dbeafe; transform: translateY(-1px); }
+
+    /* ============ 展开表格按钮 ============ */
+    .table-btns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+    .btn-toggle-table {
+        padding: 10px 22px;
+        border-radius: 40px;
+        border: none;
+        background: #eef2ff;
+        color: #3b82f6;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+    .btn-toggle-table:hover { background: #dbeafe; transform: translateY(-1px); }
+    .btn-toggle-table.active-toggle { background: var(--accent); color: #fff; }
+
+    /* ============ 表格 ============ */
+    .table-wrapper {
+        margin-top: 12px;
+        overflow-x: auto;
+        border-radius: 24px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .ref-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        font-size: 0.88rem;
+        white-space: nowrap;
+    }
+    .ref-table th {
+        background: #eef2ff;
+        padding: 10px 8px;
+        font-weight: 700;
+        color: #1e293b;
+        text-align: center;
+    }
+    .ref-table td {
+        padding: 9px 8px;
+        background: #fff;
+        text-align: center;
+        border-bottom: 1px solid #f1f5f9;
+        font-weight: 500;
+    }
+    .ref-table tr:last-child td { border-bottom: none; }
+    .ref-table td.idx { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+    .ref-table td.base { font-weight: 800; color: #1d4ed8; }
+    .table-note {
+        margin-top: 10px;
+        font-size: 0.78rem;
+        color: #94a3b8;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    /* ============ 检索 ============ */
+    .search-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .search-row input {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px 22px;
+        border-radius: 40px;
+        border: 2px solid #e2e8f0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        background: #f8fafc;
+        font-family: inherit;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+    .search-row input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background: #fff;
+    }
+    .search-result {
+        margin-top: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .search-card {
+        border-radius: 24px;
+        border: 2px solid #e2edff;
+        background: #fafcff;
+        padding: 16px 18px;
+        animation: fadeInUp 0.35s ease;
+    }
+    .search-group {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--accent);
+        margin-bottom: 10px;
+        letter-spacing: 0.3px;
+    }
+    .search-forms {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    .sf { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .sf-label { font-size: 0.68rem; font-weight: 700; color: #94a3b8; letter-spacing: 0.3px; }
+    .sf-val {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #1e293b;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .search-empty {
+        padding: 16px 20px;
+        border-radius: 24px;
+        background: #fef2f2;
+        color: #b91c1c;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: 2px solid #fecaca;
+        animation: fadeInUp 0.35s ease;
+    }
+    .search-hint {
+        color: #94a3b8;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============ 设置区 ============ */
+    .settings-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: flex-end;
+    }
+    .setting-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .setting-group label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    .setting-group input {
+        border-radius: 40px;
+        border: 1px solid #cbd5e1;
+        padding: 9px 18px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        background: #f8fafc;
+        min-width: 90px;
+        font-family: inherit;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+    .setting-group input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background: #fff;
+    }
+    .type-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .type-btn {
+        padding: 9px 18px;
+        border-radius: 40px;
+        border: 2px solid #e2e8f0;
+        background: #f8fafc;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.82rem;
+        transition: all 0.2s;
+        white-space: nowrap;
+        color: #475569;
+        font-family: inherit;
+    }
+    .type-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .type-btn.active {
+        color: #fff;
+        background: var(--accent);
+        border-color: var(--accent);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    }
+
+    .test-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid #e2e8f0;
+    }
+    .test-status {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-top: 14px;
+        text-align: center;
+    }
+
+    /* ============ 测试题目行 ============ */
+    .v-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 16px;
+    }
+    .empty-hint {
+        text-align: center;
+        padding: 40px 20px;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    .v-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: #fafcff;
+        border-radius: 22px;
+        padding: 12px 16px;
+        border: 2px solid #e2edff;
+        transition: all 0.25s;
+    }
+    .v-row.correct-flash {
+        border-color: #10b981 !important;
+        background: #ecfdf5 !important;
+        animation: flash-green 0.6s ease;
+    }
+    .v-row.wrong-flash {
+        border-color: #ef4444 !important;
+        background: #fef2f2 !important;
+        animation: flash-red 0.6s ease;
+    }
+    @keyframes flash-green {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+    @keyframes flash-red {
+        0%, 100% { transform: scale(1); }
+        30% { transform: translateX(-3px); }
+        60% { transform: translateX(3px); }
+    }
+    .v-num {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #eef2ff;
+        color: #3b82f6;
+        font-weight: 800;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .v-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        min-width: 0;
+    }
+    .v-forms {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+    .v-field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+    .v-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #94a3b8;
+        letter-spacing: 0.3px;
+    }
+    .v-given {
+        padding: 10px 8px;
+        border-radius: 12px;
+        background: #eef2ff;
+        color: #1d4ed8;
+        font-weight: 800;
+        text-align: center;
+        font-size: 0.95rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .v-input {
+        width: 100%;
+        padding: 10px 8px;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-align: center;
+        background: #fff;
+        transition: border 0.2s, background 0.2s;
+        font-family: inherit;
+    }
+    .v-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+    }
+    .v-input:disabled { background: #f8fafc; }
+    .v-input.ok { border-color: #10b981 !important; background: #ecfdf5 !important; color: #15803d !important; }
+    .v-input.bad { border-color: #ef4444 !important; background: #fef2f2 !important; color: #b91c1c !important; }
+    .v-input.blank { border-color: #f59e0b !important; background: #fffbeb !important; color: #b45309 !important; }
+
+    .v-answer {
+        display: none;
+        align-self: flex-start;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #1d4ed8;
+        background: #dbeafe;
+        padding: 5px 14px;
+        border-radius: 40px;
+        letter-spacing: 0.2px;
+    }
+    .v-answer.visible { display: inline-block; }
+    .v-verdict {
+        flex-shrink: 0;
+        font-size: 1.25rem;
+        width: 26px;
+        text-align: center;
+        line-height: 1;
+    }
+
+    /* ============ 成绩面板 ============ */
+    .score-panel {
+        display: none;
+        background: linear-gradient(135deg, #eef2ff, #ffffff);
+        border-radius: 32px;
+        padding: 20px 24px;
+        margin-top: 18px;
+        text-align: center;
+        border: 2px solid #e2edff;
+    }
+    .score-panel.visible { display: block; animation: fadeInUp 0.4s ease; }
+    .score-big {
+        font-size: 3rem;
+        font-weight: 900;
+        letter-spacing: -1px;
+    }
+    .score-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 10px;
+    }
+    .stat-badge {
+        padding: 8px 18px;
+        border-radius: 40px;
+        font-weight: 700;
+        font-size: 0.88rem;
+    }
+    .stat-correct { background: #bbf7d0; color: #15803d; }
+    .stat-wrong { background: #fecaca; color: #b91c1c; }
+    .stat-unanswered { background: #fef3c7; color: #92400e; }
+    .stat-total { background: #eef2ff; color: #3b82f6; }
+
+    /* ============ 底部 ============ */
+    .footer-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 4px 8px 12px;
+    }
+    .copyright {
+        font-size: 0.78rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+    .theme-buttons {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    .theme-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid #fff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        transition: transform 0.1s;
+    }
+    .theme-btn:hover { transform: scale(1.15); }
+    .theme-btn.active-theme-dot {
+        border: 3px solid #0f172a;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ============ 响应式 ============ */
+    @media (max-width: 750px) {
+        body { padding: 14px 10px; }
+        .card { padding: 16px 16px; border-radius: 26px; }
+        .hero-card {
+            padding: 14px 18px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            border-radius: 32px;
+        }
+        .hero-title { font-size: 1.15rem; }
+        .hero-sub { font-size: 0.72rem; }
+        .hero-badge { font-size: 0.7rem; padding: 3px 10px; }
+        .section-title { font-size: 1.08rem; margin-bottom: 12px; padding-left: 12px; }
+
+        .ref-table { font-size: 0.78rem; }
+        .ref-table th, .ref-table td { padding: 7px 5px; }
+
+        .v-row { padding: 10px 12px; gap: 9px; border-radius: 18px; }
+        .v-forms { gap: 6px; }
+        .v-label { font-size: 0.58rem; }
+        .v-given, .v-input { font-size: 0.84rem; padding: 8px 4px; border-radius: 10px; }
+        .v-num { width: 26px; height: 26px; font-size: 0.75rem; }
+        .v-verdict { font-size: 1.05rem; width: 20px; }
+        .v-answer { font-size: 0.72rem; padding: 4px 11px; }
+
+        .btn { padding: 10px 18px; font-size: 0.85rem; }
+        .btn-toggle-table { padding: 9px 16px; font-size: 0.78rem; }
+        .type-btn { padding: 7px 13px; font-size: 0.72rem; }
+        .settings-row { gap: 12px; }
+        .search-forms { gap: 8px; }
+        .sf-val { font-size: 0.95rem; }
+        .score-big { font-size: 2.4rem; }
+        .stat-badge { font-size: 0.78rem; padding: 7px 14px; }
+
+        .footer-toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+        .theme-buttons { justify-content: center; }
+    }
+    @media (max-width: 400px) {
+        .v-given, .v-input { font-size: 0.76rem; padding: 7px 2px; }
+        .v-label { font-size: 0.54rem; }
+        .v-num { width: 22px; height: 22px; font-size: 0.68rem; }
+        .btn { padding: 9px 14px; font-size: 0.78rem; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+    <!-- 顶部标题 -->
+    <div class="hero-card" id="heroCard">
+        <div class="hero-title">
+            不规则动词学习工具
+            <span class="hero-badge">EduEnglish</span>
+        </div>
+        <div class="hero-sub">查看 · 检索 · 测试</div>
+    </div>
+
+    <!-- ============ 1. 查看 ============ -->
+    <div class="card">
+        <div class="section-title">📖 动词表查看</div>
+        <div class="table-btns">
+            <button class="btn-toggle-table" data-group="same" data-label="第一类 · 三个相同">展开 第一类 · 三个相同</button>
+            <button class="btn-toggle-table" data-group="two" data-label="第二类 · 两个不同">展开 第二类 · 两个不同</button>
+            <button class="btn-toggle-table" data-group="three" data-label="第三类 · 三个不同">展开 第三类 · 三个不同</button>
+        </div>
+        <div id="sameArea" style="display:none;"></div>
+        <div id="twoArea" style="display:none;"></div>
+        <div id="threeArea" style="display:none;"></div>
+    </div>
+
+    <!-- ============ 2. 检索 ============ -->
+    <div class="card">
+        <div class="section-title">🔍 检索查找</div>
+        <div class="search-row">
+            <input type="text" id="searchInput" placeholder="输入任意形式，如 go / went / gone" autocomplete="off" spellcheck="false">
+            <button class="btn btn-primary" id="searchBtn">查找</button>
+            <button class="btn btn-ghost" id="searchResetBtn">重置</button>
+        </div>
+        <div class="search-result" id="searchResult">
+            <div class="search-hint">请输入动词的原形、过去式或过去分词进行查询。</div>
+        </div>
+    </div>
+
+    <!-- ============ 3. 测试 ============ -->
+    <div class="card">
+        <div class="section-title">📝 测试</div>
+
+        <div class="settings-row">
+            <div class="setting-group">
+                <label>题目数量</label>
+                <input type="number" id="testCount" value="10" min="1" max="60" step="1">
+            </div>
+            <div class="setting-group" style="flex:1; min-width:230px;">
+                <label>词库</label>
+                <div class="type-buttons" id="bankButtons">
+                    <button class="type-btn" data-bank="same">三个相同</button>
+                    <button class="type-btn" data-bank="two">两个不同</button>
+                    <button class="type-btn" data-bank="three">三个不同</button>
+                    <button class="type-btn active" data-bank="all">全部</button>
+                </div>
+            </div>
+            <div class="setting-group" style="flex:1; min-width:230px;">
+                <label>题型（给出哪一项）</label>
+                <div class="type-buttons" id="modeButtons">
+                    <button class="type-btn active" data-mode="base">原形</button>
+                    <button class="type-btn" data-mode="past">过去式</button>
+                    <button class="type-btn" data-mode="pp">过去分词</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-toolbar">
+            <button class="btn btn-primary" id="genTestBtn">生成题目</button>
+            <button class="btn btn-answer" id="revealBtn" disabled>查看答案</button>
+            <button class="btn btn-reset" id="resetTestBtn" disabled>重置</button>
+        </div>
+
+        <div class="test-status" id="testStatus">选择设置后点击「生成题目」开始测试</div>
+
+        <div class="v-list" id="testGrid">
+            <div class="empty-hint">点击「生成题目」开始练习吧</div>
+        </div>
+
+        <div class="score-panel" id="testScorePanel">
+            <div style="font-weight:700; color:#64748b; margin-bottom:6px;">测试结果</div>
+            <div class="score-big" id="testScoreBig">--</div>
+            <div class="score-stats" id="testScoreStats"></div>
+        </div>
+    </div>
+
+    <!-- ============ 底部 ============ -->
+    <div class="footer-toolbar">
+        <div class="copyright">© Twolobster丨EduEnglish Irregular Verbs</div>
+        <div class="theme-buttons">
+            <span style="font-size:0.75rem; color:#64748b;">🎨 主题：</span>
+            <div class="theme-btn active-theme-dot" style="background: linear-gradient(135deg, #ff9a3c, #ff6b6b);" data-theme="orange" title="橘色"></div>
+            <div class="theme-btn" style="background: linear-gradient(135deg, #f472b6, #fb7185);" data-theme="pink" title="粉色"></div>
+            <div class="theme-btn" style="background: linear-gradient(135deg, #2c3e50, #3498db);" data-theme="grayblue" title="灰蓝"></div>
+            <div class="theme-btn" style="background: linear-gradient(135deg, #11998e, #38ef7d);" data-theme="mint" title="薄荷"></div>
+            <div class="theme-btn" style="background: linear-gradient(135deg, #8b5cf6, #d8b4fe);" data-theme="purple" title="紫色"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    /* =========================================================
+       一、数据：不规则动词词库
+       ========================================================= */
+    const VERB_GROUPS = {
+        same: {
+            key: 'same',
+            title: '第一类 · 三个相同',
+            desc: '原形、过去式、过去分词三种形式完全相同',
+            verbs: [
+                { base: 'cost', past: 'cost',  pp: 'cost'  },
+                { base: 'cut',  past: 'cut',   pp: 'cut'   },
+                { base: 'hurt', past: 'hurt',  pp: 'hurt'  },
+                { base: 'let',  past: 'let',   pp: 'let'   },
+                { base: 'put',  past: 'put',   pp: 'put'   },
+                { base: 'shut', past: 'shut',  pp: 'shut'  }
+            ]
+        },
+        two: {
+            key: 'two',
+            title: '第二类 · 两个不同',
+            desc: '三种形式中有两种相同（原形＝过去分词，或过去式＝过去分词）',
+            verbs: [
+                { base: 'beat',       past: 'beat',       pp: 'beaten'     },
+                { base: 'become',     past: 'became',     pp: 'become'     },
+                { base: 'bring',      past: 'brought',    pp: 'brought'    },
+                { base: 'buy',        past: 'bought',     pp: 'bought'     },
+                { base: 'catch',      past: 'caught',     pp: 'caught'     },
+                { base: 'come',       past: 'came',       pp: 'come'       },
+                { base: 'feel',       past: 'felt',       pp: 'felt'       },
+                { base: 'fight',      past: 'fought',     pp: 'fought'     },
+                { base: 'find',       past: 'found',      pp: 'found'      },
+                { base: 'get',        past: 'got',        pp: 'got'        },
+                { base: 'have',       past: 'had',        pp: 'had'        },
+                { base: 'hear',       past: 'heard',      pp: 'heard'      },
+                { base: 'keep',       past: 'kept',       pp: 'kept'       },
+                { base: 'leave',      past: 'left',       pp: 'left'       },
+                { base: 'learn',      past: 'learnt',     pp: 'learnt'     },
+                { base: 'lose',       past: 'lost',       pp: 'lost'       },
+                { base: 'make',       past: 'made',       pp: 'made'       },
+                { base: 'meet',       past: 'met',        pp: 'met'        },
+                { base: 'pay',        past: 'paid',       pp: 'paid'       },
+                { base: 'read',       past: 'read',       pp: 'read'       },
+                { base: 'run',        past: 'ran',        pp: 'run'        },
+                { base: 'say',        past: 'said',       pp: 'said'       },
+                { base: 'sell',       past: 'sold',       pp: 'sold'       },
+                { base: 'shine',      past: 'shone',      pp: 'shone'      },
+                { base: 'shoot',      past: 'shot',       pp: 'shot'       },
+                { base: 'sit',        past: 'sat',        pp: 'sat'        },
+                { base: 'sleep',      past: 'slept',      pp: 'slept'      },
+                { base: 'spend',      past: 'spent',      pp: 'spent'      },
+                { base: 'stand',      past: 'stood',      pp: 'stood'      },
+                { base: 'teach',      past: 'taught',     pp: 'taught'     },
+                { base: 'tell',       past: 'told',       pp: 'told'       },
+                { base: 'think',      past: 'thought',    pp: 'thought'    },
+                { base: 'win',        past: 'won',        pp: 'won'        },
+                { base: 'understand', past: 'understood', pp: 'understood' }
+            ]
+        },
+        three: {
+            key: 'three',
+            title: '第三类 · 三个不同',
+            desc: '原形、过去式、过去分词三种形式各不相同',
+            verbs: [
+                { base: 'be',       past: 'was/were', pp: 'been'      },
+                { base: 'begin',    past: 'began',    pp: 'begun'     },
+                { base: 'break',    past: 'broke',    pp: 'broken'    },
+                { base: 'choose',   past: 'chose',    pp: 'chosen'    },
+                { base: 'do',       past: 'did',      pp: 'done'      },
+                { base: 'drink',    past: 'drank',    pp: 'drunk'     },
+                { base: 'drive',    past: 'drove',    pp: 'driven'    },
+                { base: 'eat',      past: 'ate',      pp: 'eaten'     },
+                { base: 'fall',     past: 'fell',     pp: 'fallen'    },
+                { base: 'fly',      past: 'flew',     pp: 'flown'     },
+                { base: 'forget',   past: 'forgot',   pp: 'forgotten' },
+                { base: 'give',     past: 'gave',     pp: 'given'     },
+                { base: 'go',       past: 'went',     pp: 'gone'      },
+                { base: 'know',     past: 'knew',     pp: 'known'     },
+                { base: 'ride',     past: 'rode',     pp: 'ridden'    },
+                { base: 'rise',     past: 'rose',     pp: 'risen'     },
+                { base: 'sing',     past: 'sang',     pp: 'sung'      },
+                { base: 'speak',    past: 'spoke',    pp: 'spoken'    },
+                { base: 'steal',    past: 'stole',    pp: 'stolen'    },
+                { base: 'swim',     past: 'swam',     pp: 'swum'      },
+                { base: 'take',     past: 'took',     pp: 'taken'     },
+                { base: 'throw',    past: 'threw',    pp: 'thrown'    },
+                { base: 'wake',     past: 'woke',     pp: 'woken'     },
+                { base: 'wear',     past: 'wore',     pp: 'worn'      },
+                { base: 'write',    past: 'wrote',    pp: 'written'   }
+            ]
+        }
+    };
+
+    const GROUP_LABEL = {
+        same: '第一类 · 三个相同',
+        two: '第二类 · 两个不同',
+        three: '第三类 · 三个不同'
+    };
+
+    const FORM_LABELS = { base: '原形', past: '过去式', pp: '过去分词' };
+    const FORM_KEYS = ['base', 'past', 'pp'];
+
+    /* 汇总全部动词 */
+    const ALL_VERBS = [];
+    ['same', 'two', 'three'].forEach(function (k) {
+        VERB_GROUPS[k].verbs.forEach(function (v) {
+            ALL_VERBS.push({ base: v.base, past: v.past, pp: v.pp, group: k });
+        });
+    });
+
+    /* 检索索引（支持 was/were 拆分匹配） */
+    const LOOKUP = new Map();
+    ALL_VERBS.forEach(function (v) {
+        FORM_KEYS.forEach(function (f) {
+            String(v[f]).split('/').forEach(function (part) {
+                const key = part.trim().toLowerCase();
+                if (!key) return;
+                if (!LOOKUP.has(key)) LOOKUP.set(key, []);
+                const arr = LOOKUP.get(key);
+                if (arr.indexOf(v) === -1) arr.push(v);
+            });
+        });
+    });
+
+    /* =========================================================
+       二、工具函数
+       ========================================================= */
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str).replace(/[&<>]/g, function (m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function escapeAttr(str) {
+        if (str === null || str === undefined) return '';
+        return String(str).replace(/[&<>"]/g, function (m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            if (m === '"') return '&quot;';
+            return m;
+        });
+    }
+
+    function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const t = a[i]; a[i] = a[j]; a[j] = t;
+        }
+        return a;
+    }
+
+    /* 归一化：忽略大小写、空格，统一分隔符 */
+    function normForm(s) {
+        return String(s === null || s === undefined ? '' : s)
+            .toLowerCase()
+            .replace(/\s+/g, '')
+            .replace(/[,，、;；]+/g, '/')
+            .replace(/\/+/g, '/');
+    }
+
+    /* 判断用户填写是否与标准答案匹配（支持 was/were 这类多答案） */
+    function matches(userVal, correct) {
+        if (userVal === null || userVal === undefined) return false;
+        const u = normForm(userVal);
+        if (!u) return false;
+        const c = normForm(correct);
+        if (u === c) return true;
+        const opts = c.split('/').filter(Boolean);
+        if (opts.length > 1) {
+            if (opts.indexOf(u) !== -1) return true;
+            if (opts.slice().reverse().join('/') === u) return true;
+        }
+        return false;
+    }
+
+    /* =========================================================
+       三、查看：构建三张表
+       ========================================================= */
+    function buildVerbTables() {
+        ['same', 'two', 'three'].forEach(function (key) {
+            const g = VERB_GROUPS[key];
+            const area = document.getElementById(key + 'Area');
+            if (!area) return;
+
+            let rows = '';
+            g.verbs.forEach(function (v, i) {
+                rows += '<tr>' +
+                    '<td class="idx">' + (i + 1) + '</td>' +
+                    '<td class="base">' + escapeHtml(v.base) + '</td>' +
+                    '<td>' + escapeHtml(v.past) + '</td>' +
+                    '<td>' + escapeHtml(v.pp) + '</td>' +
+                    '</tr>';
+            });
+
+            area.innerHTML =
+                '<div class="table-wrapper">' +
+                    '<table class="ref-table">' +
+                        '<thead><tr>' +
+                            '<th>#</th><th>原形</th><th>过去式</th><th>过去分词</th>' +
+                        '</tr></thead>' +
+                        '<tbody>' + rows + '</tbody>' +
+                    '</table>' +
+                '</div>' +
+                '<div class="table-note">' + g.desc + ' · 共 ' + g.verbs.length + ' 个动词</div>';
+        });
+    }
+
+    /* 展开 / 收起 */
+    function initTableToggles() {
+        document.querySelectorAll('.btn-toggle-table').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const key = btn.dataset.group;
+                const label = btn.dataset.label || '';
+                const area = document.getElementById(key + 'Area');
+                if (!area) return;
+
+                const isOpen = area.style.display === 'block';
+                if (isOpen) {
+                    area.style.display = 'none';
+                    btn.classList.remove('active-toggle');
+                    btn.textContent = '展开 ' + label;
+                } else {
+                    area.style.display = 'block';
+                    btn.classList.add('active-toggle');
+                    btn.textContent = '收起 ' + label;
+                }
+            });
+        });
+    }
+
+    /* =========================================================
+       四、检索
+       ========================================================= */
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchResetBtn = document.getElementById('searchResetBtn');
+    const searchResult = document.getElementById('searchResult');
+
+    function renderSearchCard(v) {
+        return '' +
+            '<div class="search-card">' +
+                '<div class="search-group">' + GROUP_LABEL[v.group] + '</div>' +
+                '<div class="search-forms">' +
+                    '<div class="sf"><span class="sf-label">原形</span><span class="sf-val">' + escapeHtml(v.base) + '</span></div>' +
+                    '<div class="sf"><span class="sf-label">过去式</span><span class="sf-val">' + escapeHtml(v.past) + '</span></div>' +
+                    '<div class="sf"><span class="sf-label">过去分词</span><span class="sf-val">' + escapeHtml(v.pp) + '</span></div>' +
+                '</div>' +
+            '</div>';
+    }
+
+    function doSearch() {
+        const raw = searchInput.value.trim();
+        if (!raw) {
+            searchResult.innerHTML = '<div class="search-hint">请输入动词的原形、过去式或过去分词进行查询。</div>';
+            return;
+        }
+        const key = raw.toLowerCase().replace(/\s+/g, '');
+        const found = LOOKUP.get(key);
+
+        if (!found || !found.length) {
+            searchResult.innerHTML =
+                '<div class="search-empty">❌ 「' + escapeHtml(raw) + '」不属于本工具收录的不规则动词。</div>';
+            return;
+        }
+
+        let html = '';
+        found.forEach(function (v) { html += renderSearchCard(v); });
+        searchResult.innerHTML = html;
+    }
+
+    searchBtn.addEventListener('click', doSearch);
+    searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            doSearch();
+        }
+    });
+    searchResetBtn.addEventListener('click', function () {
+        searchInput.value = '';
+        searchResult.innerHTML = '<div class="search-hint">请输入动词的原形、过去式或过去分词进行查询。</div>';
+        searchInput.focus();
+    });
+
+    /* =========================================================
+       五、测试
+       ========================================================= */
+    const testCountInput = document.getElementById('testCount');
+    const bankButtons = document.getElementById('bankButtons');
+    const modeButtons = document.getElementById('modeButtons');
+    const genTestBtn = document.getElementById('genTestBtn');
+    const revealBtn = document.getElementById('revealBtn');
+    const resetTestBtn = document.getElementById('resetTestBtn');
+    const testStatus = document.getElementById('testStatus');
+    const testGrid = document.getElementById('testGrid');
+    const testScorePanel = document.getElementById('testScorePanel');
+    const testScoreBig = document.getElementById('testScoreBig');
+    const testScoreStats = document.getElementById('testScoreStats');
+
+    let bank = 'all';
+    let mode = 'base';
+    let testQuestions = [];
+    let testRevealed = false;
+
+    function buildPool() {
+        if (bank === 'all') return ALL_VERBS.slice();
+        return ALL_VERBS.filter(function (v) { return v.group === bank; });
+    }
+
+    function generateTest() {
+        const pool = buildPool();
+        if (!pool.length) return;
+
+        let count = parseInt(testCountInput.value, 10);
+        if (isNaN(count) || count < 1) count = 10;
+        if (count > pool.length) {
+            count = pool.length;
+            testCountInput.value = count;
+        }
+
+        const picked = shuffle(pool).slice(0, count);
+        testQuestions = picked.map(function (v) {
+            return {
+                base: v.base,
+                past: v.past,
+                pp: v.pp,
+                group: v.group,
+                user: { base: null, past: null, pp: null }
+            };
+        });
+
+        testRevealed = false;
+        revealBtn.textContent = '查看答案';
+        revealBtn.disabled = false;
+        resetTestBtn.disabled = false;
+        testScorePanel.classList.remove('visible');
+
+        renderTest();
+        updateStatus();
+    }
+
+    function updateStatus() {
+        if (!testQuestions.length) {
+            testStatus.textContent = '选择设置后点击「生成题目」开始测试';
+            return;
+        }
+        const bankText = bank === 'all' ? '全部词库' : GROUP_LABEL[bank];
+        testStatus.textContent = '共 ' + testQuestions.length + ' 题 · ' +
+            bankText + ' · 题型：给出' + FORM_LABELS[mode];
+    }
+
+    function renderTest() {
+        testGrid.innerHTML = '';
+
+        if (!testQuestions.length) {
+            testGrid.innerHTML = '<div class="empty-hint">点击「生成题目」开始练习吧</div>';
+            return;
+        }
+
+        testQuestions.forEach(function (q, idx) {
+            const row = document.createElement('div');
+            row.className = 'v-row';
+            row.id = 'vrow-' + idx;
+
+            let fields = '';
+            FORM_KEYS.forEach(function (f) {
+                if (f === mode) {
+                    fields += '<div class="v-field">' +
+                        '<span class="v-label">' + FORM_LABELS[f] + '</span>' +
+                        '<span class="v-given">' + escapeHtml(q[f]) + '</span>' +
+                        '</div>';
+                } else {
+                    const val = q.user[f] === null ? '' : q.user[f];
+                    fields += '<div class="v-field">' +
+                        '<span class="v-label">' + FORM_LABELS[f] + '</span>' +
+                        '<input type="text" class="v-input" id="vi-' + idx + '-' + f + '" ' +
+                        'data-idx="' + idx + '" data-form="' + f + '" ' +
+                        'value="' + escapeAttr(val) + '" autocomplete="off" spellcheck="false" ' +
+                        (testRevealed ? 'disabled' : '') + '>' +
+                        '</div>';
+                }
+            });
+
+            row.innerHTML =
+                '<div class="v-num">' + (idx + 1) + '</div>' +
+                '<div class="v-main">' +
+                    '<div class="v-forms">' + fields + '</div>' +
+                    '<div class="v-answer" id="va-' + idx + '">' +
+                        escapeHtml(q.base) + ' — ' + escapeHtml(q.past) + ' — ' + escapeHtml(q.pp) +
+                    '</div>' +
+                '</div>' +
+                '<div class="v-verdict" id="vv-' + idx + '"></div>';
+
+            testGrid.appendChild(row);
+        });
+
+        if (testRevealed) applyRevealStyles();
+    }
+
+    /* 输入监听（事件委托） */
+    testGrid.addEventListener('input', function (e) {
+        const inp = e.target.closest ? e.target.closest('.v-input') : null;
+        if (!inp) return;
+        const idx = parseInt(inp.dataset.idx, 10);
+        const f = inp.dataset.form;
+        if (isNaN(idx) || !testQuestions[idx]) return;
+        const val = inp.value.trim();
+        testQuestions[idx].user[f] = val === '' ? null : val;
+    });
+
+    /* 判断单行是否全对 / 是否已作答 */
+    function judgeRow(q) {
+        let allCorrect = true;
+        let anyFilled = false;
+        FORM_KEYS.forEach(function (f) {
+            if (f === mode) return;
+            const val = q.user[f];
+            if (val !== null && val !== undefined && String(val).trim() !== '') anyFilled = true;
+            if (!matches(val, q[f])) allCorrect = false;
+        });
+        return { allCorrect: allCorrect, anyFilled: anyFilled };
+    }
+
+    function applyRevealStyles() {
+        testQuestions.forEach(function (q, idx) {
+            const row = document.getElementById('vrow-' + idx);
+            const verdict = document.getElementById('vv-' + idx);
+            const answerEl = document.getElementById('va-' + idx);
+
+            FORM_KEYS.forEach(function (f) {
+                if (f === mode) return;
+                const inp = document.getElementById('vi-' + idx + '-' + f);
+                if (!inp) return;
+
+                const val = q.user[f];
+                const hasVal = val !== null && val !== undefined && String(val).trim() !== '';
+                const ok = matches(val, q[f]);
+
+                inp.disabled = true;
+                inp.classList.remove('ok', 'bad', 'blank');
+                if (!hasVal) {
+                    inp.classList.add('blank');
+                } else if (ok) {
+                    inp.classList.add('ok');
+                } else {
+                    inp.classList.add('bad');
+                }
+            });
+
+            if (answerEl) answerEl.classList.add('visible');
+
+            const res = judgeRow(q);
+            if (verdict) {
+                if (res.allCorrect) {
+                    verdict.textContent = '✅';
+                    row.classList.add('correct-flash');
+                    row.classList.remove('wrong-flash');
+                } else {
+                    verdict.textContent = '❌';
+                    row.classList.add('wrong-flash');
+                    row.classList.remove('correct-flash');
+                }
+            }
+        });
+
+        updateScore();
+    }
+
+    function updateScore() {
+        let correct = 0, wrong = 0, blank = 0;
+
+        testQuestions.forEach(function (q) {
+            const res = judgeRow(q);
+            if (!res.anyFilled) blank++;
+            else if (res.allCorrect) correct++;
+            else wrong++;
+        });
+
+        const total = testQuestions.length;
+        const rate = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+        testScoreBig.textContent = total > 0 ? rate + '分' : '--';
+        testScoreBig.style.color = rate >= 90 ? '#10b981' : (rate >= 60 ? '#f59e0b' : '#ef4444');
+
+        testScoreStats.innerHTML =
+            '<span class="stat-badge stat-correct">✅ 全对: ' + correct + '</span>' +
+            '<span class="stat-badge stat-wrong">❌ 有误: ' + wrong + '</span>' +
+            '<span class="stat-badge stat-unanswered">⬜ 未答: ' + blank + '</span>' +
+            '<span class="stat-badge stat-total">📋 总题: ' + total + '</span>';
+
+        testScorePanel.classList.add('visible');
+    }
+
+    /* 查看 / 隐藏答案 */
+    revealBtn.addEventListener('click', function () {
+        if (!testQuestions.length) return;
+
+        if (!testRevealed) {
+            testRevealed = true;
+            applyRevealStyles();
+            revealBtn.textContent = '隐藏答案';
+            testStatus.textContent = '已显示答案 · 绿色为正确，红色为错误，黄色为未作答';
+        } else {
+            testRevealed = false;
+            revealBtn.textContent = '查看答案';
+            testScorePanel.classList.remove('visible');
+            renderTest();
+            updateStatus();
+        }
+    });
+
+    /* 重置 */
+    resetTestBtn.addEventListener('click', function () {
+        if (!testQuestions.length) return;
+        testQuestions.forEach(function (q) {
+            q.user = { base: null, past: null, pp: null };
+        });
+        testRevealed = false;
+        revealBtn.textContent = '查看答案';
+        testScorePanel.classList.remove('visible');
+        renderTest();
+        updateStatus();
+    });
+
+    /* 生成题目 */
+    genTestBtn.addEventListener('click', generateTest);
+
+    /* 词库切换 */
+    bankButtons.addEventListener('click', function (e) {
+        const btn = e.target.closest ? e.target.closest('.type-btn') : null;
+        if (!btn) return;
+        bankButtons.querySelectorAll('.type-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        bank = btn.dataset.bank;
+        if (testQuestions.length) generateTest();
+        else updateStatus();
+    });
+
+    /* 题型切换 */
+    modeButtons.addEventListener('click', function (e) {
+        const btn = e.target.closest ? e.target.closest('.type-btn') : null;
+        if (!btn) return;
+        modeButtons.querySelectorAll('.type-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        mode = btn.dataset.mode;
+        if (testQuestions.length) generateTest();
+        else updateStatus();
+    });
+
+    /* 题目数量变化 */
+    testCountInput.addEventListener('change', function () {
+        if (testQuestions.length) generateTest();
+    });
+
+    /* =========================================================
+       六、主题
+       ========================================================= */
+    const THEMES = ['orange', 'pink', 'grayblue', 'mint', 'purple'];
+
+    function setTheme(name) {
+        if (THEMES.indexOf(name) === -1) name = 'orange';
+        document.body.classList.remove('theme-pink', 'theme-grayblue', 'theme-mint', 'theme-purple');
+        if (name !== 'orange') document.body.classList.add('theme-' + name);
+
+        document.querySelectorAll('.theme-btn').forEach(function (b) {
+            b.classList.toggle('active-theme-dot', b.dataset.theme === name);
+        });
+
+        try { localStorage.setItem('irregular_verbs_theme', name); } catch (err) {}
+    }
+
+    function initTheme() {
+        let saved = 'orange';
+        try { saved = localStorage.getItem('irregular_verbs_theme') || 'orange'; } catch (err) {}
+        setTheme(saved);
+
+        document.querySelectorAll('.theme-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                setTheme(btn.dataset.theme);
+            });
+        });
+    }
+
+    /* =========================================================
+       七、初始化
+       ========================================================= */
+    function init() {
+        buildVerbTables();
+        initTableToggles();
+        initTheme();
+        updateStatus();
+        console.log('不规则动词学习工具已就绪 | Twolobster');
+    }
+
+    init();
+})();
+</script>
+</body>
+</html>

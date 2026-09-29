@@ -751,6 +751,8 @@
                         <button class="type-btn" data-type="乘法口诀乘除法">乘法口诀乘除法</button>
                         <button class="type-btn" data-type="平方数口算">平方数口算 (10-25)</button>
                         <button class="type-btn" data-type="四位数加法">四位数+四位数</button>
+                        <button class="type-btn" data-type="三位数乘三位数">三位数×三位数</button>
+                        <button class="type-btn" data-type="四位数乘四位数">四位数×四位数</button>
                         <button class="type-btn" data-type="3位数除以1位数">三位数÷一位数</button>
                         <button class="type-btn" data-type="20以内小数加减法">20以内小数加减法</button>
                         <button class="type-btn" data-type="50以内小数加减法">50以内小数加减法</button>
@@ -1117,6 +1119,20 @@
                             const a = randInt(1000, 9999);
                             const b = randInt(1000, 9999);
                             qs.push({ text: `${a} + ${b} = ?`, answer: a + b, userAnswer: null });
+                        }
+                        break;
+                    case '三位数乘三位数':
+                        for (let i = 0; i < count; i++) {
+                            const a = randInt(100, 999);
+                            const b = randInt(100, 999);
+                            qs.push({ text: `${a} × ${b} = ?`, answer: a * b, userAnswer: null });
+                        }
+                        break;
+                    case '四位数乘四位数':
+                        for (let i = 0; i < count; i++) {
+                            const a = randInt(1000, 9999);
+                            const b = randInt(1000, 9999);
+                            qs.push({ text: `${a} × ${b} = ?`, answer: a * b, userAnswer: null });
                         }
                         break;
                     case '3位数除以1位数':

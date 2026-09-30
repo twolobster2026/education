@@ -419,7 +419,7 @@
             transition: border 0.2s;
             flex-shrink: 0;
         }
-        /* 大数答案（三位数乘三位数、四位数乘四位数）使用加宽输入框 */
+        /* 大数答案（三位数乘三位数、四位数乘四位数、四位数加法）使用加宽输入框 */
         .q-input.q-input-wide {
             width: 170px;
         }
@@ -1140,7 +1140,7 @@
                         for (let i = 0; i < count; i++) {
                             const a = randInt(1000, 9999);
                             const b = randInt(1000, 9999);
-                            qs.push({ text: `${a} + ${b} = ?`, answer: a + b, userAnswer: null });
+                            qs.push({ text: `${a} + ${b} = ?`, answer: a + b, userAnswer: null, wideInput: true });
                         }
                         break;
                     case '三位数乘三位数':

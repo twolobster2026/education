@@ -419,6 +419,10 @@
             transition: border 0.2s;
             flex-shrink: 0;
         }
+        /* 大数答案（三位数乘三位数、四位数乘四位数）使用加宽输入框 */
+        .q-input.q-input-wide {
+            width: 170px;
+        }
         .q-input:focus {
             outline: none;
             border-color: #3b82f6;
@@ -437,6 +441,10 @@
             min-width: 50px;
             text-align: center;
             display: none;
+        }
+        /* 大数答案徽章加宽 */
+        .q-answer-badge.wide-badge {
+            min-width: 90px;
         }
         .q-answer-badge.visible {
             display: inline-block;
@@ -651,6 +659,13 @@
                 font-size: 0.95rem;
                 padding: 8px 10px;
             }
+            /* 移动端加宽输入框 */
+            .q-input.q-input-wide {
+                width: 140px;
+            }
+            .q-answer-badge.wide-badge {
+                min-width: 80px;
+            }
             .timer-display {
                 font-size: 3rem;
                 min-width: 130px;
@@ -699,6 +714,13 @@
                 width: 56px;
                 font-size: 0.85rem;
                 padding: 6px 8px;
+            }
+            /* 小屏加宽输入框 */
+            .q-input.q-input-wide {
+                width: 115px;
+            }
+            .q-answer-badge.wide-badge {
+                min-width: 72px;
             }
             .q-number {
                 width: 28px;
@@ -1125,14 +1147,14 @@
                         for (let i = 0; i < count; i++) {
                             const a = randInt(100, 999);
                             const b = randInt(100, 999);
-                            qs.push({ text: `${a} × ${b} = ?`, answer: a * b, userAnswer: null });
+                            qs.push({ text: `${a} × ${b} = ?`, answer: a * b, userAnswer: null, wideInput: true });
                         }
                         break;
                     case '四位数乘四位数':
                         for (let i = 0; i < count; i++) {
                             const a = randInt(1000, 9999);
                             const b = randInt(1000, 9999);
-                            qs.push({ text: `${a} × ${b} = ?`, answer: a * b, userAnswer: null });
+                            qs.push({ text: `${a} × ${b} = ?`, answer: a * b, userAnswer: null, wideInput: true });
                         }
                         break;
                     case '3位数除以1位数':
@@ -1644,10 +1666,13 @@
                         displayHTML = escapeHtml(q.text);
                     }
 
+                    // 根据是否需要宽输入框动态添加类
+                    const inputWideClass = q.wideInput ? ' q-input-wide' : '';
+
                     card.innerHTML = `
                         <div class="q-number">${idx + 1}</div>
                         <span class="q-text">${displayHTML}</span>
-                        <input type="text" class="q-input" id="q-input-${idx}" placeholder="?" 
+                        <input type="text" class="q-input${inputWideClass}" id="q-input-${idx}" placeholder="?" 
                                ${isFinished ? 'disabled' : ''} 
                                value="${q.userAnswer !== null ? q.userAnswer : ''}"
                                autocomplete="off" inputmode="decimal">
@@ -1717,6 +1742,10 @@
                 const card = document.getElementById(`q-card-${idx}`);
                 if (!badge || !icon || !card) return;
                 badge.classList.add('visible');
+
+                // 大数答案的徽章加宽类
+                const wideBadgeClass = q.wideInput ? ' wide-badge' : '';
+
                 // 使用 displayAnswerHTML 显示分数样式
                 if (q.isFraction && q.displayAnswerHTML) {
                     badge.innerHTML = q.displayAnswerHTML;
@@ -1726,19 +1755,19 @@
                 icon.classList.add('visible');
 
                 if (q.userAnswer !== null && isAnswerCorrect(q.userAnswer, q.answer)) {
-                    badge.className = 'q-answer-badge visible user-correct';
+                    badge.className = 'q-answer-badge visible user-correct' + wideBadgeClass;
                     icon.textContent = '✅';
                     icon.className = 'q-result-icon visible';
                     card.classList.add('correct-flash');
                     card.classList.remove('wrong-flash', 'unanswered-flash');
                 } else if (q.userAnswer !== null && !isAnswerCorrect(q.userAnswer, q.answer)) {
-                    badge.className = 'q-answer-badge visible user-wrong';
+                    badge.className = 'q-answer-badge visible user-wrong' + wideBadgeClass;
                     icon.textContent = '❌';
                     icon.className = 'q-result-icon visible';
                     card.classList.add('wrong-flash');
                     card.classList.remove('correct-flash', 'unanswered-flash');
                 } else {
-                    badge.className = 'q-answer-badge visible';
+                    badge.className = 'q-answer-badge visible' + wideBadgeClass;
                     icon.textContent = '⬜';
                     icon.className = 'q-result-icon visible';
                     card.classList.add('unanswered-flash');
@@ -1767,7 +1796,7 @@
                     const icon = document.getElementById(`q-icon-${idx}`);
                     const card = document.getElementById(`q-card-${idx}`);
                     const inputEl = document.getElementById(`q-input-${idx}`);
-                    if (badge) badge.classList.remove('visible', 'user-correct', 'user-wrong');
+                    if (badge) badge.classList.remove('visible', 'user-correct', 'user-wrong', 'wide-badge');
                     if (icon) icon.classList.remove('visible');
                     if (card) card.classList.remove('correct-flash', 'wrong-flash', 'unanswered-flash');
                     if (inputEl && !isFinished) inputEl.disabled = false;
@@ -1946,7 +1975,7 @@
                     const card = document.getElementById(`q-card-${idx}`);
                     if (card) card.classList.remove('correct-flash', 'wrong-flash', 'unanswered-flash');
                     const badge = document.getElementById(`q-badge-${idx}`);
-                    if (badge) badge.classList.remove('visible', 'user-correct', 'user-wrong');
+                    if (badge) badge.classList.remove('visible', 'user-correct', 'user-wrong', 'wide-badge');
                     const icon = document.getElementById(`q-icon-${idx}`);
                     if (icon) icon.classList.remove('visible');
                 });

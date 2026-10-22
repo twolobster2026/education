@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson: The Job Interview - Answering Common Questions</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+:root{
+  --primary:#6366f1; --primary-dark:#4f46e5; --primary-hover:#4338ca;
+  --secondary:#f8fafc; --bg-color:#e2e8f0; --text-main:#334155; --text-light:#64748b;
+  --bubble-partner:#ffffff; --bubble-you:linear-gradient(135deg,#6366f1,#818cf8);
+  --success:#10b981; --danger:#f43f5e; --warning:#f59e0b; --border:#cbd5e1;
+}
+
+body{font-family:'Nunito',sans-serif;padding:20px 10px;background:var(--bg-color);color:var(--text-main);line-height:1.6;display:flex;justify-content:center;margin:0;}
+.app-container{width:100%;max-width:750px;background:#f0f4f8;border-radius:30px;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.15);margin:0 auto;border:8px solid white;position:relative;}
+header{background:white;padding:2.5rem 2rem;text-align:center;border-bottom:2px solid var(--border);position:relative;}
+h1{font-size:1.8rem;font-weight:800;margin:0 0 10px 0;}
+.top-controls{position:absolute;top:15px;right:15px;display:flex;gap:10px;z-index:10;align-items:center;}
+.text-resizer{display:flex;gap:5px;}
+.text-resizer button{padding:4px 10px;font-size:1.1rem;background:#e0e7ff;color:var(--primary-dark);box-shadow:none;border-radius:8px;border:none;cursor:pointer;}
+.text-resizer button:hover{background:#c7d2fe;}
+.text-resizer button:active{transform:scale(0.95);}
+.lang-selector{padding:4px 8px;border-radius:8px;border:2px solid #e0e7ff;background:white;font-family:'Nunito',sans-serif;font-weight:700;color:var(--primary-dark);outline:none;cursor:pointer;}
+.lang-selector:focus{border-color:var(--primary);}
+.tag{display:inline-flex;gap:6px;background:#e0e7ff;padding:8px 16px;border-radius:99px;font-size:0.85rem;font-weight:800;color:var(--primary-dark);margin:2px;}
+section{padding:2rem;border-bottom:2px solid var(--border);}
+.section-title{font-size:1.2rem;font-weight:800;color:var(--text-light);text-transform:uppercase;margin-bottom:1.5rem;}
+.controls{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;background:white;padding:15px;border-radius:20px;justify-content:center;}
+
+/* Global Buttons */
+button{padding:10px 18px;border-radius:99px;border:none;cursor:pointer;font-weight:800;background:var(--primary);color:white;box-shadow:0 4px 0 var(--primary-dark);transition:all 0.1s;display:flex;align-items:center;gap:6px;font-family:'Nunito',sans-serif;}
+button:active{transform:translateY(4px);box-shadow:0 0 0 transparent;}
+button:disabled{background:#cbd5e1;box-shadow:0 4px 0 #94a3b8;cursor:not-allowed;}
+.btn-stop{background:white;color:var(--danger);box-shadow:0 4px 0 #e11d48;border:2px solid var(--danger);}
+.btn-blind{background:#475569;box-shadow:0 4px 0 #334155;}
+.btn-cloze{background:#8b5cf6;box-shadow:0 4px 0 #7c3aed;}
+.btn-reset{background:transparent;color:var(--text-light);border:2px solid #cbd5e1;box-shadow:0 4px 0 #cbd5e1;}
+.btn-transcript{background:#14b8a6;box-shadow:0 4px 0 #0d9488;}
+
+/* Dialogue Styles */
+.comprehension-box{background:white;padding:25px;border-radius:24px;border:2px solid #e0e7ff;}
+.conversation-script{display:flex;flex-direction:column;gap:20px;}
+.script-line{display:flex;gap:12px;align-items:flex-end;max-width:90%;}
+.script-line[data-role="you"]{align-self:flex-end;flex-direction:row-reverse;}
+.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:white;flex-shrink:0;}
+.avatar-partner{background:#cbd5e1;color:#475569;}
+.avatar-you{background:var(--primary-dark);}
+.bubble{padding:16px 20px;border-radius:24px;min-width:250px;}
+.script-line[data-role="partner"] .bubble{background:var(--bubble-partner);border-bottom-left-radius:4px;border:1px solid #e2e8f0;}
+.script-line[data-role="you"] .bubble{background:var(--bubble-you);color:white;border-bottom-right-radius:4px;}
+.speaker-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;border-bottom:1px solid rgba(0,0,0,0.05);padding-bottom:4px;}
+.script-line[data-role="you"] .speaker-header{border-bottom-color:rgba(255,255,255,0.2);}
+.speaker-label{font-weight:800;font-size:0.75rem;opacity:0.8;text-transform:uppercase;}
+.mini-build-btn{font-size:0.7rem;padding:4px 10px;background:rgba(255,255,255,0.2);box-shadow:none;border-radius:8px;color:inherit;}
+.mini-build-btn:hover{background:rgba(255,255,255,0.4);}
+.final-sentence{font-size:1.1rem;font-weight:600;}
+.blurred-text{color:transparent !important;text-shadow:0 0 12px rgba(0,0,0,0.3);user-select:none;transition:all 0.3s ease;}
+.blurred-text:hover{color:inherit !important;text-shadow:none !important;cursor:help;}
+.script-line[data-role="you"] .blurred-text{text-shadow:0 0 12px rgba(255,255,255,0.7);}
+.cloze-input{background:#cbd5e1;border:2px solid transparent;border-radius:6px;padding:2px 8px;font-size:1rem;font-family:inherit;font-weight:700;width:80px;text-align:center;color:#334155;outline:none;transition:all 0.2s;margin:0 4px;box-shadow:inset 0 2px 4px rgba(0,0,0,0.05);}
+.cloze-input:focus{border-color:var(--primary);background:white;}
+.cloze-input.correct{background:var(--success);color:white;border-color:var(--success);}
+.interactive-build-ui{display:flex;flex-direction:column;gap:15px;margin-top:10px;}
+
+/* LARGE BUILD BRICKS CSS */
+.drop-zone{min-height:65px;background:rgba(255,255,255,0.15);border:2px dashed rgba(255,255,255,0.5);border-radius:12px;padding:15px;display:flex;flex-wrap:wrap;gap:10px;}
+.drop-zone.correct{background:var(--success);border-color:white;transform:scale(1.02);}
+.drop-zone.error{border-color:var(--danger);background:rgba(244,63,94,0.2);}
+.word-bank-chat{display:flex;flex-wrap:wrap;gap:10px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.2);min-height:50px;}
+.word-chip{padding:10px 16px;font-size:1.1rem;background:white;color:var(--primary-dark);border-radius:10px;font-weight:800;cursor:pointer;border:none;box-shadow:0 3px 0 rgba(0,0,0,0.15);font-family:'Nunito',sans-serif;}
+
+/* Vocab & Drills */
+.hero-image{width:100%;height:220px;object-fit:cover;border-radius:20px;border:2px solid #e0e7ff;margin-bottom:15px;}
+.vocab-card { background: white; border: 2px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+.vocab-card:hover { border-color: #cbd5e1; box-shadow: 0 8px 15px rgba(0,0,0,0.05); transform: translateY(-2px); }
+.vocab-word { font-size: 1.25rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.vocab-word::before { content: '🏷️'; font-size: 1rem; }
+.vocab-def { font-size: 1rem; color: var(--text-main); margin-bottom: 12px; font-weight: 600; line-height: 1.4; }
+.vocab-frame { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; color: #475569; font-style: italic; }
+.vocab-frame strong { color: var(--primary); font-weight: 800; letter-spacing: 2px;}
+
+.drill-item{background:white;border:2px solid var(--border);border-radius:16px;padding:15px 20px;margin-bottom:12px;cursor:pointer;display:flex;flex-direction:column;transition:all 0.2s ease;}
+.drill-item:hover{border-color:#cbd5e1;transform:translateY(-2px);box-shadow:0 4px 6px rgba(0,0,0,0.02);}
+.drill-header{display:flex;align-items:center;gap:12px;font-weight:700;font-size:1.05rem;}
+.drill-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:bold;background:#f1f5f9;color:#94a3b8;flex-shrink:0;}
+.drill-item.revealed-incorrect{border-color:var(--danger);background:#fff1f2;}
+.drill-item.revealed-incorrect .drill-icon{background:var(--danger);color:white;}
+.drill-item.revealed-correct{border-color:var(--success);background:#f0fdf4;}
+.drill-item.revealed-correct .drill-icon{background:var(--success);color:white;}
+.drill-correction{color:var(--success);font-weight:800;margin-top:10px;margin-bottom:5px;display:none;font-size:1.05rem;}
+.drill-explanation{font-size:0.95rem;color:#64748b;display:none;border-top:1px dashed #cbd5e1;padding-top:10px;margin-top:5px;}
+.drill-item.revealed .drill-correction,.drill-item.revealed .drill-explanation{display:block;}
+.transcript-box{background:#f8fafc;border:1px solid #cbd5e1;padding:15px;border-radius:12px;margin-top:15px;display:none;}
+.roleplay-box{background:white;padding:25px;border-radius:24px;border:2px solid #e0e7ff;margin-bottom:20px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.05);}
+.roleplay-title{font-size:1.1rem;font-weight:800;color:var(--primary-dark);margin-bottom:10px;border-bottom:2px solid #f1f5f9;padding-bottom:8px;}
+.teacher-key{background:#f0fdf4;border:3px dashed #86efac;padding:2rem;margin:20px 2rem 2rem 2rem;border-radius:24px;color:#065f46;}
+
+.sim-widget { background: #fff; border-radius: 24px; border: 2px solid #e0e7ff; display: flex; flex-direction: column; overflow: hidden; margin-top: 10px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+.sim-chat-log { max-height: 400px; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; background: #fcfdff; border-bottom: 1px solid var(--border);}
+.sim-msg { max-width: 85%; padding: 1rem; border-radius: 16px; font-weight: 600; line-height: 1.5; animation: fadeIn 0.3s; font-size: 1.05rem; }
+.sim-msg.partner { background: #f1f5f9; color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+.sim-msg.user { background: var(--primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 4px 10px rgba(99,102,241,0.2); }
+.ai-chat-input-area { display: flex; gap: 10px; padding: 15px; background: white; }
+.ai-chat-input { flex: 1; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 1rem; font-family: 'Nunito', sans-serif; outline: none; transition: 0.2s; }
+.ai-chat-input:focus { border-color: var(--primary); }
+.loading-dots { display: inline-block; font-weight: bold; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+#highlight-translate-btn {
+  position: absolute; display: none; z-index: 1000;
+  background: #1e293b; color: white; border: none;
+  border-radius: 8px; padding: 8px 14px; font-size: 0.95rem;
+  font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+  transition: transform 0.1s; align-items: center; gap: 6px; font-family: 'Nunito', sans-serif;
+}
+#highlight-translate-btn:hover { background: #0f172a; transform: scale(1.05); }
+#translate-modal {
+  display: none; position: fixed; bottom: 30px; right: 30px;
+  background: white; border-radius: 16px; width: 320px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 2px solid #e2e8f0;
+  z-index: 9999; overflow: hidden; font-family: 'Nunito', sans-serif;
+  animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.t-modal-header { background: #f8fafc; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #334155; }
+.t-modal-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8; padding: 0; box-shadow: none; }
+.t-modal-close:hover { color: #f43f5e; box-shadow: none; transform: none; }
+.t-modal-body { padding: 16px; font-size: 1.05rem; color: #0f172a; line-height: 1.5; max-height: 200px; overflow-y: auto; font-weight: 600; }
+.t-modal-original { font-size: 0.85rem; color: #64748b; margin-top: 10px; border-top: 1px dashed #cbd5e1; padding-top: 10px; font-style: italic; font-weight: 400; }
+</style>
+</head>
+<body>
+
+<button id="highlight-translate-btn">🌍 Translate</button>
+<div id="translate-modal">
+  <div class="t-modal-header">
+    <span>🌍 Translation</span>
+    <button class="t-modal-close" onclick="document.getElementById('translate-modal').style.display='none'">✖</button>
+  </div>
+  <div class="t-modal-body" id="t-modal-result">Loading...</div>
+  <div class="t-modal-body t-modal-original" id="t-modal-original" style="padding-top:0;"></div>
+</div>
+
+<div class="app-container">
+
+<header>
+  <div class="top-controls">
+    <select id="targetLanguage" class="lang-selector" title="Select Translation Language">
+      <option value="tr">🇹🇷 Turkish (Türkçe)</option>
+      <option value="ar">🇸🇦 Arabic (العربية)</option>
+      <option value="es">🇪🇸 Spanish (Español)</option>
+      <option value="fr">🇫🇷 French (Français)</option>
+      <option value="de">🇩🇪 German (Deutsch)</option>
+      <option value="it">🇮🇹 Italian (Italiano)</option>
+      <option value="pt">🇵🇹 Portuguese (Português)</option>
+      <option value="ja">🇯🇵 Japanese (日本語)</option>
+      <option value="zh-CN">🇨🇳 Chinese (Simplified)</option>
+      <option value="zh-TW">🇹🇼 Chinese (Traditional)</option>
+      <option value="ko">🇰🇷 Korean (한국어)</option>
+      <option value="ru">🇷🇺 Russian (Русский)</option>
+      <option value="vi">🇻🇳 Vietnamese (Tiếng Việt)</option>
+      <option value="id">🇮🇩 Indonesian (Bahasa)</option>
+      <option value="hi">🇮🇳 Hindi (हिन्दी)</option>
+    </select>
+    <div class="text-resizer">
+      <button onclick="changeFontSize(-1)" title="Smaller text">A-</button>
+      <button onclick="changeFontSize(1)" title="Larger text">A+</button>
+    </div>
+  </div>
+  <h1>The Job Interview: Answering Common Questions</h1>
+  <div class="tag">A2-B1</div>
+  <div class="tag">Employment & Career Skills</div>
+  <div style="margin-top: 15px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); padding: 12px; border-radius: 12px; text-align: left; font-size: 0.95rem; color: var(--text-main);">
+    <strong>🎯 Teacher Focus:</strong> Guide Alfie & Daniel on introducing themselves professionally, using Present Perfect for work experience ("I have worked in customer service for two years"), stating key strengths, and answering common interview questions with confidence.
+  </div>
+  <div style="margin-top: 10px; font-size: 0.85rem; color: var(--primary-dark); background: #e0e7ff; padding: 10px; border-radius: 8px; font-weight: 700; text-align: left;">
+    💡 <em>Tip: Highlight any text on the page with your mouse to instantly translate it.</em>
+  </div>
+</header>
+
+<section>
+  <div class="section-title">🎮 Level-Up: Vocabulary Frames</div>
+  <p style="color: var(--text-light); margin-top:-10px; margin-bottom: 15px; font-size:0.9rem;">Review the terms and complete the sentence frames below.</p>
+  
+  <div class="vocab-card">
+    <div class="vocab-word">Resume (CV)</div>
+    <div class="vocab-def">A document summarizing your work experience, education, and professional skills.</div>
+    <div class="vocab-frame">Example: She submitted her updated <strong>________</strong> to the hiring manager before the interview.</div>
+  </div>
+  
+  <div class="vocab-card">
+    <div class="vocab-word">Work Experience</div>
+    <div class="vocab-def">Knowledge or practical skills gained while working in a specific job.</div>
+    <div class="vocab-frame">Example: I have gained valuable <strong>________</strong> in retail and customer support over the past two years.</div>
+  </div>
+  
+  <div class="vocab-card">
+    <div class="vocab-word">Strengths</div>
+    <div class="vocab-def">The positive qualities, skills, or abilities you are particularly good at.</div>
+    <div class="vocab-frame">Example: One of my greatest <strong>________</strong> is my ability to communicate clearly under pressure.</div>
+  </div>
+  
+  <div class="vocab-card">
+    <div class="vocab-word">Qualification</div>
+    <div class="vocab-def">An official record or skill that makes you suitable for a specific position.</div>
+    <div class="vocab-frame">Example: Having a customer service certification is an excellent <strong>________</strong> for this position.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-title">🖼️ Warm-up: Setting the Scene</div>
+  <div class="image-discussion-box">
+    <img src="https://image.pollinations.ai/prompt/professional-job-interview-office-candidate-and-interviewer-desk-smiling-friendly?width=800&height=250&nologo=true" alt="Warm up image" class="hero-image">
+    <div class="discussion-prompts">
+      <p style="color: var(--text-light); font-weight: 600;">Discuss these questions with your teacher before starting:</p>
+      <ul style="padding-left: 20px;">
+        <li style="margin-bottom: 8px;">Have you ever attended a job interview in English? How did you feel?</li>
+        <li>What is one key strength you always talk about when introducing yourself?</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-title">📍 The Mission Briefing</div>
+  <div class="comprehension-box">
+    <p><strong>Scenario:</strong> You have an interview for a customer service role at an international retail company. You need to introduce yourself, explain your past work experience clearly, highlight your strengths, and answer questions about why you want the position.</p>
+    <div style="margin: 15px 0; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button id="btnPlayBriefing" onclick="toggleBriefing()">⏳ Loading Audio...</button>
+      <button id="btnToggleTranscript" onclick="toggleTranscript()" class="btn-transcript">👁️ Show Transcript</button>
+    </div>
+    <div id="hiddenScript" class="transcript-box">You have an interview for a customer service role at an international retail company. You need to introduce yourself, explain your past work experience clearly, highlight your strengths, and answer questions about why you want the position.</div>
+    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
+    <p style="color: var(--text-light); font-size: 0.9rem;"><strong>Listen and find the answers:</strong></p>
+    <ol style="padding-left: 20px;">
+      <li style="margin-bottom: 8px;">What role is the candidate interviewing for?</li>
+      <li style="margin-bottom: 8px;">What past experience does the candidate need to explain?</li>
+      <li>What key details must the candidate share about themselves?</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="section-title">🔍 Quick Drill: Fix the Mistakes</div>
+  <p style="color: var(--text-light); margin-bottom: 20px; font-weight: 600;">Click on the sentences below to correct common grammar and vocabulary mistakes. One sentence is already correct!</p>
+
+  <div class="drill-item" onclick="revealDrill(this, false)">
+    <div class="drill-header">
+      <div class="drill-icon pending">?</div>
+      <div>I am working as a sales assistant for three years.</div>
+    </div>
+    <div class="drill-correction">I have worked as a sales assistant for three years. (Or: I have been working as a sales assistant for three years.)</div>
+    <div class="drill-explanation">Present Perfect rule: Use "have worked" or "have been working" to describe an experience that started in the past and continues into the present.</div>
+  </div>
+
+  <div class="drill-item" onclick="revealDrill(this, true)">
+    <div class="drill-header">
+      <div class="drill-icon pending">?</div>
+      <div>I am very reliable and work well under pressure.</div>
+    </div>
+    <div class="drill-correction">Correct!</div>
+    <div class="drill-explanation">This sentence correctly uses the present simple to describe ongoing personal qualities and workplace strengths.</div>
+  </div>
+
+  <div class="drill-item" onclick="revealDrill(this, false)">
+    <div class="drill-header">
+      <div class="drill-icon pending">?</div>
+      <div>Could you tell me what is the working schedule?</div>
+    </div>
+    <div class="drill-correction">Could you tell me what the working schedule is?</div>
+    <div class="drill-explanation">Indirect question rule: In polite embedded questions ("Could you tell me..."), use normal statement word order (Subject + Verb), not question order.</div>
+  </div>
+
+  <div class="drill-item" onclick="revealDrill(this, false)">
+    <div class="drill-header">
+      <div class="drill-icon pending">?</div>
+      <div>If I will get the job, I will start next week.</div>
+    </div>
+    <div class="drill-correction">If I get the job, I will start next week.</div>
+    <div class="drill-explanation">First conditional rule: Use the Present Simple ("get") in the if-clause, and "will + verb" in the main result clause.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-title">💬 Chat 1: Introducing Yourself & Work Experience</div>
+  <p style="color: var(--text-light); margin-bottom: 20px; font-weight: 600;">Interviewing with Hiring Manager Sara at the corporate office.</p>
+  <div class="controls">
+    <button id="btnPlayDialogue1" onclick="toggleDialogue(1)">⏳ Loading Audio...</button>
+    <button onclick="toggleBlindfold(1)" class="btn-blind">🙈 Blindfold</button>
+    <button onclick="startClozeMode(1)" class="btn-cloze">🕳️ Cloze</button>
+    <button onclick="resetMasks(1)" class="btn-reset">🔄 Reset</button>
+    <button onclick="stopAudio()" class="btn-stop">⏹</button>
+  </div>
+  <div class="conversation-script" id="dialogueContainer1">
+    <div class="script-line" data-role="partner">
+      <div class="avatar avatar-partner">S</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">Manager Sara</span></div>
+        <div class="final-sentence">Welcome! Thank you for coming today. Could you start by introducing yourself?</div>
+      </div>
+    </div>
+    <div class="script-line" data-role="you">
+      <div class="avatar avatar-you">Y</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">You</span><button class="mini-build-btn" onclick="toggleBuildMode(this)">🧩 Build</button></div>
+        <div class="final-sentence">Thank you for inviting me. I have worked in customer service for two years.</div>
+      </div>
+    </div>
+    <div class="script-line" data-role="partner">
+      <div class="avatar avatar-partner">S</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">Manager Sara</span></div>
+        <div class="final-sentence">That sounds great. What were your primary responsibilities in your previous role?</div>
+      </div>
+    </div>
+    <div class="script-line" data-role="you">
+      <div class="avatar avatar-you">Y</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">You</span><button class="mini-build-btn" onclick="toggleBuildMode(this)">🧩 Build</button></div>
+        <div class="final-sentence">I answered phone calls, solved customer problems, and processed daily orders.</div>
+      </div>
+    </div>
+    <div class="script-line" data-role="partner">
+      <div class="avatar avatar-partner">S</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">Manager Sara</span></div>
+        <div class="final-sentence">Excellent. How do you handle difficult or upset customers?</div>
+      </div>
+    </div>
+    <div class="script-line" data-role="you">
+      <div class="avatar avatar-you">Y</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">You</span><button class="mini-build-btn" onclick="toggleBuildMode(this)">🧩 Build</button></div>
+        <div class="final-sentence">I always listen calmly, apologize for the issue, and find a quick solution.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-title">💬 Chat 2: Discussing Strengths & Future Goals</div>
+  <p style="color: var(--text-light); margin-bottom: 20px; font-weight: 600;">Continuing your conversation with Manager Sara.</p>
+  <div class="controls">
+    <button id="btnPlayDialogue2" onclick="toggleDialogue(2)">⏳ Loading Audio...</button>
+    <button onclick="toggleBlindfold(2)" class="btn-blind">🙈 Blindfold</button>
+    <button onclick="startClozeMode(2)" class="btn-cloze">🕳️ Cloze</button>
+    <button onclick="resetMasks(2)" class="btn-reset">🔄 Reset</button>
+    <button onclick="stopAudio()" class="btn-stop">⏹</button>
+  </div>
+  <div class="conversation-script" id="dialogueContainer2">
+    <div class="script-line" data-role="partner">
+      <div class="avatar avatar-partner">S</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">Manager Sara</span></div>
+        <div class="final-sentence">What would you consider your greatest professional strength?</div>
+      </div>
+    </div>
+    <div class="script-line" data-role="you">
+      <div class="avatar avatar-you">Y</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">You</span><button class="mini-build-btn" onclick="toggleBuildMode(this)">🧩 Build</button></div>
+        <div class="final-sentence">My greatest strength is my communication skills and attention to detail.</div>
+      </div>
+    </div>
+    <div class="script-line" data-role="partner">
+      <div class="avatar avatar-partner">S</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">Manager Sara</span></div>
+        <div class="final-sentence">Where do you see yourself in three years?</div>
+      </div>
+    </div>
+    <div class="script-line" data-role="you">
+      <div class="avatar avatar-you">Y</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">You</span><button class="mini-build-btn" onclick="toggleBuildMode(this)">🧩 Build</button></div>
+        <div class="final-sentence">I hope to grow with this company and take on more team leadership responsibilities.</div>
+      </div>
+    </div>
+    <div class="script-line" data-role="partner">
+      <div class="avatar avatar-partner">S</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">Manager Sara</span></div>
+        <div class="final-sentence">Do you have any questions for me about the role?</div>
+      </div>
+    </div>
+    <div class="script-line" data-role="you">
+      <div class="avatar avatar-you">Y</div>
+      <div class="bubble">
+        <div class="speaker-header"><span class="speaker-label">You</span><button class="mini-build-btn" onclick="toggleBuildMode(this)">🧩 Build</button></div>
+        <div class="final-sentence">Yes, could you tell me more about the training opportunities for new employees?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background: #f8fafc;">
+  <div class="section-title">💬 Part 5: Dynamic AI Conversation</div>
+  <p style="color: var(--text-light); margin-bottom: 20px;">Before the final challenge, let's practice your interview skills. Speak your answers aloud, and your teacher will type them to Manager Sara!</p>
+  
+  <div class="roleplay-box" style="margin-bottom: 10px;">
+    <div class="roleplay-title">Scenario: The Job Interview with Manager Sara</div>
+    <p style="font-size: 0.95rem; margin-top:0;"><strong>The Situation:</strong> You are sitting in an interview with Hiring Manager Sara for a customer service role. Answer her questions about your background, strengths, handling difficult situations, and career goals.</p>
+  </div>
+
+  <div class="sim-widget">
+    <div class="sim-chat-log" id="ai-live-chat-log" style="height: 350px;">
+      <div class="sim-msg partner"><strong>Manager Sara:</strong> Welcome to the interview! Thank you for coming in today. To begin, could you please tell me why you are interested in working for our retail company?</div>
+    </div>
+    <div class="ai-chat-input-area">
+      <input type="text" id="ai-chat-input" class="ai-chat-input" placeholder="Type the student's spoken response here..." onkeypress="if(event.key==='Enter') sendAiMsg()">
+      <button onclick="sendAiMsg()" id="ai-send-btn">Send</button>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-title">🎭 Part 6: Live Roleplay</div>
+  <p style="color: var(--text-light); margin-bottom: 20px;">Now practice your skills in a live free-form roleplay with your teacher.</p>
+
+  <div class="roleplay-box">
+    <div class="roleplay-title">Scenario: Job Interview for Assistant Store Manager</div>
+    <ul style="padding-left:20px;margin-top:10px;margin-bottom:0;">
+      <li style="margin-bottom:6px;"><strong>The Situation:</strong> You are interviewing for an Assistant Store Manager position at a busy retail location.</li>
+      <li style="margin-bottom:6px;"><strong>Background Data:</strong> <span style="color:var(--primary-dark);font-weight:600;">You have 2 years of sales experience, strong team leadership, and availability to start next month.</span></li>
+      <li style="margin-bottom:6px;"><strong>Your Goal:</strong> Introduce yourself clearly, explain how you solve team challenges, and ask two polite questions about company culture.</li>
+      <li style="margin-bottom:6px;"><strong>Teacher's Role:</strong> Store Director conducting a thorough 1-on-1 interview.</li>
+    </ul>
+  </div>
+</section>
+
+<section style="background: #f8fafc;">
+  <div class="section-title">📥 Export Class Report</div>
+  <p style="color: var(--text-light); margin-bottom: 20px;">Save a copy of your dynamic chat transcript and grammar corrections for your records.</p>
+  
+  <div style="background: white; padding: 25px; border-radius: 24px; border: 2px solid #e0e7ff; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+    
+    <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 12px 15px; border-radius: 12px; font-size: 0.95rem; color: #92400e; display: flex; align-items: center; gap: 8px;">
+      <span style="font-size: 1.2rem;">💡</span> 
+      <span><strong>Reminder:</strong> Please make sure to type your name in the box below so your teacher knows who this report belongs to!</span>
+    </div>
+
+    <input type="text" id="student-note" class="ai-chat-input" placeholder="Enter your name here (e.g., Student: Alfie & Daniel)">
+    <button onclick="downloadReport()" class="btn-transcript" style="justify-content: center; font-size: 1.05rem;">📥 Download .txt Report</button>
+  </div>
+</section>
+
+<section>
+  <div class="section-title">🚀 Your Training Roadmap</div>
+  <div style="background: white; padding: 20px; border-radius: 16px; border: 2px dashed #cbd5e1;">
+    <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+      <div style="flex: 1; background: #f1f5f9; padding: 10px 15px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #475569; min-width: 200px;">
+        Student Name: <span contenteditable="true" style="color: var(--primary-dark); border-bottom: 1px dashed var(--primary); padding: 0 5px; outline: none; cursor: text;">Alfie & Daniel</span>
+      </div>
+      <div style="flex: 1; background: #f1f5f9; padding: 10px 15px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #475569; min-width: 200px;">
+        CEFR Level: <span contenteditable="true" style="color: var(--primary-dark); border-bottom: 1px dashed var(--primary); padding: 0 5px; outline: none; cursor: text;">A2-B1</span>
+      </div>
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+      <strong style="color: var(--text-light); text-transform: uppercase; font-size: 0.85rem;">Past Missions</strong>
+      <ul style="color: #94a3b8; font-size: 0.95rem; padding-left: 20px; margin-bottom: 0; text-decoration: line-through;">
+        <li>The Club Leadership</li>
+        <li>The Shared Apartment</li>
+        <li>The Lost Wallet</li>
+        <li>The Broken Promise</li>
+        <li>The Missed Flight</li>
+      </ul>
+    </div>
+    <div style="font-weight: 800; color: var(--primary-dark); margin-bottom: 15px; font-size: 1.1rem; background: #e0e7ff; padding: 12px; border-radius: 8px;">
+      ✅ Today: <span contenteditable="true" style="outline:none;">The Job Interview: Answering Common Questions</span>
+    </div>
+    <div>
+      <strong style="color: var(--text-light); text-transform: uppercase; font-size: 0.85rem;">Upcoming Missions</strong>
+      <ul style="color: var(--text-main); font-size: 0.95rem; padding-left: 20px; margin-bottom: 0;">
+        <li style="margin-bottom: 8px;"><strong>Next:</strong> The Hotel Complaint - Requesting a room change politely</li>
+        <li style="margin-bottom: 8px;">Lost Luggage - Reporting missing bags at baggage reclaim</li>
+        <li>Asking for a Raise - Presenting your work accomplishments</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="teacher-key">
+  <h2 style="margin-top:0; font-size: 1.2rem; display:flex; align-items:center; gap: 8px;">🗝️ Teacher Key</h2>
+  <p><strong>Comprehension Answers:</strong><br>
+  1. The candidate is interviewing for a customer service role at an international retail company.<br>
+  2. The candidate needs to explain their past work experience clearly (e.g., answering customer calls, resolving problems, processing orders).<br>
+  3. The candidate must introduce themselves, highlight key strengths, and explain why they want the position.</p>
+</div>
+
+</div>
+
+<script>
+// Leave this empty string! Canvas auto-injects the real key via the domain.
+const apiKey = ""; 
+
+// Highlight Translate Logic
+let currentSelectedText = "";
+const transBtn = document.getElementById('highlight-translate-btn');
+const transModal = document.getElementById('translate-modal');
+
+document.addEventListener('mouseup', (e) => {
+  if (e.target.closest('#highlight-translate-btn') || e.target.closest('#translate-modal') || e.target.closest('.lang-selector')) return;
+  
+  setTimeout(() => {
+    const selection = window.getSelection();
+    const text = selection.toString().trim();
+    
+    if (text.length > 0) {
+      currentSelectedText = text;
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      transBtn.style.left = `${rect.left + window.scrollX + (rect.width / 2) - 50}px`;
+      transBtn.style.top = `${rect.top + window.scrollY - 45}px`;
+      transBtn.style.display = 'flex';
+    } else {
+      transBtn.style.display = 'none';
+    }
+  }, 10);
+});
+
+document.addEventListener('mousedown', (e) => {
+  if (!e.target.closest('#highlight-translate-btn') && !e.target.closest('#translate-modal') && window.getSelection().toString().trim().length === 0) {
+    transBtn.style.display = 'none';
+  }
+});
+
+transBtn.addEventListener('click', async () => {
+  if (!currentSelectedText) return;
+  transBtn.style.display = 'none';
+  transModal.style.display = 'block';
+  document.getElementById('t-modal-result').innerText = "Translating...";
+  document.getElementById('t-modal-original').innerText = `"${currentSelectedText}"`;
+  
+  const targetLang = document.getElementById('targetLanguage').value;
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(currentSelectedText)}`;
+  
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    let translatedText = "";
+    if (data && data[0]) {
+      data[0].forEach(chunk => { if (chunk[0]) translatedText += chunk[0]; });
+    }
+    document.getElementById('t-modal-result').innerText = translatedText || "Error processing translation.";
+  } catch (err) {
+    document.getElementById('t-modal-result').innerText = "Translation failed. Please check your connection.";
+  }
+  window.getSelection().removeAllRanges();
+});
+
+let baseFontSize = 16;
+function changeFontSize(step){
+  baseFontSize += step * 2;
+  if(baseFontSize < 12) baseFontSize = 12;
+  if(baseFontSize > 32) baseFontSize = 32;
+  document.documentElement.style.fontSize = baseFontSize + 'px';
+}
+
+const geminiVoices = ["Zephyr", "Puck", "Charon", "Kore", "Fenrir", "Leda", "Orus", "Aoede", "Callirrhoe", "Autonoe", "Enceladus", "Iapetus", "Umbriel", "Algieba", "Despina", "Erinome", "Algenib", "Rasalgethi", "Laomedeia", "Achernar", "Alnilam", "Schedar", "Gacrux", "Pulcherrima", "Achird", "Zubenelgenubi", "Vindemiatrix", "Sadachbia", "Sadaltager", "Sulafat"];
+
+let briefingAudioUrl = null; 
+let dialogue1AudioUrls = []; 
+let dialogue2AudioUrls = []; 
+let currentAudioObject = null; 
+let isPlayingDialogue = false; 
+let currentDialogueIndex = 0; 
+let activeDialogueArray = [];
+let briefingAudio = null;
+
+function pcmToWav(base64Pcm) {
+  const binaryString = atob(base64Pcm);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  const sampleRate = 24000;
+  const numChannels = 1;
+  const bitsPerSample = 16;
+  const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+  const blockAlign = numChannels * (bitsPerSample / 8);
+  const dataSize = bytes.length;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+  const writeString = (view, offset, string) => {
+    for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+  };
+  writeString(view, 0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(view, 8, 'WAVE');
+  writeString(view, 12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitsPerSample, true);
+  writeString(view, 36, 'data');
+  view.setUint32(40, dataSize, true);
+  for (let i = 0; i < bytes.length; i++) {
+    view.setUint8(44 + i, bytes[i]);
+  }
+  const blob = new Blob([view], { type: 'audio/wav' });
+  return URL.createObjectURL(blob);
+}
+
+async function fetchGeminiTTS(text, voiceName) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+  const payload = {
+    contents: [{ parts: [{ text: text }] }],
+    generationConfig: {
+      responseModalities: ["AUDIO"],
+      speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceName } } }
+    },
+    model: "gemini-2.5-flash-preview-tts"
+  };
+  for (let attempt = 1, delay = 1000; attempt <= 5; attempt++, delay *= 2) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const result = await response.json();
+      const base64Pcm = result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+      if (!base64Pcm) throw new Error("No audio data in response");
+      return pcmToWav(base64Pcm);
+    } catch (e) {
+      if (attempt === 5) throw e;
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+}
+
+function toggleBriefing() {
+  const btn = document.getElementById('btnPlayBriefing');
+  if (isPlayingDialogue) stopAudio();
+
+  if (!briefingAudio && briefingAudioUrl) {
+    briefingAudio = new Audio(briefingAudioUrl);
+    briefingAudio.onended = () => { btn.innerHTML = '▶️ Play Briefing'; };
+  }
+  
+  if (briefingAudio) {
+    if (briefingAudio.paused) {
+      briefingAudio.play();
+      btn.innerHTML = '⏸️ Pause Briefing';
+    } else {
+      briefingAudio.pause();
+      btn.innerHTML = '▶️ Resume Briefing';
+    }
+  }
+}
+
+function toggleDialogue(num) {
+  const btn = document.getElementById(`btnPlayDialogue${num}`);
+  const targetArray = num === 1 ? dialogue1AudioUrls : dialogue2AudioUrls;
+
+  if (isPlayingDialogue && activeDialogueArray === targetArray) {
+    if (currentAudioObject) {
+      if (currentAudioObject.paused) {
+        currentAudioObject.play();
+        btn.innerHTML = '⏸️ Pause Scene';
+      } else {
+        currentAudioObject.pause();
+        btn.innerHTML = '▶️ Resume Scene';
+      }
+    }
+    return;
+  }
+
+  stopAudio();
+  activeDialogueArray = targetArray;
+  if (activeDialogueArray.length === 0) return;
+  
+  isPlayingDialogue = true;
+  currentDialogueIndex = 0;
+  btn.innerHTML = '⏸️ Pause Scene';
+  playNextDialogueLine(num);
+}
+
+function playNextDialogueLine(num) {
+  if (!isPlayingDialogue || currentDialogueIndex >= activeDialogueArray.length) { 
+    isPlayingDialogue = false; 
+    document.getElementById(`btnPlayDialogue${num}`).innerHTML = '▶️ Play Scene';
+    return; 
+  }
+  currentAudioObject = new Audio(activeDialogueArray[currentDialogueIndex]);
+  currentAudioObject.onended = () => { currentDialogueIndex++; playNextDialogueLine(num); };
+  currentAudioObject.play();
+}
+
+function stopAudio() { 
+  isPlayingDialogue = false; 
+  if (currentAudioObject) { currentAudioObject.pause(); currentAudioObject.currentTime = 0; currentAudioObject = null; } 
+  if (briefingAudio) { briefingAudio.pause(); briefingAudio.currentTime = 0; document.getElementById('btnPlayBriefing').innerHTML = '▶️ Play Briefing'; }
+  document.getElementById('btnPlayDialogue1').innerHTML = '▶️ Play Scene';
+  document.getElementById('btnPlayDialogue2').innerHTML = '▶️ Play Scene';
+}
+
+function toggleTranscript() {
+  const box = document.getElementById('hiddenScript'), btn = document.getElementById('btnToggleTranscript');
+  if (box.style.display === 'block') { box.style.display = 'none'; btn.innerText = '👁️ Show Transcript'; } 
+  else { box.style.display = 'block'; btn.innerText = '🙈 Hide Transcript'; }
+}
+
+function revealDrill(el, isCorrect) {
+  if (el.classList.contains('revealed')) return; el.classList.add('revealed');
+  const icon = el.querySelector('.drill-icon');
+  if (isCorrect) { el.classList.add('revealed-correct'); icon.innerText = '✓'; } else { el.classList.add('revealed-incorrect'); icon.innerText = '✗'; }
+}
+
+function startClozeMode(dNum) {
+  resetMasks(dNum);
+  document.querySelectorAll(`#dialogueContainer${dNum} .script-line`).forEach(line => {
+    const el = line.querySelector('.final-sentence'), text = el.getAttribute('data-original') || el.innerText;
+    let words = text.split(' '), blankIndices = [], attempts = 0, numBlanks = Math.max(1, Math.floor(words.length / 5));
+    while(blankIndices.length < numBlanks && attempts < 20) {
+      attempts++; let r = Math.floor(Math.random() * words.length);
+      if(!blankIndices.includes(r) && words[r].replace(/[^a-zA-Z]/g,'').length > 2) blankIndices.push(r);
+    }
+    el.innerHTML = words.map((w, i) => blankIndices.includes(i) ? `<input type="text" class="cloze-input" data-answer="${w.replace(/[^a-zA-Z]/g,'').toLowerCase()}" oninput="if(this.value.toLowerCase().trim()===this.dataset.answer){this.classList.add('correct');this.disabled=true;}else{this.classList.remove('correct');}">${w.match(/[^a-zA-Z]+$/)?.[0]||''}` : w).join(' ');
+  });
+}
+
+function toggleBuildMode(btn) {
+  const bubble = btn.closest('.bubble');
+  const el = bubble.querySelector('.final-sentence');
+  let ui = bubble.querySelector('.interactive-build-ui');
+
+  if (ui) {
+    ui.remove();
+    el.style.display = 'block';
+    btn.innerHTML = '🧩 Build';
+  } else {
+    el.style.display = 'none';
+    btn.innerHTML = '👀 Show Answer';
+
+    let text = (el.getAttribute('data-original') || el.innerText).replace(/\|/g, '');
+    let pieces = text.split(/\s+/).map(s => s.trim()).filter(s => s.length > 0);
+
+    ui = document.createElement('div');
+    ui.className = 'interactive-build-ui';
+    let dz = document.createElement('div'), wb = document.createElement('div'), checkBtn = document.createElement('button');
+    dz.className = 'drop-zone'; wb.className = 'word-bank-chat';
+    checkBtn.innerText = '✅ Check Sentence'; checkBtn.style.alignSelf = 'flex-start'; checkBtn.className = 'btn-stop';
+    
+    checkBtn.onclick = () => {
+      if(Array.from(dz.children).map(c=>c.innerText).join(' ') === pieces.join(' ')) {
+        dz.classList.add('correct'); wb.style.display='none'; checkBtn.style.display='none';
+        setTimeout(()=>{ ui.remove(); el.style.display='block'; btn.innerHTML='🧩 Build'; }, 1500);
+      } else { 
+        dz.classList.add('error'); setTimeout(()=>dz.classList.remove('error'), 500); 
+      }
+    };
+
+    [...pieces].sort(()=>Math.random()-0.5).forEach(w => { 
+      let c = document.createElement('button'); 
+      c.className='word-chip'; c.innerText=w; 
+      c.onclick = () => (c.parentElement === wb ? dz : wb).appendChild(c); 
+      wb.appendChild(c); 
+    });
+
+    ui.append(dz, wb, checkBtn); 
+    bubble.appendChild(ui);
+  }
+}
+
+function toggleBlindfold(dNum) { resetMasks(dNum); document.querySelectorAll(`#dialogueContainer${dNum} .final-sentence`).forEach(el => el.classList.add('blurred-text')); }
+function resetMasks(dNum) {
+  document.querySelectorAll(`#dialogueContainer${dNum} .final-sentence`).forEach(el => { el.classList.remove('blurred-text'); if (el.hasAttribute('data-original')) el.innerHTML = el.getAttribute('data-original'); el.style.display = 'block'; });
+  document.querySelectorAll(`#dialogueContainer${dNum} .interactive-build-ui`).forEach(ui => ui.remove());
+  document.querySelectorAll(`#dialogueContainer${dNum} .mini-build-btn`).forEach(btn => btn.innerHTML = '🧩 Build');
+}
+
+let aiChatHistory = [];
+const aiSystemContext = "You are Hiring Manager Sara interviewing a candidate for a customer service role at an international retail company. The candidate is an A2-B1 English learner. Ask natural follow-up interview questions about their customer service experience, strengths, teamwork, handling upset customers, and career goals. Keep all responses very short (maximum 2 sentences) and professional yet warm. Speak naturally. Do not use AI filler words. Your task is to evaluate the user's english grammar, return a 'correction' (or praise if accurate), and provide a 'reply' in character as Manager Sara.";
+
+async function sendAiMsg() {
+  const inputEl = document.getElementById('ai-chat-input');
+  const btnEl = document.getElementById('ai-send-btn');
+  const chatLog = document.getElementById('ai-live-chat-log');
+  const text = inputEl.value.trim();
+  if (!text) return;
+
+  chatLog.insertAdjacentHTML('beforeend', `<div class="sim-msg user">${text}</div>`);
+  chatLog.scrollTop = chatLog.scrollHeight;
+  
+  inputEl.value = '';
+  inputEl.disabled = true;
+  btnEl.disabled = true;
+  btnEl.innerHTML = '<span class="loading-dots">...</span>';
+
+  aiChatHistory.push({ role: "user", parts: [{ text: text }] });
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const payload = {
+    system_instruction: { parts: [{ text: aiSystemContext }] },
+    contents: aiChatHistory,
+    generationConfig: {
+      temperature: 0.7,
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "object",
+        properties: {
+          correction: { type: "string" },
+          reply: { type: "string" }
+        },
+        required: ["correction", "reply"]
+      }
+    }
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const result = await response.json();
+    const rawAiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (rawAiText) {
+      const cleanJson = rawAiText.replace(/```json/g, '').replace(/```/g, '').trim();
+      const aiData = JSON.parse(cleanJson);
+
+      aiChatHistory.push({ role: "model", parts: [{ text: JSON.stringify(aiData) }] });
+      
+      if (aiData.correction) {
+          chatLog.insertAdjacentHTML('beforeend', `<div class="sim-msg partner" style="background:#fffbeb; border:1px solid #fde68a;">🎓 Teacher Note: ${aiData.correction}</div>`);
+      }
+
+      if (aiData.reply) {
+          chatLog.insertAdjacentHTML('beforeend', `<div class="sim-msg partner"><strong>Manager Sara:</strong> ${aiData.reply}</div>`);
+      }
+
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+  } catch (error) {
+    console.error("AI Chat Error:", error);
+    chatLog.insertAdjacentHTML('beforeend', `<div class="sim-msg partner" style="color:var(--danger)">⚠️ Error connecting to AI. Please try again.</div>`);
+  } finally {
+    inputEl.disabled = false;
+    btnEl.disabled = false;
+    btnEl.innerText = 'Send';
+    inputEl.focus();
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+}
+
+function generateReportText() {
+  const note = document.getElementById('student-note').value.trim();
+  let reportText = "========================================\n";
+  reportText += " CLASS REPORT & TRANSCRIPT\n";
+  reportText += "========================================\n\n";
+  
+  if (note) {
+    reportText += `Note / Info: ${note}\n\n`;
+  }
+  
+  reportText += "--- DYNAMIC AI CHAT LOG ---\n\n";
+  
+  const chatLog = document.getElementById('ai-live-chat-log');
+  const messages = chatLog.querySelectorAll('.sim-msg');
+  
+  if (messages.length === 0) {
+    reportText += "No chat history recorded.\n";
+  }
+  
+  messages.forEach(msg => {
+    let sender = "System";
+    if (msg.classList.contains('user')) sender = "Student";
+    else if (msg.classList.contains('partner')) sender = "Manager Sara / Teacher";
+    
+    let text = msg.innerText.trim();
+    reportText += `[${sender}]: ${text}\n\n`;
+  });
+  
+  return reportText;
+}
+
+function downloadReport() {
+  const text = generateReportText();
+  const blob = new Blob([text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Class_Report_${new Date().toISOString().slice(0,10)}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// ==========================================
+// INITIALIZATION
+// ==========================================
+window.addEventListener('load', async () => {
+  document.querySelectorAll('.final-sentence').forEach(el => {
+    const rawText = el.innerText;
+    if(rawText.includes('|')) { 
+        el.setAttribute('data-chunks', rawText); 
+    }
+    el.setAttribute('data-original', el.innerText);
+  });
+
+  const btnBriefing = document.getElementById('btnPlayBriefing');
+  const btnDialogue1 = document.getElementById('btnPlayDialogue1');
+  const btnDialogue2 = document.getElementById('btnPlayDialogue2');
+
+  const voiceYou = geminiVoices[Math.floor(Math.random() * geminiVoices.length)];
+  let voicePartner1 = geminiVoices[Math.floor(Math.random() * geminiVoices.length)];
+  while (voicePartner1 === voiceYou) {
+    voicePartner1 = geminiVoices[Math.floor(Math.random() * geminiVoices.length)];
+  }
+  let voicePartner2 = geminiVoices[Math.floor(Math.random() * geminiVoices.length)];
+  while (voicePartner2 === voiceYou || voicePartner2 === voicePartner1) {
+    voicePartner2 = geminiVoices[Math.floor(Math.random() * geminiVoices.length)];
+  }
+
+  try {
+    const briefingText = document.getElementById('hiddenScript').innerText;
+    briefingAudioUrl = await fetchGeminiTTS(briefingText, voiceYou);
+    btnBriefing.innerText = "▶️ Play Briefing";
+    btnBriefing.disabled = false;
+  } catch (e) {
+    btnBriefing.innerText = "⚠️ Audio Error";
+  }
+
+  try {
+    const lines1 = document.querySelectorAll('#dialogueContainer1 .script-line');
+    for (let line of lines1) {
+      const text = line.querySelector('.final-sentence').innerText;
+      dialogue1AudioUrls.push(await fetchGeminiTTS(text, line.getAttribute('data-role') === 'you' ? voiceYou : voicePartner1));
+    }
+    btnDialogue1.innerText = "▶️ Play Scene";
+    btnDialogue1.disabled = false;
+  } catch (e) {
+    btnDialogue1.innerText = "⚠️ Audio Error";
+  }
+
+  try {
+    const lines2 = document.querySelectorAll('#dialogueContainer2 .script-line');
+    for (let line of lines2) {
+      const text = line.querySelector('.final-sentence').innerText;
+      dialogue2AudioUrls.push(await fetchGeminiTTS(text, line.getAttribute('data-role') === 'you' ? voiceYou : voicePartner2));
+    }
+    btnDialogue2.innerText = "▶️ Play Scene";
+    btnDialogue2.disabled = false;
+  } catch (e) {
+    btnDialogue2.innerText = "⚠️ Audio Error";
+  }
+});
+</script>
+</body>
+</html>

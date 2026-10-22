@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procedural Lesson: The Science Project Debate - Defending Ideas Politely</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .drill-card { transition: all 0.2s ease; }
+    .drill-card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05); }
+
+    .bubble-you { background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; border-bottom-right-radius: 4px; }
+    .bubble-partner { background: white; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; }
+
+    .blurred-text {
+      color: transparent !important; text-shadow: 0 0 14px rgba(15, 23, 42, 0.75) !important; filter: blur(6px) !important; user-select: none !important; cursor: pointer !important; transition: all 0.2s ease;
+    }
+    .bubble-you .blurred-text { color: transparent !important; text-shadow: 0 0 14px rgba(255, 255, 255, 0.9) !important; filter: blur(6px) !important; cursor: pointer !important;}
+    .blurred-text:hover { opacity: 0.85; }
+
+    .drop-zone { min-height: 60px; background: rgba(0,0,0,0.05); border: 2px dashed #cbd5e1; border-radius: 12px; padding: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .bubble-you .drop-zone { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.5); }
+    .drop-zone.correct { background: #10b981; border-color: transparent; }
+    .drop-zone.error { background: #fef2f2; border-color: #ef4444; }
+    .word-chip { padding: 8px 14px; background: white; color: #1e293b; border-radius: 8px; font-weight: 700; cursor: pointer; border: 1px solid #e2e8f0; box-shadow: 0 2px 0 #cbd5e1; transition: transform 0.1s, box-shadow 0.1s; }
+    .word-chip:active { transform: translateY(2px); box-shadow: 0 0 0 transparent; }
+
+    /* Drag and Drop Styling */
+    .script-line.dragging { opacity: 0.45; transform: scale(0.98); }
+    .script-line.drag-over { border-color: #6366f1 !important; border-style: dashed !important; background-color: #f5f3ff !important; }
+
+    .timer-pulse { animation: pulseRed 1s infinite; }
+    @keyframes pulseRed { 0% { color: #ef4444; } 50% { color: #991b1b; } 100% { color: #ef4444; } }
+    @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+    .shake { animation: shake 0.4s; }
+
+    #highlight-translate-btn { position: absolute; display: none; z-index: 1000; background: #1e293b; color: white; border: none; border-radius: 8px; padding: 8px 14px; font-size: 0.95rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.25); transition: transform 0.1s; align-items: center; gap: 6px; font-family: 'Inter', sans-serif;}
+    #highlight-translate-btn:hover { background: #0f172a; transform: scale(1.05); }
+    #translate-modal { display: none; position: fixed; bottom: 30px; right: 30px; background: white; border-radius: 16px; width: 320px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 2px solid #e2e8f0; z-index: 9999; overflow: hidden; font-family: 'Inter', sans-serif; animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .t-modal-header { background: #f8fafc; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #334155; }
+    .t-modal-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8; padding: 0; box-shadow: none; }
+    .t-modal-close:hover { color: #f43f5e; box-shadow: none; transform: none; }
+    .t-modal-body { padding: 16px; font-size: 1.05rem; color: #0f172a; line-height: 1.5; max-height: 200px; overflow-y: auto; font-weight: 600; }
+    .t-modal-original { font-size: 0.85rem; color: #64748b; margin-top: 10px; border-top: 1px dashed #cbd5e1; padding-top: 10px; font-style: italic; font-weight: 400; }
+  </style>
+</head>
+<body class="min-h-screen pb-20 selection:bg-indigo-100 selection:text-indigo-900">
+
+  <button id="highlight-translate-btn">🌍 Translate</button>
+  <div id="translate-modal">
+    <div class="t-modal-header"><span>🌍 Translation</span><button class="t-modal-close" onclick="document.getElementById('translate-modal').style.display='none'">✖</button></div>
+    <div class="t-modal-body" id="t-modal-result">Loading...</div>
+    <div class="t-modal-body t-modal-original" id="t-modal-original" style="padding-top:0;"></div>
+  </div>
+
+  <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-xl border-b border-slate-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-5">
+      <div class="flex items-center gap-3 mb-4 border-b border-slate-700/50 pb-4">
+        <select id="targetLanguage" class="bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer lang-selector">
+          <option value="zh-CN" selected>🇨🇳 Chinese (Simplified)</option>
+          <option value="zh-TW">🇹🇼 Chinese (Traditional)</option>
+          <option value="ja">🇯🇵 Japanese (日本語)</option>
+          <option value="ko">🇰🇷 Korean (한국어)</option>
+          <option value="es">🇪🇸 Spanish (Español)</option>
+          <option value="fr">🇫🇷 French (Français)</option>
+          <option value="de">🇩🇪 German (Deutsch)</option>
+          <option value="ru">🇷🇺 Russian (Русский)</option>
+        </select>
+        <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-0.5">
+          <button onclick="changeFontSize(-1)" class="px-2.5 py-1 text-slate-300 hover:text-white hover:bg-slate-700 rounded-md font-bold text-xs transition" title="Decrease font size">A-</button>
+          <div class="w-px h-4 bg-slate-700 mx-0.5"></div>
+          <button onclick="changeFontSize(1)" class="px-2.5 py-1 text-slate-300 hover:text-white hover:bg-slate-700 rounded-md font-bold text-xs transition" title="Increase font size">A+</button>
+        </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-600/90 text-white tracking-wide uppercase">
+              <span id="level-badge">CEFR A2–B1</span>
+            </span>
+            <span class="text-xs text-slate-400 font-medium">Cognitive SLA Procedural Engine</span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white">
+            The Science Project Debate: Defending Ideas Politely
+          </h1>
+        </div>
+      </div>
+
+      <div class="mt-4 bg-white/10 backdrop-blur-sm border border-white/20 p-3 sm:p-4 rounded-xl">
+        <div class="flex items-start gap-2">
+          <span class="text-lg leading-none">🎯</span>
+          <div>
+            <strong class="text-indigo-200 text-sm block mb-0.5">Procedural Focus: Polite Disagreement & Suggestion Modals</strong>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Master professional academic discourse using <span class="text-amber-300 font-semibold">"While I understand your point, I think..."</span>, <span class="text-amber-300 font-semibold">"Why don't we consider...?"</span>, and <span class="text-amber-300 font-semibold">"Could we look at another option?"</span>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-8 space-y-12">
+
+    <!-- PART 1: VOCABULARY -->
+    <section>
+      <div class="flex items-center justify-between gap-2 mb-4 pb-2 border-b border-slate-200">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-black rounded-lg">PART 1</span>
+          <h2 class="text-xl font-black text-slate-900">📚 Lexical Retrieval: Semantic-Field Cycling</h2>
+        </div>
+        <button onclick="startVocabSprint()" id="vocabSprintBtn" class="px-3 py-1.5 bg-amber-500 text-white font-bold text-xs rounded-lg hover:bg-amber-600 transition shadow-sm">⏱️ 3-Second Sprint</button>
+      </div>
+      <p class="text-sm font-semibold text-slate-500 mb-4">Click "Sprint" and read each target sentence aloud before the countdown ends to build instant academic vocabulary access.</p>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <div class="vocab-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="vocab-word text-lg font-black text-indigo-900 mb-1 flex items-center gap-2">
+            <span class="text-base">🏷️</span> Hypothesis <span class="text-xs font-normal text-slate-400">/haɪˈpɒθəsɪs/ (n.)</span>
+          </div>
+          <p class="vocab-def text-sm font-semibold text-slate-600 mb-3">A proposed explanation made on the basis of limited evidence as a starting point for further investigation.</p>
+          <div class="vocab-frame bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm text-slate-700 font-medium italic">
+            Example: "While I understand your point, I think our hypothesis needs more testing."
+          </div>
+        </div>
+
+        <div class="vocab-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="vocab-word text-lg font-black text-indigo-900 mb-1 flex items-center gap-2">
+            <span class="text-base">🏷️️</span> Sustainable <span class="text-xs font-normal text-slate-400">/səˈsteɪnəbl/ (adj.)</span>
+          </div>
+          <p class="vocab-def text-sm font-semibold text-slate-600 mb-3">Able to be maintained at a certain rate or level without depleting natural resources.</p>
+          <div class="vocab-frame bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm text-slate-700 font-medium italic">
+            Example: "Why don't we consider a more sustainable energy source for the model?"
+          </div>
+        </div>
+
+        <div class="vocab-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="vocab-word text-lg font-black text-indigo-900 mb-1 flex items-center gap-2">
+            <span class="text-base">🏷️</span> Efficiency <span class="text-xs font-normal text-slate-400">/ɪˈfɪʃnsi/ (n.)</span>
+          </div>
+          <p class="vocab-def text-sm font-semibold text-slate-600 mb-3">The state or quality of being efficient; achieving maximum productivity with minimum wasted effort.</p>
+          <div class="vocab-frame bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm text-slate-700 font-medium italic">
+            Example: "Could we look at another option to improve the turbine's energy efficiency?"
+          </div>
+        </div>
+
+        <div class="vocab-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="vocab-word text-lg font-black text-indigo-900 mb-1 flex items-center gap-2">
+            <span class="text-base">🏷️</span> Prototype <span class="text-xs font-normal text-slate-400">/ˈprəʊtətaɪp/ (n.)</span>
+          </div>
+          <p class="vocab-def text-sm font-semibold text-slate-600 mb-3">A first or preliminary model of a machine or device from which other forms are developed.</p>
+          <div class="vocab-frame bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm text-slate-700 font-medium italic">
+            Example: "While I like this design, building a working prototype will take two weeks."
+          </div>
+        </div>
+
+        <div class="vocab-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="vocab-word text-lg font-black text-indigo-900 mb-1 flex items-center gap-2">
+            <span class="text-base">🏷️</span> Alternative <span class="text-xs font-normal text-slate-400">/ɔːlˈtɜːrnətɪv/ (n./adj.)</span>
+          </div>
+          <p class="vocab-def text-sm font-semibold text-slate-600 mb-3">Available as another possibility or choice.</p>
+          <div class="vocab-frame bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm text-slate-700 font-medium italic">
+            Example: "Why don't we consider solar power as an alternative to biomass?"
+          </div>
+        </div>
+
+        <div class="vocab-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="vocab-word text-lg font-black text-indigo-900 mb-1 flex items-center gap-2">
+            <span class="text-base">🏷️</span> Renewable <span class="text-xs font-normal text-slate-400">/rɪˈnuːəbl/ (adj.)</span>
+          </div>
+          <p class="vocab-def text-sm font-semibold text-slate-600 mb-3">Naturally replenished energy sources such as wind, solar, and water.</p>
+          <div class="vocab-frame bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm text-slate-700 font-medium italic">
+            Example: "Could we look at another renewable energy model for our presentation?"
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PART 2: SETTING THE SCENE -->
+    <section>
+      <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-200">
+        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-black rounded-lg">PART 2</span>
+        <h2 class="text-xl font-black text-slate-900">🖼️ Schema Activation</h2>
+      </div>
+      <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <img src="https://image.pollinations.ai/prompt/middle%20school%20students%20collaborating%20on%20science%20fair%20project%20solar%20panels%20clean%20laboratory?width=800&height=300&nologo=true" alt="Science fair project collaboration" class="w-full h-48 sm:h-64 object-cover rounded-2xl mb-5 border border-slate-100">
+        <h3 class="font-black text-slate-800 mb-3 text-lg">Discuss with your teacher:</h3>
+        <ul class="list-disc pl-6 space-y-2 text-slate-600 font-semibold text-sm sm:text-base">
+          <li>Have you ever worked on a group science project where partners disagreed on the main idea? How did you resolve it?</li>
+          <li>When someone suggests an idea you disagree with, is it better to say "No" directly or use polite softening phrases?</li>
+          <li>Which energy prototype (solar vs. wind) do you think is more practical for a school science fair exhibition?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PART 3: ACOUSTIC PROCESSING -->
+    <section>
+      <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-200">
+        <span class="px-2.5 py-1 bg-blue-100 text-blue-800 text-xs font-black rounded-lg">PART 3</span>
+        <h2 class="text-xl font-black text-slate-900">📍 Acoustic Processing: Audio Shadowing</h2>
+      </div>
+      <div class="bg-blue-50/50 p-5 sm:p-6 rounded-3xl border border-blue-100">
+        <p class="text-slate-700 font-medium mb-5 text-sm sm:text-base leading-relaxed">
+          <strong class="text-blue-900 font-black">Scenario:</strong> 
+          Alfie and Daniel are meeting in the school laboratory to finalize their entry for the annual science fair. Listen to their initial discussion about choosing a renewable energy prototype and notice how they navigate differing opinions politely.
+        </p>
+
+        <div class="bg-white p-4 rounded-xl border border-blue-200 mb-5 shadow-sm">
+          <h4 class="font-bold text-blue-900 text-sm mb-2">Procedural Listening Steps:</h4>
+          <ol class="text-xs text-slate-600 font-semibold space-y-1 pl-4 list-decimal">
+            <li><span class="text-blue-600 font-bold">Listen 1 (1.0x):</span> Pens down. Listen for the core project proposal.</li>
+            <li><span class="text-blue-600 font-bold">Listen 2 (1.0x):</span> Jot down only polite disagreement expressions and suggestions.</li>
+            <li><span class="text-blue-600 font-bold">Listen 3 (1.25x):</span> Fast speed! Shadow the audio with low volume.</li>
+          </ol>
+
+          <div class="flex items-center gap-2 mt-4 mb-2">
+            <button id="btnPlayBriefing1" onclick="toggleBriefing(1.0, 'btnPlayBriefing1')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition active:scale-95 flex items-center gap-1.5">▶️ Listen Normal</button>
+            <button id="btnPlayBriefing2" onclick="toggleBriefing(1.25, 'btnPlayBriefing2')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-sm transition active:scale-95 flex items-center gap-1.5">⚡ Listen Fast</button>
+          </div>
+          <textarea class="w-full p-3 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" rows="2" placeholder="Step 2: Type your keyword notes here (e.g., prototype, sustainable, why don't we...)..."></textarea>
+        </div>
+
+        <button onclick="toggleTranscript()" class="px-4 py-2 rounded-xl text-sm font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95 flex items-center gap-2 mb-4">
+          <span>👁️</span> Show Transcript & Questions
+        </button>
+
+        <div id="hiddenScript" class="hidden bg-white p-4 rounded-xl border border-slate-200 text-sm text-slate-600 font-medium italic mb-5 shadow-inner">
+          <p class="mb-3">Alfie: I think our main hypothesis should focus on solar panel efficiency for the science fair. Daniel: While I understand your point, I think building a solar model is too complicated for our timeline. Why don't we consider a wind turbine prototype instead? Alfie: That is an interesting idea, but could we look at another option that requires less assembly time? Daniel: Sure! We could test a water filtration system as a sustainable alternative. Alfie: That sounds like a brilliant compromise!</p>
+          <hr class="border-slate-200 mb-3">
+          <h3 class="font-black text-slate-800 mb-2 text-sm not-italic">Questions:</h3>
+          <ol class="list-decimal pl-6 space-y-1.5 text-slate-600 font-semibold text-sm not-italic">
+            <li>What was Alfie's initial hypothesis and project focus?</li>
+            <li>How did Daniel politely disagree with Alfie's suggestion?</li>
+            <li>What alternative sustainable project did they finally agree upon?</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 4: GRAMMAR PROCEDURALIZATION -->
+    <section>
+      <div class="flex items-center justify-between gap-2 mb-4 pb-2 border-b border-slate-200">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 bg-rose-100 text-rose-800 text-xs font-black rounded-lg">PART 4</span>
+          <h2 class="text-xl font-black text-slate-900">🔍 Grammar Proceduralization: Prompt-to-Structure Drill</h2>
+        </div>
+        <button onclick="toggleAllAnswers()" id="btn-toggle-all" class="text-xs font-bold text-slate-500 hover:text-slate-800 transition">👁 Show All Answers</button>
+      </div>
+
+      <p class="text-sm font-semibold text-slate-500 mb-5">Transform these root prompt words into fluent, polite academic sentences without hesitation. Practice softening your statements instantly!</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Drill 1 -->
+        <div class="drill-card bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-black text-indigo-600 uppercase tracking-wider">Polite Disagreement Softener</span>
+              <span class="text-xs font-bold text-slate-400">01</span>
+            </div>
+            <p class="text-sm font-bold text-slate-800 mb-2">Express polite disagreement regarding project speed:</p>
+            <div class="font-mono text-xs sm:text-sm text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100 mb-4">
+              understand / point / think / too slow
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+              <button onclick="toggleAnswer(this)" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition">👁️ Show Target</button>
+              <button onclick="speakText('While I understand your point, I think this method is too slow.', this)" class="text-xs font-bold p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">🔊 Listen</button>
+            </div>
+            <div class="answer-box hidden mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm font-bold text-emerald-900">
+              "While I understand your point, I think this method is too slow."
+            </div>
+          </div>
+        </div>
+
+        <!-- Drill 2 -->
+        <div class="drill-card bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-black text-indigo-600 uppercase tracking-wider">Suggestion Formulation</span>
+              <span class="text-xs font-bold text-slate-400">02</span>
+            </div>
+            <p class="text-sm font-bold text-slate-800 mb-2">Propose an idea using the question form:</p>
+            <div class="font-mono text-xs sm:text-sm text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100 mb-4">
+              why don't / consider / sustainable energy
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+              <button onclick="toggleAnswer(this)" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition">👁️ Show Target</button>
+              <button onclick="speakText('Why don\'t we consider a sustainable energy design?', this)" class="text-xs font-bold p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">🔊 Listen</button>
+            </div>
+            <div class="answer-box hidden mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm font-bold text-emerald-900">
+              "Why don't we consider a sustainable energy design?"
+            </div>
+          </div>
+        </div>
+
+        <!-- Drill 3 -->
+        <div class="drill-card bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-black text-indigo-600 uppercase tracking-wider">Alternative Inquiry</span>
+              <span class="text-xs font-bold text-slate-400">03</span>
+            </div>
+            <p class="text-sm font-bold text-slate-800 mb-2">Ask to explore another option for efficiency:</p>
+            <div class="font-mono text-xs sm:text-sm text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100 mb-4">
+              could / look at / another option / efficiency
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+              <button onclick="toggleAnswer(this)" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition">👁️️ Show Target</button>
+              <button onclick="speakText('Could we look at another option to improve our efficiency?', this)" class="text-xs font-bold p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">🔊 Listen</button>
+            </div>
+            <div class="answer-box hidden mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm font-bold text-emerald-900">
+              "Could we look at another option to improve our efficiency?"
+            </div>
+          </div>
+        </div>
+
+        <!-- Drill 4 -->
+        <div class="drill-card bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-black text-indigo-600 uppercase tracking-wider">Hypothesis Defense</span>
+              <span class="text-xs font-bold text-slate-400">04</span>
+            </div>
+            <p class="text-sm font-bold text-slate-800 mb-2">Defend your scientific hypothesis politely:</p>
+            <div class="font-mono text-xs sm:text-sm text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100 mb-4">
+              while / understand / think / hypothesis / correct
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+              <button onclick="toggleAnswer(this)" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition">👁️ Show Target</button>
+              <button onclick="speakText('While I understand your point, I think our hypothesis is correct.', this)" class="text-xs font-bold p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">🔊 Listen</button>
+            </div>
+            <div class="answer-box hidden mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm font-bold text-emerald-900">
+              "While I understand your point, I think our hypothesis is correct."
+            </div>
+          </div>
+        </div>
+
+        <!-- Drill 5 -->
+        <div class="drill-card bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-black text-indigo-600 uppercase tracking-wider">Prototype Suggestion</span>
+              <span class="text-xs font-bold text-slate-400">05</span>
+            </div>
+            <p class="text-sm font-bold text-slate-800 mb-2">Suggest building a working prototype:</p>
+            <div class="font-mono text-xs sm:text-sm text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100 mb-4">
+              why don't / build / working prototype / fair
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+              <button onclick="toggleAnswer(this)" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition">👁️ Show Target</button>
+              <button onclick="speakText('Why don\'t we build a working prototype for the fair?', this)" class="text-xs font-bold p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">🔊 Listen</button>
+            </div>
+            <div class="answer-box hidden mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm font-bold text-emerald-900">
+              "Why don't we build a working prototype for the fair?"
+            </div>
+          </div>
+        </div>
+
+        <!-- Drill 6 -->
+        <div class="drill-card bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-black text-indigo-600 uppercase tracking-wider">Alternative Proposal</span>
+              <span class="text-xs font-bold text-slate-400">06</span>
+            </div>
+            <p class="text-sm font-bold text-slate-800 mb-2">Propose an alternative renewable material:</p>
+            <div class="font-mono text-xs sm:text-sm text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100 mb-4">
+              could / look at / alternative / solar power
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+              <button onclick="toggleAnswer(this)" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition">👁️ Show Target</button>
+              <button onclick="speakText('Could we look at solar power as an alternative energy source?', this)" class="text-xs font-bold p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">🔊 Listen</button>
+            </div>
+            <div class="answer-box hidden mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm font-bold text-emerald-900">
+              "Could we look at solar power as an alternative energy source?"
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PART 5: DIALOGUE SCENE 1 -->
+    <section>
+      <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-200">
+        <span class="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-black rounded-lg">PART 5</span>
+        <h2 class="text-xl font-black text-slate-900">💬 Pragmatics: Scene 1 - Debating the Project Hypothesis</h2>
+      </div>
+
+      <div class="bg-purple-50/30 p-4 rounded-xl border border-purple-100 mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div>
+          <h4 class="font-bold text-purple-900 text-sm">Prosodic & Syntactic Training:</h4>
+          <p class="text-xs text-slate-600 font-medium">1. Unmask and listen to native stress and intonation.<br>2. <strong>Shadow</strong> the audio in real-time.<br>3. Click <strong>Scramble Scene</strong> to practice conversational turn order!</p>
+        </div>
+        <div class="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
+          <label class="text-xs font-bold text-slate-500">Speed:</label>
+          <select id="shadowSpeed1" class="text-xs font-bold bg-slate-100 border border-slate-200 text-slate-700 rounded p-1 outline-none">
+            <option value="0.85">0.85x (Slow)</option>
+            <option value="1.0" selected>1.0x (Normal)</option>
+            <option value="1.25">1.25x (Challenge)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 mb-6">
+        <button id="btnPlayDialogue1" onclick="toggleDialogue(1)" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-white hover:bg-slate-700 transition flex items-center gap-1.5">▶️ Play Scene</button>
+        <button id="btnBlindfold1" onclick="toggleBlindfold(1)" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition">🙈 Blindfold All</button>
+        <button id="btnScramble1" onclick="toggleScramble(1)" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 hover:bg-amber-200 transition flex items-center gap-1.5">🧩 Scramble Scene</button>
+        <button onclick="resetMasks(1)" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 transition">🔄 Reset</button>
+      </div>
+
+      <div class="space-y-4" id="dialogueContainer1">
+        
+        <!-- Turn 1 (Partner) -->
+        <div class="flex gap-3 max-w-[90%] script-line" data-role="partner">
+          <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black text-sm flex-shrink-0">D</div>
+          <div class="bubble-partner p-4 rounded-2xl rounded-bl-none shadow-sm w-full">
+            <div class="text-xs font-black text-slate-400 uppercase mb-1">Daniel (Partner)</div>
+            <div class="final-sentence text-sm sm:text-base font-medium text-slate-800">I believe our hypothesis should focus strictly on wind power efficiency.</div>
+          </div>
+        </div>
+
+        <!-- Turn 2 (Student) -->
+        <div class="flex gap-3 max-w-[90%] self-end flex-row-reverse script-line" data-role="you">
+          <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-black text-sm flex-shrink-0">You</div>
+          <div class="bubble-you p-4 rounded-2xl rounded-br-none shadow-sm w-full">
+            <div class="flex items-center justify-between mb-1 border-b border-white/20 pb-1">
+              <span class="text-xs font-black text-indigo-200 uppercase">Alfie / Daniel</span>
+              <button class="mini-build-btn text-[10px] font-bold px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 transition" onclick="toggleBuildMode(this)">🧩 Build</button>
+            </div>
+            <div class="final-sentence text-sm sm:text-base font-semibold">While I understand your point, I think solar power is more reliable.</div>
+          </div>
+        </div>
+
+        <!-- Turn 3 (Partner) -->
+        <div class="flex gap-3 max-w-[90%] script-line" data-role="partner">
+          <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black text-sm flex-shrink-0">D</div>
+          <div class="bubble-partner p-4 rounded-2xl rounded-bl-none shadow-sm w-full">
+            <div class="text-xs font-black text-slate-400 uppercase mb-1">Daniel (Partner)</div>
+            <div class="final-sentence text-sm sm:text-base font-medium text-slate-800">Solar panels are expensive to buy for our school project budget.</div>
+          </div>
+        </div>
+
+        <!-- Turn 4 (Student) -->
+        <div class="flex gap-3 max-w-[90%] self-end flex-row-reverse script-line" data-role="you">
+          <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-black text-sm flex-shrink-0">You</div>
+          <div class="bubble-you p-4 rounded-2xl rounded-br-none shadow-sm w-full">
+            <div class="flex items-center justify-between mb-1 border-b border-white/20 pb-1">
+              <span class="text-xs font-black text-indigo-200 uppercase">Alfie / Daniel</span>
+              <button class="mini-build-btn text-[10px] font-bold px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 transition" onclick="toggleBuildMode(this)">🧩 Build</button>
+            </div>
+            <div class="final-sentence text-sm sm:text-base font-semibold">Why don't we consider recycled materials to build a low-cost prototype?</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PART 6: DIALOGUE SCENE 2 -->
+    <section>
+      <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-200">
+        <span class="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-black rounded-lg">PART 6</span>
+        <h2 class="text-xl font-black text-slate-900">💬 Pragmatics: Scene 2 - Exploring Sustainable Alternatives</h2>
+      </div>
+
+      <div class="flex items-center gap-2 mb-6 bg-white p-2 w-fit rounded-lg border border-slate-200 shadow-sm">
+        <label class="text-xs font-bold text-slate-500">Speed:</label>
+        <select id="shadowSpeed2" class="text-xs font-bold bg-slate-100 border border-slate-300 text-slate-700 rounded p-1 outline-none">
+          <option value="0.85">0.85x (Slow)</option>
+          <option value="1.0" selected>1.0x (Normal)</option>
+          <option value="1.25">1.25x (Challenge)</option>
+        </select>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 mb-6">
+        <button id="btnPlayDialogue2" onclick="toggleDialogue(2)" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-white hover:bg-slate-700 transition flex items-center gap-1.5">▶️ Play Scene</button>
+        <button id="btnBlindfold2" onclick="toggleBlindfold(2)" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition">🙈 Blindfold All</button>
+        <button id="btnScramble2" onclick="toggleScramble(2)" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 hover:bg-amber-200 transition flex items-center gap-1.5">🧩 Scramble Scene</button>
+        <button onclick="resetMasks(2)" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 transition">🔄 Reset</button>
+      </div>
+
+      <div class="space-y-4" id="dialogueContainer2">
+        
+        <!-- Turn 1 (Partner) -->
+        <div class="flex gap-3 max-w-[90%] script-line" data-role="partner">
+          <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black text-sm flex-shrink-0">D</div>
+          <div class="bubble-partner p-4 rounded-2xl rounded-bl-none shadow-sm w-full">
+            <div class="text-xs font-black text-slate-400 uppercase mb-1">Daniel (Partner)</div>
+            <div class="final-sentence text-sm sm:text-base font-medium text-slate-800">Recycled materials might not look professional enough for judges.</div>
+          </div>
+        </div>
+
+        <!-- Turn 2 (Student) -->
+        <div class="flex gap-3 max-w-[90%] self-end flex-row-reverse script-line" data-role="you">
+          <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-black text-sm flex-shrink-0">You</div>
+          <div class="bubble-you p-4 rounded-2xl rounded-br-none shadow-sm w-full">
+            <div class="flex items-center justify-between mb-1 border-b border-white/20 pb-1">
+              <span class="text-xs font-black text-indigo-200 uppercase">Alfie / Daniel</span>
+              <button class="mini-build-btn text-[10px] font-bold px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 transition" onclick="toggleBuildMode(this)">🧩 Build</button>
+            </div>
+            <div class="final-sentence text-sm sm:text-base font-semibold">Could we look at another option like 3D printing our components?</div>
+          </div>
+        </div>
+
+        <!-- Turn 3 (Partner) -->
+        <div class="flex gap-3 max-w-[90%] script-line" data-role="partner">
+          <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black text-sm flex-shrink-0">D</div>
+          <div class="bubble-partner p-4 rounded-2xl rounded-bl-none shadow-sm w-full">
+            <div class="text-xs font-black text-slate-400 uppercase mb-1">Daniel (Partner)</div>
+            <div class="final-sentence text-sm sm:text-base font-medium text-slate-800">3D printing is fast, but who will design the digital model?</div>
+          </div>
+        </div>
+
+        <!-- Turn 4 (Student) -->
+        <div class="flex gap-3 max-w-[90%] self-end flex-row-reverse script-line" data-role="you">
+          <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-black text-sm flex-shrink-0">You</div>
+          <div class="bubble-you p-4 rounded-2xl rounded-br-none shadow-sm w-full">
+            <div class="flex items-center justify-between mb-1 border-b border-white/20 pb-1">
+              <span class="text-xs font-black text-indigo-200 uppercase">Alfie / Daniel</span>
+              <button class="mini-build-btn text-[10px] font-bold px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 transition" onclick="toggleBuildMode(this)">🧩 Build</button>
+            </div>
+            <div class="final-sentence text-sm sm:text-base font-semibold">While I understand your concern, I can handle the computer design work tonight.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PART 7: 2-MINUTE FLUENCY SPRINT -->
+    <section>
+      <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-200">
+        <span class="px-2.5 py-1 bg-teal-100 text-teal-800 text-xs font-black rounded-lg">PART 7</span>
+        <h2 class="text-xl font-black text-slate-900">🗣️ 2-Minute Fluency Sprint</h2>
+      </div>
+
+      <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm text-center mb-6">
+        <h3 class="font-black text-slate-800 mb-2 text-lg">Monologue Pitch: "Deliver a solo presentation defending your chosen sustainable energy project and anticipating counterarguments."</h3>
+
+        <div class="bg-teal-50 border border-teal-100 p-3 rounded-xl inline-block mb-4 text-left">
+          <span class="text-xs font-bold text-teal-700 uppercase tracking-wide block mb-1">Concept Keywords to use:</span>
+          <ul class="text-sm font-semibold text-teal-900 list-disc pl-5 space-y-0.5">
+            <li>while I understand your point, I think...</li>
+            <li>why don't we consider...</li>
+            <li>could we look at another option?</li>
+            <li>hypothesis & efficiency</li>
+            <li>sustainable prototype</li>
+            <li>renewable energy alternative</li>
+          </ul>
+        </div>
+
+        <p class="text-sm font-semibold text-slate-500 mb-6">Deliver your solo academic pitch aloud without stopping. You have exactly 2 minutes for each round. Focus on continuous flow, smooth transitions, and professional self-expression!</p>
+
+        <div class="flex flex-col items-center justify-center mb-6">
+          <div id="fluencyClock" class="text-5xl font-mono font-black text-teal-600 mb-2">02:00</div>
+          <div id="fluencyRoundLabel" class="text-sm font-bold text-slate-400 uppercase tracking-widest">Ready for Sprint</div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-3">
+          <button onclick="startFluencyTimer(120, 1)" class="px-4 py-2 bg-teal-600 text-white font-bold rounded-lg hover:bg-teal-700 transition shadow-sm">Start Round 1</button>
+          <button onclick="startFluencyTimer(120, 2)" class="px-4 py-2 bg-amber-500 text-white font-bold rounded-lg hover:bg-amber-600 transition shadow-sm">Start Round 2</button>
+          <button onclick="startFluencyTimer(120, 3)" class="px-4 py-2 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition shadow-sm">Start Round 3</button>
+          <button onclick="stopFluencyTimer()" class="px-4 py-2 bg-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-300 transition">Stop</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 8: INTEGRATED SIMULATION -->
+    <section class="bg-indigo-50/30 p-6 rounded-3xl border border-indigo-100/50">
+      <div class="flex items-center gap-2 mb-4 pb-2 border-b border-indigo-200">
+        <span class="px-2.5 py-1 bg-orange-100 text-orange-800 text-xs font-black rounded-lg">PART 8</span>
+        <h2 class="text-xl font-black text-slate-900">🤖 Integrated Simulation: Science Fair Panel Debate</h2>
+      </div>
+
+      <p class="text-sm font-semibold text-slate-600 mb-5"><strong>Your Goal:</strong> Daniel is skeptical about your team's science fair timeline and budget. Defend your proposal using polite disagreement structures and suggestion modals ("While I understand...", "Why don't we consider...?"). Speak your ideas aloud to Daniel, and your teacher will type them into the roleplay chat below.</p>
+
+      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="bg-slate-50 p-4 border-b border-slate-200 flex items-center justify-between">
+          <div class="font-bold text-sm text-slate-800 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Live Roleplay
+          </div>
+          <div class="text-xs font-bold text-slate-500 bg-slate-200/80 px-2 py-1 rounded-md">Daniel (Teammate & Critic)</div>
+        </div>
+
+        <div id="ai-live-chat-log" class="p-4 sm:p-5 space-y-4 h-80 overflow-y-auto bg-slate-50/50 flex flex-col">
+          <div class="bubble-partner p-3 sm:p-4 rounded-2xl rounded-bl-none shadow-sm max-w-[85%] self-start text-sm sm:text-base font-medium">
+            <strong class="block text-xs text-slate-400 mb-1">Daniel</strong>
+            I looked at our science fair notes, and I really think our prototype is too complex to finish by next Friday. Should we just drop the solar panel idea?
+          </div>
+        </div>
+
+        <div class="p-4 bg-white border-t border-slate-200 flex gap-2">
+          <input type="text" id="ai-chat-input" class="flex-1 px-4 py-2 bg-slate-100 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition font-medium" placeholder="Defend your idea politely (e.g., While I understand your point...)..." onkeypress="if(event.key==='Enter') sendAiMsg()">
+          <button onclick="sendAiMsg()" id="ai-send-btn" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition active:scale-95">Send</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROADMAP & TEACHER KEY -->
+    <section>
+      <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl">
+        <h2 class="text-xl font-black mb-6 text-indigo-300">🚀 Training Roadmap & Pedagogical Key</h2>
+        <div class="flex flex-wrap gap-4 mb-6">
+          <div class="flex-1 bg-slate-800 p-3 rounded-xl border border-slate-700 font-medium text-sm">
+            <span class="text-slate-400 text-xs block mb-1">Students</span>
+            <span contenteditable="true" class="outline-none border-b border-slate-600 text-white focus:border-indigo-400 transition cursor-text px-1">Alfie & Daniel</span>
+          </div>
+          <div class="flex-1 bg-slate-800 p-3 rounded-xl border border-slate-700 font-medium text-sm">
+            <span class="text-slate-400 text-xs block mb-1">Target Band</span>
+            <span contenteditable="true" class="outline-none border-b border-slate-600 text-white focus:border-indigo-400 transition cursor-text px-1">CEFR A2–B1 (Middle School Grade 7–8)</span>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Teacher Key & Answers</h3>
+          <div class="bg-slate-800 rounded-xl p-4 text-sm text-slate-300 font-medium space-y-3">
+            <p><strong class="text-white">Part 3 Briefing Listening Answers:</strong><br>
+              1. Alfie's initial hypothesis focused on solar panel efficiency.<br>
+              2. Daniel politely disagreed by saying: <em>"While I understand your point, I think building a solar model is too complicated..."</em><br>
+              3. They agreed upon a water filtration system as a sustainable alternative.
+            </p>
+            <p><strong class="text-amber-300">Academic Discourse Watchlist:</strong><br>
+              • <em>Direct Rejections:</em> Promptly steer students away from blunt statements like "That's wrong" → encourage "While I understand your point, I think...".<br>
+              • <em>Modal Softening:</em> Ensure correct auxiliary usage in suggestions ("Why don't we consider..." / "Could we look at...").
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const apiKey = ""; // TEACHER INSERTS GEMINI API KEY HERE
+
+    // Studio-quality voice assignments:
+    const voicePartner = "Aoede";
+    const voiceStudent = "Puck";
+    const voiceTeacher = "Zephyr";
+
+    let briefingAudioUrl = null;
+    let dialogue1AudioUrls = [];
+    let dialogue2AudioUrls = [];
+    const audioCache = new Map();
+
+    let currentAudioObject = null;
+    let isPlayingDialogue = false;
+    let currentDialogueIndex = 0;
+    let activeSceneNum = null;
+
+    // Font Scaling for Tailwind root rem
+    let currentRootFontSize = 16;
+    function changeFontSize(delta) {
+      currentRootFontSize = Math.min(Math.max(currentRootFontSize + delta * 1.5, 12), 22);
+      document.documentElement.style.fontSize = `${currentRootFontSize}px`;
+    }
+
+    // Convert raw 16-bit mono 24kHz signed PCM returned by Gemini into a playable WAV Blob
+    function pcmToWav(base64Pcm, sampleRate = 24000) {
+      const binaryString = atob(base64Pcm);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const buffer = new ArrayBuffer(44 + bytes.length);
+      const view = new DataView(buffer);
+      const writeString = (view, offset, string) => {
+        for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+      };
+
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, 36 + bytes.length, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, bytes.length, true);
+
+      for (let i = 0; i < bytes.length; i++) {
+        view.setUint8(44 + i, bytes[i]);
+      }
+      return URL.createObjectURL(new Blob([view], { type: 'audio/wav' }));
+    }
+
+    // Gemini 2.5 Flash Preview TTS Endpoint Implementation
+    async function fetchGeminiTTS(text, voiceName = "Zephyr") {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+      const payload = {
+        contents: [{ parts: [{ text: text }] }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: voiceName }
+            }
+          }
+        },
+        model: "gemini-2.5-flash-preview-tts"
+      };
+
+      for (let attempt = 1, delay = 1000; attempt <= 3; attempt++, delay *= 2) {
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const result = await response.json();
+          const base64Pcm = result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+          if (!base64Pcm) throw new Error("No inline audio data returned");
+          return pcmToWav(base64Pcm);
+        } catch (e) {
+          if (attempt === 3) throw e;
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+
+    function getBriefingText() {
+      const scriptEl = document.getElementById('hiddenScript');
+      if (!scriptEl) return "";
+      const transcriptP = scriptEl.querySelector('p');
+      let text = transcriptP ? transcriptP.textContent.trim() : scriptEl.textContent.trim();
+      return text.replace(/Questions:[\s\S]*/i, "").trim();
+    }
+
+    async function speakText(text, btnElement) {
+      stopAudio();
+      if (!text) return;
+
+      const originalHtml = btnElement ? btnElement.innerHTML : '';
+      if (btnElement) {
+        btnElement.innerHTML = '⏳ Loading...';
+        btnElement.disabled = true;
+      }
+
+      try {
+        let url = audioCache.get(text);
+        if (!url) {
+          url = await fetchGeminiTTS(text, voiceStudent);
+          audioCache.set(text, url);
+        }
+        currentAudioObject = new Audio(url);
+        if (btnElement) btnElement.innerHTML = '🔊 Playing...';
+
+        currentAudioObject.onended = () => {
+          if (btnElement) {
+            btnElement.innerHTML = originalHtml;
+            btnElement.disabled = false;
+          }
+        };
+        currentAudioObject.onerror = () => {
+          if (btnElement) {
+            btnElement.innerHTML = originalHtml;
+            btnElement.disabled = false;
+          }
+        };
+        currentAudioObject.play();
+      } catch (err) {
+        if (btnElement) {
+          btnElement.innerHTML = '⚠️ Error';
+          setTimeout(() => {
+            btnElement.innerHTML = originalHtml;
+            btnElement.disabled = false;
+          }, 1500);
+        }
+      }
+    }
+
+    async function preloadBriefingAudio() {
+      if (!apiKey || apiKey.trim() === "") return;
+      const text = getBriefingText();
+      if (!text || text.includes('[THE ACTUAL TRANSCRIPT')) return;
+
+      const b1 = document.getElementById('btnPlayBriefing1');
+      const b2 = document.getElementById('btnPlayBriefing2');
+      if (b1) b1.innerHTML = '⏳ Loading...';
+      if (b2) b2.innerHTML = '⏳ Loading...';
+
+      try {
+        briefingAudioUrl = await fetchGeminiTTS(text, voiceTeacher);
+      } catch (err) {
+        console.error("Failed to preload briefing audio:", err);
+      } finally {
+        if (b1) b1.innerHTML = '▶️ Listen Normal';
+        if (b2) b2.innerHTML = '⚡ Listen Fast';
+      }
+    }
+
+    async function toggleBriefing(speed = 1.0, btnId = 'btnPlayBriefing1') {
+      const btn = document.getElementById(btnId);
+      const otherBtnId = btnId === 'btnPlayBriefing1' ? 'btnPlayBriefing2' : 'btnPlayBriefing1';
+      const otherBtn = document.getElementById(otherBtnId);
+
+      if (isPlayingDialogue) stopAudio();
+
+      if (currentAudioObject && currentAudioObject.src === briefingAudioUrl) {
+        if (currentAudioObject.playbackRate !== speed) {
+          currentAudioObject.playbackRate = speed;
+        }
+        if (currentAudioObject.paused) {
+          if (currentAudioObject.ended) currentAudioObject.currentTime = 0;
+          currentAudioObject.play();
+          btn.innerHTML = '⏸️ Pause';
+          if (otherBtn) otherBtn.innerHTML = otherBtnId === 'btnPlayBriefing1' ? '▶️ Listen Normal' : '⚡ Listen Fast';
+        } else {
+          currentAudioObject.pause();
+          btn.innerHTML = speed === 1.0 ? '▶️ Resume Normal' : '⚡ Resume Fast';
+        }
+        return;
+      }
+
+      stopAudio();
+
+      if (!briefingAudioUrl) {
+        const originalHtml = btn ? btn.innerHTML : '';
+        if (btn) btn.innerHTML = '⏳ Generating...';
+        const text = getBriefingText();
+
+        if (!text || text.includes('[THE ACTUAL TRANSCRIPT')) {
+          if (btn) btn.innerHTML = '⚠️ No Transcript';
+          setTimeout(() => { if (btn) btn.innerHTML = originalHtml; }, 2000);
+          return;
+        }
+
+        try {
+          briefingAudioUrl = await fetchGeminiTTS(text, voiceTeacher);
+          playBriefingAudio(btn, otherBtn, speed, btnId);
+        } catch (err) {
+          if (btn) btn.innerHTML = '⚠️ Audio Error';
+          setTimeout(() => { if (btn) btn.innerHTML = originalHtml; }, 2000);
+        }
+        return;
+      }
+
+      playBriefingAudio(btn, otherBtn, speed, btnId);
+    }
+
+    function playBriefingAudio(btn, otherBtn, speed, btnId) {
+      currentAudioObject = new Audio(briefingAudioUrl);
+      currentAudioObject.playbackRate = speed;
+      if (btn) btn.innerHTML = '⏸️ Pause';
+      if (otherBtn) otherBtn.innerHTML = btnId === 'btnPlayBriefing1' ? '⚡ Listen Fast' : '▶️ Listen Normal';
+
+      currentAudioObject.onended = () => {
+        const b1 = document.getElementById('btnPlayBriefing1');
+        const b2 = document.getElementById('btnPlayBriefing2');
+        if (b1) b1.innerHTML = '▶️ Listen Normal';
+        if (b2) b2.innerHTML = '⚡ Listen Fast';
+        currentAudioObject = null;
+      };
+      currentAudioObject.play();
+    }
+
+    function toggleDialogue(sceneNum) {
+      const btn = document.getElementById(`btnPlayDialogue${sceneNum}`);
+      if (!btn) return;
+
+      const speedSelect = document.getElementById(`shadowSpeed${sceneNum}`);
+      const speed = speedSelect ? parseFloat(speedSelect.value) : 1.0;
+      const targetUrls = sceneNum === 1 ? dialogue1AudioUrls : dialogue2AudioUrls;
+
+      if (isPlayingDialogue && activeSceneNum === sceneNum) {
+        if (currentAudioObject) {
+          if (currentAudioObject.paused) {
+            currentAudioObject.playbackRate = speed;
+            currentAudioObject.play();
+            btn.innerHTML = '⏸️ Pause Scene';
+          } else {
+            currentAudioObject.pause();
+            btn.innerHTML = '▶️ Resume Scene';
+          }
+        }
+        return;
+      }
+
+      stopAudio();
+      if (targetUrls.length === 0) {
+        btn.innerHTML = '⏳ Generating Voices...';
+        preloadSceneAudio(sceneNum).then(() => {
+          startDialogueScene(sceneNum, btn, speed);
+        }).catch(() => {
+          btn.innerHTML = '⚠️️ Audio Error';
+          setTimeout(() => { btn.innerHTML = '▶️ Play Scene'; }, 2000);
+        });
+        return;
+      }
+
+      startDialogueScene(sceneNum, btn, speed);
+    }
+
+    function startDialogueScene(sceneNum, btn, speed) {
+      isPlayingDialogue = true;
+      activeSceneNum = sceneNum;
+      currentDialogueIndex = 0;
+      btn.innerHTML = '⏸️ Pause Scene';
+      playNextDialogueLine(sceneNum, speed);
+    }
+
+    function playNextDialogueLine(sceneNum, speed) {
+      const btn = document.getElementById(`btnPlayDialogue${sceneNum}`);
+      const targetUrls = sceneNum === 1 ? dialogue1AudioUrls : dialogue2AudioUrls;
+      const lines = document.querySelectorAll(`#dialogueContainer${sceneNum} .script-line`);
+
+      if (!isPlayingDialogue || currentDialogueIndex >= targetUrls.length) {
+        isPlayingDialogue = false;
+        activeSceneNum = null;
+        lines.forEach(l => l.classList.remove('ring-2', 'ring-indigo-500', 'scale-[1.01]'));
+        if (btn) btn.innerHTML = '▶️️ Play Scene';
+        return;
+      }
+
+      lines.forEach(l => l.classList.remove('ring-2', 'ring-indigo-500', 'scale-[1.01]'));
+      if (lines[currentDialogueIndex]) {
+        lines[currentDialogueIndex].classList.add('ring-2', 'ring-indigo-500', 'scale-[1.01]', 'transition-all');
+      }
+
+      currentAudioObject = new Audio(targetUrls[currentDialogueIndex]);
+      currentAudioObject.playbackRate = speed;
+      currentAudioObject.onended = () => {
+        if (lines[currentDialogueIndex]) {
+          lines[currentDialogueIndex].classList.remove('ring-2', 'ring-indigo-500', 'scale-[1.01]');
+        }
+        currentDialogueIndex++;
+        setTimeout(() => {
+          if (isPlayingDialogue) playNextDialogueLine(sceneNum, speed);
+        }, 350);
+      };
+      currentAudioObject.onerror = () => {
+        currentDialogueIndex++;
+        if (isPlayingDialogue) playNextDialogueLine(sceneNum, speed);
+      };
+      currentAudioObject.play();
+    }
+
+    function stopAudio() {
+      isPlayingDialogue = false;
+      activeSceneNum = null;
+      if (currentAudioObject) {
+        currentAudioObject.pause();
+        currentAudioObject.currentTime = 0;
+        currentAudioObject = null;
+      }
+
+      const b1 = document.getElementById('btnPlayBriefing1');
+      if (b1) b1.innerHTML = '▶️ Listen Normal';
+      const b2 = document.getElementById('btnPlayBriefing2');
+      if (b2) b2.innerHTML = '⚡ Listen Fast';
+      const d1 = document.getElementById('btnPlayDialogue1');
+      if (d1) d1.innerHTML = '▶️ Play Scene';
+      const d2 = document.getElementById('btnPlayDialogue2');
+      if (d2) d2.innerHTML = '▶️ Play Scene';
+
+      document.querySelectorAll('.script-line').forEach(l => {
+        l.classList.remove('ring-2', 'ring-indigo-500', 'scale-[1.01]');
+      });
+    }
+
+    async function preloadSceneAudio(sceneNum) {
+      const lines = document.querySelectorAll(`#dialogueContainer${sceneNum} .script-line`);
+      const urlsArray = sceneNum === 1 ? dialogue1AudioUrls : dialogue2AudioUrls;
+      urlsArray.length = 0;
+
+      for (let line of lines) {
+        const role = line.getAttribute('data-role');
+        const sentenceEl = line.querySelector('.final-sentence');
+        const rawText = (sentenceEl.getAttribute('data-original') || sentenceEl.textContent || '').replace(/\|/g, '').trim();
+        const voice = (role === 'partner') ? voicePartner : voiceStudent;
+        if (rawText) {
+          const audioUrl = await fetchGeminiTTS(rawText, voice);
+          urlsArray.push(audioUrl);
+        }
+      }
+    }
+
+    // UI Toggles
+    function toggleTranscript() { document.getElementById('hiddenScript').classList.toggle('hidden'); }
+    function toggleAnswer(btn) {
+      const box = btn.closest('.drill-card').querySelector('.answer-box');
+      if (box.classList.contains('hidden')) { box.classList.remove('hidden'); btn.innerHTML = '🙈 Hide Target'; } 
+      else { box.classList.add('hidden'); btn.innerHTML = '👁️ Show Target'; }
+    }
+
+    let allVisible = false;
+    function toggleAllAnswers() {
+      allVisible = !allVisible;
+      document.querySelectorAll('.answer-box').forEach(box => { if (allVisible) box.classList.remove('hidden'); else box.classList.add('hidden'); });
+      document.querySelectorAll('.drill-card button[onclick^="toggleAnswer"]').forEach(btn => { btn.innerHTML = allVisible ? '🙈 Hide Target' : '👁️️ Show Target'; });
+      document.getElementById('btn-toggle-all').innerHTML = allVisible ? '🙈 Hide All Targets' : '👁️ Show All Targets';
+    }
+
+    // Masking
+    function toggleBlindfold(dNum) { 
+      const container = document.getElementById(`dialogueContainer${dNum}`); if (!container) return;
+      const sentences = container.querySelectorAll('.final-sentence'); const btn = document.getElementById(`btnBlindfold${dNum}`);
+      const isAnyBlurred = Array.from(sentences).some(el => el.classList.contains('blurred-text'));
+      if (isAnyBlurred) { sentences.forEach(el => el.classList.remove('blurred-text')); if (btn) btn.innerHTML = '🙈 Blindfold All'; } 
+      else { sentences.forEach(el => el.classList.add('blurred-text')); if (btn) btn.innerHTML = '👁️ Unmask All'; }
+    }
+
+    // Drag & Drop Unscramble Engine
+    let draggedLine = null;
+
+    function setupDragAndDrop(line, container, sceneNum) {
+      line.setAttribute('draggable', 'true');
+      line.classList.add('cursor-grab', 'border-2', 'border-transparent', 'rounded-2xl', 'p-1', 'transition-all');
+
+      line.addEventListener('dragstart', (e) => {
+        draggedLine = line;
+        line.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+
+      line.addEventListener('dragend', () => {
+        line.classList.remove('dragging');
+        draggedLine = null;
+        container.querySelectorAll('.script-line').forEach(l => l.classList.remove('drag-over'));
+      });
+
+      line.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (line !== draggedLine) {
+          line.classList.add('drag-over');
+        }
+      });
+
+      line.addEventListener('dragleave', () => {
+        line.classList.remove('drag-over');
+      });
+
+      line.addEventListener('drop', (e) => {
+        e.preventDefault();
+        line.classList.remove('drag-over');
+        if (draggedLine && line !== draggedLine) {
+          const lines = Array.from(container.querySelectorAll('.script-line'));
+          const fromIndex = lines.indexOf(draggedLine);
+          const toIndex = lines.indexOf(line);
+
+          if (fromIndex < toIndex) {
+            container.insertBefore(draggedLine, line.nextSibling);
+          } else {
+            container.insertBefore(draggedLine, line);
+          }
+        }
+      });
+    }
+
+    function toggleScramble(sceneNum) {
+      const container = document.getElementById(`dialogueContainer${sceneNum}`);
+      const btn = document.getElementById(`btnScramble${sceneNum}`);
+      if (!container || !btn) return;
+
+      stopAudio();
+
+      const lines = Array.from(container.querySelectorAll('.script-line'));
+      if (lines.length <= 1) return;
+
+      lines.forEach((line, idx) => {
+        if (!line.hasAttribute('data-original-index')) {
+          line.setAttribute('data-original-index', idx);
+        }
+      });
+
+      let shuffled = [...lines];
+      let attempts = 0;
+      do {
+        shuffled.sort(() => Math.random() - 0.5);
+        attempts++;
+      } while (shuffled.every((el, i) => el === lines[i]) && attempts < 10);
+
+      container.innerHTML = '';
+      shuffled.forEach(line => {
+        setupDragAndDrop(line, container, sceneNum);
+        container.appendChild(line);
+      });
+
+      container.setAttribute('data-scrambled', 'true');
+
+      let banner = document.getElementById(`scrambleBanner${sceneNum}`);
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = `scrambleBanner${sceneNum}`;
+        banner.className = 'p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs sm:text-sm font-semibold flex flex-wrap items-center justify-between gap-2 mb-4 shadow-sm';
+        banner.innerHTML = `<span>🖐️ <strong>Drag & Drop:</strong> Drag dialogue turns into the natural conversational sequence.</span>
+          <button onclick="checkDialogueOrder(${sceneNum})" class="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-bold hover:bg-amber-700 transition">✅ Check Order</button>`;
+        container.parentNode.insertBefore(banner, container);
+      }
+
+      btn.innerHTML = '✅ Check Order';
+      btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition flex items-center gap-1.5';
+      btn.onclick = () => checkDialogueOrder(sceneNum);
+    }
+
+    function checkDialogueOrder(sceneNum) {
+      const container = document.getElementById(`dialogueContainer${sceneNum}`);
+      if (!container) return;
+
+      const lines = Array.from(container.querySelectorAll('.script-line'));
+      let isCorrect = true;
+
+      lines.forEach((line, idx) => {
+        const originalIdx = parseInt(line.getAttribute('data-original-index'), 10);
+        if (originalIdx !== idx) {
+          isCorrect = false;
+          line.classList.remove('border-emerald-500', 'bg-emerald-50/30', 'border-transparent');
+          line.classList.add('border-rose-400', 'bg-rose-50/30');
+        } else {
+          line.classList.remove('border-rose-400', 'bg-rose-50/30', 'border-transparent');
+          line.classList.add('border-emerald-500', 'bg-emerald-50/30');
+        }
+      });
+
+      const banner = document.getElementById(`scrambleBanner${sceneNum}`);
+      if (isCorrect) {
+        if (banner) {
+          banner.className = 'p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-xs sm:text-sm font-semibold flex flex-wrap items-center justify-between gap-2 mb-4 shadow-sm';
+          banner.innerHTML = `<span>🎉 <strong>Perfect!</strong> Every turn is in its natural sequence.</span>
+            <button onclick="resetMasks(${sceneNum})" class="px-3 py-1.5 bg-emerald-700 text-white rounded-lg text-xs font-bold hover:bg-emerald-800 transition">🔄 Reset Scene</button>`;
+        }
+        lines.forEach(l => {
+          l.removeAttribute('draggable');
+          l.classList.remove('cursor-grab');
+        });
+      } else {
+        if (banner) {
+          banner.className = 'p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-900 text-xs sm:text-sm font-semibold flex flex-wrap items-center justify-between gap-2 mb-4 shadow-sm';
+          banner.innerHTML = `<span>❌ <strong>Not quite:</strong> Rearrange the highlighted turns to fix the flow.</span>
+            <button onclick="checkDialogueOrder(${sceneNum})" class="px-3 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-bold hover:bg-rose-700 transition">Check Again</button>`;
+        }
+      }
+    }
+
+    function resetMasks(dNum) {
+      const container = document.getElementById(`dialogueContainer${dNum}`);
+      if (!container) return;
+
+      const banner = document.getElementById(`scrambleBanner${dNum}`);
+      if (banner) banner.remove();
+
+      const lines = Array.from(container.querySelectorAll('.script-line'));
+      lines.sort((a, b) => {
+        const idxA = parseInt(a.getAttribute('data-original-index') || '0', 10);
+        const idxB = parseInt(b.getAttribute('data-original-index') || '0', 10);
+        return idxA - idxB;
+      });
+
+      lines.forEach(line => {
+        line.removeAttribute('draggable');
+        line.classList.remove('cursor-grab', 'border-2', 'border-transparent', 'border-emerald-500', 'border-rose-400', 'bg-emerald-50/30', 'bg-rose-50/30', 'p-1');
+        container.appendChild(line);
+      });
+      container.removeAttribute('data-scrambled');
+
+      container.querySelectorAll('.final-sentence').forEach(el => {
+        el.classList.remove('blurred-text');
+        if (el.hasAttribute('data-original')) {
+          el.textContent = el.getAttribute('data-original');
+        }
+        el.style.display = 'block';
+      });
+
+      container.querySelectorAll('.interactive-build-ui').forEach(ui => ui.remove());
+      container.querySelectorAll('.mini-build-btn').forEach(btn => btn.innerHTML = '🧩 Build');
+
+      const btnB = document.getElementById(`btnBlindfold${dNum}`);
+      if (btnB) btnB.innerHTML = '🙈 Blindfold All';
+
+      const sBtn = document.getElementById(`btnScramble${dNum}`);
+      if (sBtn) {
+        sBtn.innerHTML = '🧩 Scramble Scene';
+        sBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 hover:bg-amber-200 transition flex items-center gap-1.5';
+        sBtn.onclick = () => toggleScramble(dNum);
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      const sentence = e.target.closest('.final-sentence.blurred-text');
+      if (sentence) {
+        sentence.classList.remove('blurred-text');
+        const container = sentence.closest('[id^="dialogueContainer"]');
+        if (container && !container.querySelector('.final-sentence.blurred-text')) {
+          const dNum = container.id.replace('dialogueContainer', '');
+          const btn = document.getElementById(`btnBlindfold${dNum}`); if (btn) btn.innerHTML = '🙈 Blindfold All';
+        }
+      }
+    });
+
+    // Word Build Logic
+    function toggleBuildMode(btn) {
+      const bubble = btn.closest('div[class^="bubble"]'); const el = bubble.querySelector('.final-sentence'); let ui = bubble.querySelector('.interactive-build-ui');
+      if (ui) { ui.remove(); el.style.display = 'block'; btn.innerHTML = '🧩 Build'; } 
+      else {
+        el.style.display = 'none'; btn.innerHTML = '👀 Answer';
+        let text = (el.getAttribute('data-original') || el.textContent).replace(/\|/g, '');
+        let pieces = text.split(/\s+/).map(s => s.trim()).filter(s => s.length > 0);
+        ui = document.createElement('div'); ui.className = 'interactive-build-ui mt-3';
+        let dz = document.createElement('div'); dz.className = 'drop-zone'; 
+        let wb = document.createElement('div'); wb.className = 'flex flex-wrap gap-2 mt-3 p-3 bg-white/10 rounded-xl border border-white/20';
+        let checkBtn = document.createElement('button'); checkBtn.innerText = '✅ Check'; checkBtn.className = 'mt-3 px-4 py-2 rounded-lg text-xs font-bold bg-white text-indigo-600 hover:bg-slate-50 transition shadow-sm';
+
+        checkBtn.onclick = () => {
+          if (Array.from(dz.children).map(c => c.innerText).join(' ') === pieces.join(' ')) {
+            dz.classList.add('correct'); wb.style.display = 'none'; checkBtn.style.display = 'none';
+            setTimeout(() => { ui.remove(); el.style.display = 'block'; btn.innerHTML = '🧩 Build'; }, 1200);
+          } else { dz.classList.add('error'); setTimeout(() => dz.classList.remove('error'), 500); }
+        };
+        [...pieces].sort(() => Math.random() - 0.5).forEach(w => { 
+          let c = document.createElement('button'); c.className = 'word-chip'; c.innerText = w; 
+          c.onclick = () => (c.parentElement === wb ? dz : wb).appendChild(c); wb.appendChild(c); 
+        });
+        ui.append(dz, wb, checkBtn); bubble.appendChild(ui);
+      }
+    }
+
+    // Procedural Timers
+    let vocabInterval;
+    function startVocabSprint() {
+      const btn = document.getElementById('vocabSprintBtn');
+      if(btn.classList.contains('timer-pulse')) { clearInterval(vocabInterval); btn.classList.remove('timer-pulse'); btn.innerHTML = '⏱️ 3-Second Sprint'; return; }
+      let timeLeft = 3; btn.classList.add('timer-pulse'); btn.innerHTML = `🔥 ${timeLeft}s`;
+      vocabInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft > 0) { btn.innerHTML = `🔥 ${timeLeft}s`; } 
+        else { btn.innerHTML = `💥 TIME UP!`; btn.classList.remove('timer-pulse'); clearInterval(vocabInterval); setTimeout(()=> { btn.innerHTML = '⏱️ 3-Second Sprint'; }, 2000); }
+      }, 1000);
+    }
+
+    let fluencyTimer = null;
+    function startFluencyTimer(seconds, round) {
+      clearInterval(fluencyTimer);
+      let remaining = seconds;
+      const clock = document.getElementById('fluencyClock');
+      const label = document.getElementById('fluencyRoundLabel');
+      label.textContent = `Round ${round}`;
+      clock.classList.add('text-teal-600'); clock.classList.remove('text-rose-600');
+
+      fluencyTimer = setInterval(() => {
+        const m = Math.floor(remaining / 60); const s = remaining % 60;
+        clock.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        if (remaining <= 30) { clock.classList.remove('text-teal-600'); clock.classList.add('text-rose-600'); }
+        if (remaining <= 0) { clearInterval(fluencyTimer); clock.textContent = "00:00"; label.textContent = `Round ${round} Complete!`; }
+        remaining--;
+      }, 1000);
+    }
+    function stopFluencyTimer() { clearInterval(fluencyTimer); }
+
+    // Strict AI Roleplay Logic
+    const aiSystemContext = `You are Daniel, a science fair teammate who is skeptical about project timelines and budgets. Keep turns brief (2-3 sentences max).
+EVALUATION RULES:
+1. STRICT GIBBERISH RULE: If the student types nonsense, random keystrokes (such as "asdf", "cDSA", "qwerty", or fragmented letters), DO NOT praise them. In the 'correction' field, output: "Please type a full, clear sentence." and your reply MUST be: "I didn't quite catch that. Could you try explaining your idea again?"
+2. DISAGREEMENT & SUGGESTION RULE: If the student successfully uses polite disagreement ("While I understand your point, I think...") or suggestion modals ("Why don't we consider...", "Could we look at..."), praise their professional tone.
+3. If their argument is valid, provide a natural in-character reply advancing the science fair debate.
+Respond ONLY with JSON: { "correction": string, "reply": string }.`;
+
+    let aiChatHistory = [];
+    const fallbackReplies = [
+      "That is a fair point. Do you think we have enough time to test it before Friday?",
+      "I see what you mean. How should we split the workload between us?",
+      "That sounds like a solid compromise. Let's write down the steps for our prototype!"
+    ];
+    let conversationalTurn = 0;
+
+    async function sendAiMsg() {
+      const inputEl = document.getElementById('ai-chat-input');
+      const btnEl = document.getElementById('ai-send-btn');
+      const chatLog = document.getElementById('ai-live-chat-log');
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      chatLog.insertAdjacentHTML('beforeend', `<div class="bubble-you p-3 sm:p-4 rounded-2xl rounded-br-none shadow-sm max-w-[85%] self-end text-sm sm:text-base font-medium"><strong class="block text-xs text-indigo-200 mb-1">You</strong>${text}</div>`);
+      chatLog.scrollTop = chatLog.scrollHeight;
+
+      inputEl.value = '';
+      inputEl.disabled = true;
+      btnEl.disabled = true;
+      btnEl.innerText = 'Typing...';
+
+      aiChatHistory.push({ role: "user", parts: [{ text: text }] });
+
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      const payload = {
+        systemInstruction: { parts: [{ text: aiSystemContext }] },
+        contents: aiChatHistory,
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              correction: { type: "STRING" },
+              reply: { type: "STRING" }
+            },
+            required: ["correction", "reply"]
+          }
+        }
+      };
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
+        const rawJson = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (rawJson) {
+          const aiData = JSON.parse(rawJson);
+          aiChatHistory.push({ role: "model", parts: [{ text: rawJson }] });
+
+          if (aiData.correction) {
+            chatLog.insertAdjacentHTML('beforeend', `<div class="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs sm:text-sm font-semibold max-w-[90%] self-center text-center shadow-xs">💡 <strong>Coach:</strong> ${aiData.correction}</div>`);
+          }
+          chatLog.insertAdjacentHTML('beforeend', `<div class="bubble-partner p-3 sm:p-4 rounded-2xl rounded-bl-none shadow-sm max-w-[85%] self-start text-sm sm:text-base font-medium"><strong class="block text-xs text-slate-400 mb-1">Daniel</strong>${aiData.reply}</div>`);
+        }
+      } catch (err) {
+        const isGibberish = !/^[a-zA-Z0-9\s.,!?']+$/.test(text) || text.length < 3 || !text.includes(' ');
+
+        if (isGibberish) {
+          chatLog.insertAdjacentHTML('beforeend', `<div class="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs sm:text-sm font-semibold max-w-[90%] self-center text-center shadow-xs">💡 <strong>Coach:</strong> Please type a clear sentence.</div>`);
+          chatLog.insertAdjacentHTML('beforeend', `<div class="bubble-partner p-3 sm:p-4 rounded-2xl rounded-bl-none shadow-sm max-w-[85%] self-start text-sm sm:text-base font-medium"><strong class="block text-xs text-slate-400 mb-1">Daniel</strong>I didn't quite catch that. Could you try explaining your idea again?</div>`);
+        } else {
+          const reply = fallbackReplies[conversationalTurn % fallbackReplies.length];
+          conversationalTurn++;
+          chatLog.insertAdjacentHTML('beforeend', `<div class="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs sm:text-sm font-semibold max-w-[90%] self-center text-center shadow-xs">💡 <strong>Coach:</strong> Great polite phrasing! Notice how your softening phrase keeps the discussion collaborative.</div>`);
+          chatLog.insertAdjacentHTML('beforeend', `<div class="bubble-partner p-3 sm:p-4 rounded-2xl rounded-bl-none shadow-sm max-w-[85%] self-start text-sm sm:text-base font-medium"><strong class="block text-xs text-slate-400 mb-1">Daniel</strong>${reply}</div>`);
+        }
+      } finally {
+        inputEl.disabled = false;
+        btnEl.disabled = false;
+        btnEl.innerText = 'Send';
+        inputEl.focus();
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
+    }
+
+    window.addEventListener('load', () => {
+      [1, 2].forEach(sceneNum => {
+        const container = document.getElementById(`dialogueContainer${sceneNum}`);
+        if (container) {
+          container.querySelectorAll('.script-line').forEach((line, idx) => {
+            line.setAttribute('data-original-index', idx);
+          });
+        }
+      });
+
+      document.querySelectorAll('.final-sentence').forEach(el => {
+        el.setAttribute('data-original', el.textContent.trim());
+      });
+
+      preloadBriefingAudio();
+    });
+
+    // Selection & Translation
+    let selectedTextToTranslate = "";
+
+    document.addEventListener('mouseup', (e) => {
+      const btn = document.getElementById('highlight-translate-btn');
+      const modal = document.getElementById('translate-modal');
+
+      if (e.target.closest('#highlight-translate-btn') || e.target.closest('#translate-modal')) return;
+
+      const selection = window.getSelection();
+      const text = selection.toString().trim();
+
+      if (text.length > 1) {
+        selectedTextToTranslate = text;
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+
+        btn.style.top = `${window.scrollY + rect.top - 42}px`;
+        btn.style.left = `${window.scrollX + rect.left + (rect.width / 2) - 45}px`;
+        btn.style.display = 'flex';
+      } else {
+        btn.style.display = 'none';
+      }
+    });
+
+    document.getElementById('highlight-translate-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('highlight-translate-btn');
+      const modal = document.getElementById('translate-modal');
+      const resultBox = document.getElementById('t-modal-result');
+      const origBox = document.getElementById('t-modal-original');
+      const targetLang = document.getElementById('targetLanguage').value;
+
+      btn.style.display = 'none';
+      modal.style.display = 'block';
+      resultBox.textContent = 'Translating...';
+      origBox.textContent = `"${selectedTextToTranslate}"`;
+
+      try {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(selectedTextToTranslate)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Network error');
+        const data = await res.json();
+        const translated = data[0].map(item => item[0]).join('');
+        resultBox.textContent = translated || 'No translation available.';
+      } catch (err) {
+        resultBox.textContent = 'Translation failed. Check connection.';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Mission 10 — The School Sports Day</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .drill-card { transition: all 0.2s ease; }
+    .drill-card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05); }
+    .bubble-you { background: linear-gradient(135deg, #0284c7, #2563eb); color: white; border-bottom-right-radius: 4px; }
+    .bubble-partner { background: white; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; }
+    .blurred-text { color: transparent !important; text-shadow: 0 0 14px rgba(15,23,42,0.75) !important; filter: blur(6px) !important; cursor: pointer !important; transition: all 0.2s ease; }
+    .bubble-you .blurred-text { text-shadow: 0 0 14px rgba(255,255,255,0.9) !important; }
+    .drop-zone { min-height: 44px; background: rgba(0,0,0,0.04); border: 2px dashed #cbd5e1; border-radius: 10px; padding: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+    .drop-zone:empty::before { content: attr(data-placeholder); color: #94a3b8; font-size: 0.75rem; font-weight: 600; font-style: italic; align-self: center; padding-left: 4px; }
+    .word-chip { padding: 4px 8px; background: white; color: #1e293b; border-radius: 6px; font-weight: 700; cursor: pointer; border: 1px solid #cbd5e1; font-size: 0.8rem; transition: transform 0.1s; }
+    .word-chip:hover { border-color: #0284c7; }
+    #highlight-translate-btn { position: absolute; display: none; z-index: 1000; background: #1e293b; color: white; border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.25); align-items: center; gap: 6px; }
+    #translate-modal { display: none; position: fixed; bottom: 30px; right: 30px; background: white; border-radius: 16px; width: 340px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 2px solid #e2e8f0; z-index: 9999; overflow: hidden; }
+    .turn-item.dragging { opacity: 0.4; transform: scale(0.98); }
+    .turn-item.drag-over { border-top: 3px solid #0284c7; }
+    .cloze-target { transition: all 0.2s ease; border-radius: 4px; padding: 0 4px; }
+    .cloze-target.cloze-masked { background: #fde047; color: transparent !important; border-bottom: 2px dashed #ca8a04; cursor: pointer; user-select: none; }
+    .cloze-target.cloze-revealed { background: #dcfce7; color: #166534 !important; border-bottom: 2px solid #22c55e; font-weight: 800; }
+    .chunk-masked { filter: blur(5px); color: transparent !important; text-shadow: 0 0 8px rgba(2,132,199,0.7); cursor: pointer; user-select: none; }
+    .part-body.collapsed { display: none !important; }
+    .chevron-icon { transition: transform 0.2s ease; display: inline-block; font-size: 0.75rem; }
+    .chevron-icon.collapsed { transform: rotate(-90deg); }
+    .collapsible-header { cursor: pointer; user-select: none; }
+    .vocab-sample-chip { transition: all 0.15s ease; }
+    .vocab-sample-chip.used-word { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #14532d !important; }
+  </style>
+</head>
+<body class="min-h-screen pb-20 selection:bg-indigo-100 selection:bg-opacity-80 selection:text-indigo-900">
+
+  <!-- HIGHLIGHT TRANSLATOR -->
+  <button id="highlight-translate-btn">🌍 Translate</button>
+  <div id="translate-modal">
+    <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center font-extrabold text-slate-700">
+      <span>🌍 Translation</span>
+      <button onclick="document.getElementById('translate-modal').style.display='none'" class="text-slate-400 hover:text-rose-500">✖</button>
+    </div>
+    <div class="p-4 text-base font-semibold text-slate-900" id="t-modal-result">Loading...</div>
+    <div class="px-4 pb-3 text-xs italic text-slate-500 border-t border-dashed border-slate-200 pt-2" id="t-modal-original"></div>
+  </div>
+
+  <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-xl border-b border-slate-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-5">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-slate-700/50 pb-4">
+        <div class="flex items-center gap-2">
+          <label for="targetLanguage" class="text-xs text-slate-400 font-bold hidden sm:inline">Translate to:</label>
+          <select id="targetLanguage" class="bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none lang-selector">
+            <optgroup label="East &amp; Southeast Asia">
+              <option value="zh-CN" selected>🇨🇳 Chinese Simplified (简体中文)</option>
+              <option value="zh-TW">🇨🇳 Chinese Traditional (繁體中文)</option>
+              <option value="ja">🇯🇵 Japanese (日本語)</option>
+              <option value="ko">🇰🇷 Korean (한국어)</option>
+              <option value="vi">🇻🇳 Vietnamese (Tiếng Việt)</option>
+              <option value="th">🇹🇭 Thai (ไทย)</option>
+              <option value="id">🇮🇩 Indonesian (Bahasa Indonesia)</option>
+            </optgroup>
+            <optgroup label="Middle East &amp; South Asia">
+              <option value="ar">🇸🇦 Arabic (العربية)</option>
+              <option value="fa">🇮🇷 Persian (فارسی)</option>
+              <option value="ur">🇵🇰 Urdu (اردو)</option>
+              <option value="tr">🇹🇷 Turkish (Türkçe)</option>
+              <option value="hi">🇮🇳 Hindi (हिन्दी)</option>
+            </optgroup>
+            <optgroup label="Europe &amp; Americas">
+              <option value="es">🇪🇸 Spanish (Español)</option>
+              <option value="fr">🇫🇷 French (Français)</option>
+              <option value="de">🇩🇪 German (Deutsch)</option>
+              <option value="pt">🇵🇹 Português</option>
+              <option value="ru">🇷🇺 Russian (Русский)</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="promptApiKeyModal()" id="header-key-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-bold text-amber-300 transition flex items-center gap-1.5">
+            🔑 <span>Voice & API Settings</span>
+          </button>
+          <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-0.5">
+            <button onclick="changeFontSize(-1)" class="px-2.5 py-1 text-slate-300 hover:text-white font-bold text-xs">A-</button>
+            <div class="w-px h-4 bg-slate-700 mx-0.5"></div>
+            <button onclick="changeFontSize(1)" class="px-2.5 py-1 text-slate-300 hover:text-white font-bold text-xs">A+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- API KEY MODAL BAR -->
+      <div id="api-key-config-box" class="hidden mb-4 p-3.5 bg-slate-800/95 border border-indigo-500/40 rounded-xl space-y-2.5">
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Enter your Gemini API key to activate natural <strong>Gemini 2.5 Flash TTS voices</strong> (<code class="text-indigo-300">Aoede</code>, <code class="text-indigo-300">Zephyr</code>, <code class="text-indigo-300">Charon</code>) and live roleplay coaching.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input type="password" id="input-gemini-key" class="flex-1 px-3 py-1.5 text-xs bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none" placeholder="Paste Gemini API key (AIzaSy...)">
+          <button onclick="saveApiKeyFromInput()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition">Save & Test Voice</button>
+          <button onclick="clearApiKey()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs font-bold transition">Clear</button>
+        </div>
+        <div id="api-test-result" class="text-xs font-bold hidden"></div>
+      </div>
+
+      <div class="flex items-center gap-2 mb-1.5">
+        <span id="hdr-level" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500 text-white uppercase"></span>
+        <span id="hdr-category" class="text-xs text-slate-400 font-medium"></span>
+      </div>
+      <h1 id="hdr-title" class="text-xl sm:text-2xl font-black tracking-tight text-white"></h1>
+
+      <div class="mt-4 bg-white/10 border border-white/20 p-3 sm:p-4 rounded-xl flex items-start gap-2.5">
+        <span class="text-lg">🎯</span>
+        <div>
+          <strong id="hdr-grammar-topic" class="text-indigo-200 text-sm block mb-0.5"></strong>
+          <p id="hdr-grammar-exp" class="text-xs sm:text-sm text-slate-300 leading-relaxed"></p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+    <!-- NAVIGATOR -->
+    <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-1.5 w-full sm:w-auto">
+        <button id="btn-focus-mode" onclick="toggleFocusMode()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white transition">🎯 Focus Mode: <strong>ON</strong></button>
+        <button onclick="expandAllParts()" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">🔽 Expand All</button>
+        <button onclick="collapseAllParts()" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">🔼 Collapse All</button>
+      </div>
+      <div class="flex flex-wrap items-center gap-1 w-full sm:w-auto" id="nav-pills-container"></div>
+    </div>
+
+    <!-- PART 1: VOCABULARY -->
+    <section id="section-part-1" class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-slate-50 border-b border-slate-200" onclick="togglePart(1)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs font-black rounded">PART 1</span>
+          <h2 class="text-base font-black text-slate-900">🗣️ Key Words & Natural Chunks</h2>
+        </div>
+        <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+          <span class="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200"><strong id="vocab-read-count" class="text-indigo-600">0</strong> / 5</span>
+          <button id="btn-toggle-vocab-mask" onclick="toggleVocabMask()" class="text-xs font-bold text-indigo-800 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200">🙈 Mask Chunks</button>
+          <span id="chevron-1" class="chevron-icon px-1">▼</span>
+        </div>
+      </div>
+      <div id="part-body-1" class="part-body p-4 sm:p-5">
+        <p class="text-xs text-slate-500 mb-3 font-medium">Listen and read each sentence aloud. Mask the highlighted chunks to practice rapid recall.</p>
+        <div class="space-y-2" id="vocab-read-list"></div>
+      </div>
+    </section>
+
+    <!-- PART 2: PICTURE WARM-UP, VISUAL INFERENCE & 10-WORD CEFR SAMPLER -->
+    <section id="section-part-2" class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-amber-50/70 border-b border-amber-100" onclick="togglePart(2)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-amber-100 text-amber-900 text-xs font-black rounded">PART 2</span>
+          <h2 id="warmup-title" class="text-base font-black text-slate-900"></h2>
+        </div>
+        <span id="chevron-2" class="chevron-icon collapsed px-1">▼</span>
+      </div>
+      <div id="part-body-2" class="part-body collapsed p-5 space-y-6">
+
+        <!-- Local Folder / Google Drive / Random Picture Selector Bar -->
+        <div class="bg-slate-900 text-white p-3.5 rounded-2xl space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <span class="text-lg">🏃‍♂️</span>
+              <div>
+                <span class="text-xs font-black block text-amber-300">Sports Day Track & Photo Bank</span>
+                <span class="text-[11px] text-slate-300">Open your Google Drive folder, paste a GDrive file link, or drag & drop a sports photo right onto the card.</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <a href="https://drive.google.com/drive/folders/1mZrs__3B_dM52MxDh8lFQekhDvNg6C_q?usp=sharing" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/50 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                ☁️ Open GDrive Photo Folder ↗
+              </a>
+              <input type="file" id="localPhotoInput" multiple accept="image/*" class="hidden" onchange="loadLocalPhotoBank(event)">
+              <button onclick="document.getElementById('localPhotoInput').click()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white rounded-xl text-xs font-bold transition">
+                📂 Load Local Files
+              </button>
+              <button id="btnRandomLocalPhoto" onclick="pickRandomPhoto()" class="px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-xs font-black transition">
+                🎲 Next Random Track Scene (<span id="photoBankCount">Built-in</span>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Paste GDrive Link Input -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2 border-t border-slate-800">
+            <input type="text" id="gdrive-link-input" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-400" placeholder="Paste any image share link or image URL here (or press Ctrl+V)...">
+            <button onclick="applyPastedDriveLink()" class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-black transition shrink-0">
+              ➕ Load Into Scene
+            </button>
+          </div>
+        </div>
+
+        <!-- Picture + 3 Inference Discussion Questions -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center bg-amber-50/40 p-4 rounded-2xl border border-amber-200/70">
+          <div class="md:col-span-5 space-y-2">
+            <div id="warmup-drop-card" ondragover="handleWarmupDragOver(event)" ondragleave="handleWarmupDragLeave(event)" ondrop="handleWarmupDrop(event)" class="relative rounded-xl overflow-hidden border-2 border-slate-200 shadow-sm bg-slate-100 aspect-video flex items-center justify-center transition">
+              <img id="warmup-img" src="" alt="Sports day scene" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('warmup-img-fallback').classList.remove('hidden');">
+              <div id="warmup-img-fallback" class="hidden p-4 text-center">
+                <span id="warmup-emoji" class="text-5xl block mb-2">🏅</span>
+                <p id="warmup-caption-fallback" class="text-xs font-bold text-slate-600"></p>
+              </div>
+              <button onclick="document.getElementById('gdrive-link-input').focus()" class="absolute bottom-2 right-2 px-2 py-1 bg-slate-900/75 hover:bg-slate-900 text-white text-[10px] font-bold rounded-md backdrop-blur-xs">🔗 Paste Link / Drop Photo</button>
+            </div>
+            <p id="warmup-caption" class="text-xs text-slate-600 font-bold italic text-center"></p>
+          </div>
+          <div class="md:col-span-7 space-y-2.5">
+            <h3 class="text-xs font-black uppercase tracking-wider text-amber-900">🕵️‍♀️ Visual Detective Questions (Infer & Narrate!):</h3>
+            <div id="warmup-questions-list" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- 🎲 10-WORD CEFR SAMPLER -->
+        <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 text-white p-4 sm:p-5 rounded-2xl border border-indigo-500/30 shadow-md space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3.5">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 bg-amber-400 text-slate-950 text-[10px] font-black rounded uppercase">14 Topics · A1–B1</span>
+                <h3 class="text-sm sm:text-base font-black text-white">🎲 10-Word Vocabulary Sampler</h3>
+              </div>
+              <p class="text-xs text-slate-300 mt-0.5">Sample 10 level-appropriate sports and fitness words! Click 🔊 to hear each word, or click the word to mark it used (<strong id="sampler-used-counter" class="text-emerald-400">0 / 10</strong> used).</p>
+            </div>
+            <button onclick="sampleTenWords()" class="px-3.5 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-black rounded-xl text-xs transition shrink-0 shadow-sm active:scale-95">
+              🎲 Sample 10 Words
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
+            <div class="sm:col-span-7">
+              <label class="text-[10px] font-bold uppercase text-indigo-300 block mb-1">1. Choose Conversational Context (14 Topics):</label>
+              <select id="vocabTopicSelect" onchange="sampleTenWords()" class="w-full bg-slate-800 text-white border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none">
+                <option value="all">🌟 All 14 Topics (Mixed Everyday Surprise)</option>
+              </select>
+            </div>
+            <div class="sm:col-span-5">
+              <label class="text-[10px] font-bold uppercase text-indigo-300 block mb-1">2. Filter by CEFR Level:</label>
+              <div class="grid grid-cols-4 gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+                <button type="button" onclick="setVocabLevel('A1')" id="lvl-btn-A1" class="py-1 rounded-lg text-xs font-black text-slate-300 hover:text-white transition">A1</button>
+                <button type="button" onclick="setVocabLevel('A2')" id="lvl-btn-A2" class="py-1 rounded-lg text-xs font-black text-slate-300 hover:text-white transition">A2</button>
+                <button type="button" onclick="setVocabLevel('B1')" id="lvl-btn-B1" class="py-1 rounded-lg text-xs font-black bg-indigo-600 text-white transition">B1</button>
+                <button type="button" onclick="setVocabLevel('ALL')" id="lvl-btn-ALL" class="py-1 rounded-lg text-xs font-black text-slate-300 hover:text-white transition">All</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="sampled-words-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1"></div>
+
+          <div class="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <span class="text-indigo-200 font-semibold">💡 <strong>Speaking Challenge:</strong> Connect 3 words above to the track action using <em>was/were -ing + when/while</em>!</span>
+            <button onclick="resetSampledUsed()" class="text-[11px] font-bold text-slate-300 hover:text-white underline shrink-0">Reset Checkmarks</button>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">📌 The Golden Thread: 3 Grammar Usage Pillars</h4>
+          <div id="grammar-pillars" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 3: LISTENING -->
+    <section id="section-part-3" class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-blue-50/70 border-b border-blue-100" onclick="togglePart(3)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-black rounded">PART 3</span>
+          <h2 id="listen-title" class="text-base font-black text-slate-900"></h2>
+        </div>
+        <span id="chevron-3" class="chevron-icon collapsed px-1">▼</span>
+      </div>
+      <div id="part-body-3" class="part-body collapsed p-5 space-y-4">
+        <p id="listen-desc" class="text-sm text-slate-700 font-medium"></p>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <div class="flex items-center gap-2">
+            <button id="btnPlayBriefing1" onclick="toggleBriefing(1.0, 'btnPlayBriefing1')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white">▶️ Listen Normal (1.0x)</button>
+            <button id="btnPlayBriefing2" onclick="toggleBriefing(1.25, 'btnPlayBriefing2')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white">⚡ Listen Fast (1.25x)</button>
+          </div>
+          <div class="bg-white p-3.5 rounded-xl border border-blue-200/80 space-y-1.5">
+            <h4 class="text-xs font-black uppercase tracking-wider text-blue-900">🎯 Listening Check Questions:</h4>
+            <ol id="listen-questions" class="list-decimal pl-5 space-y-1 text-xs sm:text-sm font-semibold text-slate-700"></ol>
+          </div>
+          <textarea class="w-full p-3 rounded-lg border border-slate-300 text-sm bg-white" rows="2" placeholder="Write down key words or your answers here..."></textarea>
+        </div>
+        <button onclick="document.getElementById('hiddenScript').classList.toggle('hidden')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">👁️ Show / Hide Transcript</button>
+        <div id="hiddenScript" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm">
+          <p id="listen-transcript" class="italic text-slate-700 font-medium"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 4: DRILLS -->
+    <section id="section-part-4" class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-slate-50 border-b border-slate-200" onclick="togglePart(4)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-rose-100 text-rose-800 text-xs font-black rounded">PART 4</span>
+          <h2 class="text-base font-black text-slate-900">⚡ Bare-Root Sentence Builder Drills</h2>
+        </div>
+        <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+          <button onclick="toggleAllAnswers()" id="btn-toggle-all" class="text-xs font-bold text-slate-600 bg-white px-2.5 py-1 rounded border border-slate-200">👁 Show All Answers</button>
+          <span id="chevron-4" class="chevron-icon collapsed px-1">▼</span>
+        </div>
+      </div>
+      <div id="part-body-4" class="part-body collapsed p-5">
+        <p class="text-xs text-slate-500 font-semibold mb-4">Use the bare-root prompt words to say a complete, natural sentence aloud before checking the answer.</p>
+        <div id="drills-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
+      </div>
+    </section>
+
+    <!-- PART 5 & 6: DIALOGUE SCENES -->
+    <section id="section-part-5" class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-purple-50/70 border-b border-purple-100" onclick="togglePart(5)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-800 text-xs font-black rounded">PART 5</span>
+          <h2 id="scene1-title" class="text-base font-black text-slate-900"></h2>
+        </div>
+        <span id="chevron-5" class="chevron-icon collapsed px-1">▼</span>
+      </div>
+      <div id="part-body-5" class="part-body collapsed p-5">
+        <div class="flex flex-wrap items-center gap-2 mb-4" id="scene1-controls"></div>
+        <div class="space-y-2.5 select-text" id="dialogueContainer1"></div>
+      </div>
+    </section>
+
+    <section id="section-part-6" class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-purple-50/70 border-b border-purple-100" onclick="togglePart(6)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-800 text-xs font-black rounded">PART 6</span>
+          <h2 id="scene2-title" class="text-base font-black text-slate-900"></h2>
+        </div>
+        <span id="chevron-6" class="chevron-icon collapsed px-1">▼</span>
+      </div>
+      <div id="part-body-6" class="part-body collapsed p-5">
+        <div class="flex flex-wrap items-center gap-2 mb-4" id="scene2-controls"></div>
+        <div class="space-y-2.5 select-text" id="dialogueContainer2"></div>
+      </div>
+    </section>
+
+    <!-- PART 7: STEP-BY-STEP GUIDED SPEAKING BUILDER -->
+    <section id="section-part-7" class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-teal-50/70 border-b border-teal-100" onclick="togglePart(7)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-teal-100 text-teal-800 text-xs font-black rounded">PART 7</span>
+          <h2 class="text-base font-black text-slate-900">🗣️ Guided 1-to-2 Minute Speaking Builder</h2>
+        </div>
+        <span id="chevron-7" class="chevron-icon collapsed px-1">▼</span>
+      </div>
+      <div id="part-body-7" class="part-body collapsed p-5 space-y-5">
+        <div class="bg-gradient-to-br from-teal-950 via-slate-900 to-indigo-950 text-white rounded-2xl p-5 space-y-4 shadow-md border border-teal-500/30">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 bg-teal-400 text-slate-950 text-[10px] font-black rounded uppercase">Step-by-Step Scaffold</span>
+                <span id="sprint-card-tag" class="text-xs font-black uppercase tracking-wider text-teal-300">TOPIC 1</span>
+              </div>
+              <h3 id="sprint-card-question" class="text-base sm:text-lg font-black text-amber-300 leading-snug mt-1"></h3>
+            </div>
+            <button onclick="spinTopicCard()" class="px-3.5 py-2 rounded-xl text-xs font-black bg-teal-400 hover:bg-teal-300 text-slate-950 transition active:scale-95 shrink-0">
+              🔄 Next Speaking Topic
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            <button id="btn-toggle-steps-box" onclick="toggleSprintSection('sprint-steps-collapsible', 'btn-toggle-steps-box', '👣 4-Step Guide (Steps 1–4)')" class="px-3 py-1.5 rounded-xl text-xs font-black bg-white/15 hover:bg-white/25 text-teal-200 border border-teal-400/40 transition">
+              🙈 Hide 👣 4-Step Guide (Steps 1–4)
+            </button>
+            <button id="btn-toggle-support-box" onclick="toggleSprintSection('sprint-support-collapsible', 'btn-toggle-support-box', '💡 Model, Connectors & Word Bank')" class="px-3 py-1.5 rounded-xl text-xs font-black bg-white/15 hover:bg-white/25 text-amber-200 border border-amber-400/40 transition">
+              🙈 Hide 💡 Model, Connectors & Word Bank
+            </button>
+          </div>
+
+          <div id="sprint-steps-collapsible" class="space-y-3 pt-2 border-t border-white/10">
+            <p class="text-xs text-slate-300 font-medium">
+              👣 <strong>How to speak for a full minute easily:</strong> Deliver the <strong>4 steps below in order</strong>! Read the yellow starter aloud, pick an idea in brackets, and add one extra detail (<em>who, where, or why</em>). Click each step when completed!
+            </p>
+            <div id="sprint-steps-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+          </div>
+        </div>
+
+        <div id="sprint-support-collapsible" class="space-y-4">
+          <div class="bg-slate-900 p-4 rounded-2xl border border-teal-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+            <div class="space-y-1">
+              <span class="text-[10px] font-black uppercase text-teal-400 block">🎧 Listen to a Complete 4-Step Model Answer:</span>
+              <p id="sprint-card-starter" class="text-xs sm:text-sm font-semibold text-white italic leading-relaxed"></p>
+            </div>
+            <button onclick="playCurrentTopicStarter(this)" class="px-3.5 py-2 text-xs font-black bg-teal-400 hover:bg-teal-300 text-slate-950 rounded-xl shrink-0">
+              🔊 Listen Model
+            </button>
+          </div>
+
+          <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="space-y-1">
+              <span class="text-xs font-black uppercase text-amber-900 block">🚀 Secret to Speaking Longer: Add ONE Connector to Every Step!</span>
+              <p class="text-xs text-slate-700 font-medium">Never stop after just one clause. Connect background action and results using these phrases:</p>
+            </div>
+            <div class="flex flex-wrap gap-1.5 shrink-0">
+              <span class="px-2.5 py-1 bg-white border border-amber-300 text-amber-950 rounded-lg text-xs font-black">...while everyone was cheering.</span>
+              <span class="px-2.5 py-1 bg-white border border-amber-300 text-amber-950 rounded-lg text-xs font-black">...when the whistle blew.</span>
+              <span class="px-2.5 py-1 bg-white border border-amber-300 text-amber-950 rounded-lg text-xs font-black">...so we won the match.</span>
+              <span class="px-2.5 py-1 bg-white border border-amber-300 text-amber-950 rounded-lg text-xs font-black">...because our team practiced.</span>
+            </div>
+          </div>
+
+          <div class="bg-teal-50/70 border border-teal-200 rounded-xl p-3.5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-black uppercase text-teal-800">✨ Plug-and-Play Action Ideas (Tap to Hear):</span>
+            </div>
+            <div id="concept-keywords-list" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 text-white rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="text-3xl font-black font-mono text-teal-400" id="sprint-display">01:00</div>
+            <div>
+              <div class="text-xs uppercase font-bold text-slate-400" id="sprint-round-label">Goal: 4 Steps = 1 Full Minute!</div>
+              <div class="text-xs text-slate-300">Spend ~15 seconds on each step above.</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="setSprintDuration(60)" id="btn-dur-60" class="px-2.5 py-1.5 bg-teal-900/80 border border-teal-400 text-teal-200 font-black rounded-xl text-xs">⏱️ 1:00 Goal</button>
+            <button onclick="setSprintDuration(120)" id="btn-dur-120" class="px-2.5 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs">⏱️ 2:00 Goal</button>
+            <button onclick="startSprintTimer()" id="btn-start-timer" class="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-black rounded-xl text-xs">▶ Start Timer</button>
+            <button onclick="pauseSprintTimer()" class="px-3 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">⏸ Pause</button>
+            <button onclick="resetSprintTimer()" class="px-3 py-2 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs">🔄 Reset</button>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-100 pt-3">
+          <h4 class="font-bold text-slate-700 text-xs uppercase mb-2">💬 Easy Follow-Up Questions (With Starters for Quick Answers):</h4>
+          <div id="branching-prompts" class="space-y-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 8: AI SIMULATION -->
+    <section id="section-part-8" class="bg-indigo-50/40 rounded-3xl border border-indigo-100 overflow-hidden shadow-xs">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-indigo-100/60 border-b border-indigo-200" onclick="togglePart(8)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-indigo-200 text-indigo-900 text-xs font-black rounded">PART 8</span>
+          <h2 class="text-base font-black text-slate-900">🤖 Real-Life Roleplay & Language Coach</h2>
+        </div>
+        <span id="chevron-8" class="chevron-icon collapsed px-1">▼</span>
+      </div>
+      <div id="part-body-8" class="part-body collapsed p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-2 rounded-xl border border-slate-200">
+          <div class="flex items-center gap-1.5">
+            <button id="btn-scen-1" onclick="switchSimulationScenario(1)" class="px-3 py-1.5 rounded-lg text-xs font-black bg-indigo-600 text-white"></button>
+            <button id="btn-scen-2" onclick="switchSimulationScenario(2)" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700"></button>
+          </div>
+          <button onclick="resetSimulationChat()" class="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-800">🔄 Restart Chat</button>
+        </div>
+        <p id="simulation-instructions" class="text-xs sm:text-sm font-semibold text-slate-600"></p>
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          <div class="bg-slate-50 p-3 border-b border-slate-200 flex items-center justify-between text-xs font-bold text-slate-700">
+            <span id="simulation-header-title"></span>
+            <span id="simulation-character-badge" class="bg-slate-200 px-2 py-0.5 rounded"></span>
+          </div>
+          <div id="ai-live-chat-log" class="p-4 space-y-3 min-h-[180px] max-h-96 overflow-y-auto bg-slate-50/40 flex flex-col"></div>
+          <div class="px-3 py-2 bg-slate-100 border-t border-slate-200">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-slate-500">Need a hint for your reply?</span>
+              <button id="btn-toggle-sim-try" onclick="toggleSimSuggestions()" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white border border-slate-300 text-indigo-700 hover:bg-indigo-50 transition">
+                👁️ Show 'Try' Chunks
+              </button>
+            </div>
+            <div id="sim-suggestions" class="hidden mt-2 pt-2 border-t border-slate-200/80 flex items-center gap-1.5 overflow-x-auto text-xs"></div>
+          </div>
+          <div class="p-3 bg-white border-t border-slate-200 flex gap-2">
+            <input type="text" id="ai-chat-input" class="flex-1 px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none" onkeypress="if(event.key==='Enter') sendAiMsg()">
+            <button onclick="sendAiMsg()" id="ai-send-btn" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEACHER KEY -->
+    <section id="section-part-roadmap" class="bg-slate-900 text-white rounded-3xl overflow-hidden shadow-xl">
+      <div class="collapsible-header flex items-center justify-between p-5 border-b border-slate-800" onclick="togglePart('roadmap')">
+        <h2 class="text-base sm:text-lg font-black text-indigo-300">📋 Teacher Key & SLA Notes</h2>
+        <span id="chevron-roadmap" class="chevron-icon collapsed px-1">▼</span>
+      </div>
+      <div id="part-body-roadmap" class="part-body collapsed p-5 space-y-3 text-xs sm:text-sm text-slate-300"></div>
+    </section>
+  </main>
+
+  <script>
+    // =====================================================================
+    // 📚 14-TOPIC CEFR (A1–B1) CONVERSATIONAL VOCABULARY BANK
+    // =====================================================================
+    const CEFR_VOCAB_BANK = [
+      {
+        id: "1",
+        title: "1. Personal Background & Administration",
+        A1: ["name", "first name", "surname", "last name", "age", "old", "young", "boy", "girl", "man", "woman", "country", "nationality", "language", "live", "birthday", "family", "mother", "father", "parents", "brother", "sister", "son", "daughter", "baby", "children", "husband", "wife", "friend", "address", "street", "number", "city", "town", "phone number", "email", "write", "spell", "word"],
+        A2: ["be born", "date of birth", "adult", "teenager", "married", "single", "alive", "aunt", "uncle", "cousin", "grandmother", "grandfather", "grandparents", "grandson", "granddaughter", "pet", "twin", "look like", "mobile phone", "postcode", "ID card", "passport", "driving licence", "fill in a form", "sign", "letter", "penfriend"],
+        B1: ["middle initial", "place of birth", "generation", "middle-aged", "elderly", "youth", "background", "accent", "native", "citizen", "population", "relative", "nephew", "niece", "partner", "bride", "groom", "honeymoon", "wedding", "anniversary", "engaged", "divorced", "split up", "bring up", "grow up", "look after", "get along with", "childhood", "pregnant", "apartment number", "area code", "signature", "document", "application", "register", "confirm", "details", "up to date", "out of date", "by hand"]
+      },
+      {
+        id: "2",
+        title: "2. Housing, Utilities & Upkeep",
+        A1: ["house", "home", "apartment", "room", "bedroom", "bathroom", "kitchen", "living room", "dining room", "garden", "yard", "door", "window", "wall", "floor", "bed", "table", "chair", "sofa", "desk", "bath", "shower", "toilet", "television", "key", "clean", "dirty", "wash", "open", "shut"],
+        A2: ["armchair", "bookcase", "bookshelf", "carpet", "curtain", "cupboard", "drawer", "lamp", "mirror", "pillow", "blanket", "sheet", "towel", "roof", "stairs", "upstairs", "downstairs", "elevator", "garage", "hall", "clock", "neighbour", "move", "rent", "cooker", "fridge", "oven", "washing machine", "heating", "electricity", "turn on", "turn off", "housework", "tidy up", "do the washing-up", "dustbin", "rubbish", "broken", "fix", "repair", "paint"],
+        B1: ["accommodation", "apartment block", "cottage", "ground floor", "balcony", "cellar", "entrance", "gate", "path", "neighbourhood", "district", "furnished", "antique", "chest of drawers", "cushion", "duvet", "vase", "basin", "property", "landlord", "flatmate", "lease", "deposit", "move in", "unpack", "lock", "air conditioning", "central heating", "heater", "freezer", "microwave", "dishwasher", "kettle", "iron", "tap", "plug in", "switch", "bulb", "pipe", "electricity bill", "save energy", "laundry", "clothes line", "ironing", "dusty", "bucket", "ladder", "tool", "mend", "leak", "damaged", "out of order", "alarm", "convenient", "cosy", "comfortable", "messy", "neat", "decorate"]
+      },
+      {
+        id: "3",
+        title: "3. Work, Career & Workplace Finance",
+        A1: ["job", "work", "worker", "teacher", "doctor", "driver", "farmer", "nurse", "shop assistant", "waiter", "waitress", "office", "company", "factory", "hospital", "school", "start", "finish", "busy", "money", "cash", "price", "cheap", "expensive", "pay", "buy", "dollar", "bank"],
+        A2: ["boss", "manager", "secretary", "actor", "artist", "chef", "cleaner", "dentist", "engineer", "hairdresser", "journalist", "mechanic", "musician", "pilot", "police officer", "receptionist", "tour guide", "earn", "uniform", "customer", "staff", "colleague", "computer", "message", "meeting", "break", "project", "full-time", "part-time", "credit card", "cheque", "bill", "coin", "cost", "spend", "save", "borrow", "lend", "change"],
+        B1: ["occupation", "profession", "career", "resume", "qualification", "qualified", "diploma", "degree", "apply", "candidate", "interview", "experience", "experienced", "skill", "training", "employee", "employer", "unemployed", "out of work", "contract", "temporary", "permanent", "promote", "quit", "retire", "ambition", "achieve", "successful", "accountant", "architect", "designer", "lawyer", "photographer", "programmer", "scientist", "department", "conference", "presentation", "instructions", "report", "arrange", "cancel", "postpone", "deal with", "handle", "manage", "run a business", "set up", "working hours", "stressful", "salary", "wages", "income", "tax", "bank account", "cashpoint", "withdraw", "loan", "owe", "afford", "currency", "exchange rate", "fee", "valuable", "worth"]
+      },
+      {
+        id: "4",
+        title: "4. Grocery Shopping & Cooking at Home",
+        A1: ["food", "bread", "butter", "cheese", "meat", "chicken", "fish", "egg", "rice", "pasta", "soup", "salad", "sandwich", "cake", "chocolate", "ice cream", "fruit", "apple", "banana", "orange", "vegetable", "potato", "tomato", "carrot", "water", "milk", "juice", "coffee", "tea", "sugar", "salt", "cook", "breakfast", "lunch", "dinner", "meal", "cup", "glass", "plate", "bottle", "supermarket"],
+        A2: ["beef", "burger", "steak", "sausage", "French fries", "biscuit", "cereal", "honey", "jam", "oil", "omelette", "onion", "mushroom", "lemon", "pear", "grape", "mango", "melon", "strawberry", "bean", "pea", "pepper", "mineral water", "snack", "fresh", "sweet", "packet", "slice", "bowl", "shopping list", "basket", "trolley", "receipt", "kilo", "litre", "boil", "fry", "grill", "roast", "bake", "cut", "mix", "knife", "fork", "spoon", "frying pan", "saucepan", "dish"],
+        B1: ["lamb", "duck", "turkey", "salmon", "tuna", "seafood", "broccoli", "cabbage", "corn", "cucumber", "garlic", "herb", "lettuce", "olive", "spinach", "coconut", "peach", "pineapple", "cherry", "peanut", "flour", "cream", "yoghurt", "vinegar", "spice", "curry", "pie", "toast", "frozen food", "dairy", "groceries", "household supplies", "jar", "jug", "carton", "tube", "bunch", "dozen", "pile", "quantity", "container", "recycle", "plastic bag", "self-service", "checkout", "cashier", "recipe", "ingredient", "prepare", "peel", "chop", "stir", "pour", "heat", "freeze", "burn", "spill", "flavour", "delicious", "tasty", "bitter", "sour", "spicy", "raw", "vegetarian", "diet", "saucer", "pot"]
+      },
+      {
+        id: "5",
+        title: "5. Dining Out & Socializing",
+        A1: ["café", "restaurant", "waiter", "waitress", "friend", "party", "meet", "go out", "menu", "food", "drink", "water", "glass", "cup", "table", "chair", "would like", "please", "thank you", "bill", "pay"],
+        A2: ["invite", "invitation", "free", "busy", "tonight", "tomorrow", "weekend", "club", "fast food", "takeaway", "picnic", "barbecue", "starter", "main course", "dessert", "order", "serve", "customer", "napkin", "bottle", "delicious", "check"],
+        B1: ["arrange", "arrangement", "fancy", "feel like", "look forward to", "join", "get together", "hang out", "accompany", "book a table", "reservation", "reserve", "cancel", "turn up", "on time", "nightlife", "cafeteria", "canteen", "refreshment", "side dish", "special", "vegetarian", "soft drink", "sparkling water", "course", "portion", "share", "recommend", "complain", "complaint", "satisfied", "disgusting", "atmosphere", "service", "leave a tip", "treat", "cheers", "host", "guest"]
+      },
+      {
+        id: "6",
+        title: "6. Retail, Clothing & Consumer Issues",
+        A1: ["clothes", "shirt", "T-shirt", "trousers", "jeans", "skirt", "dress", "coat", "jacket", "sweater", "shoe", "boot", "sock", "hat", "bag", "watch", "glasses", "wear", "put on", "take off", "black", "white", "red", "blue", "green", "yellow", "brown", "pink", "grey", "big", "small", "long", "short"],
+        A2: ["blouse", "suit", "shorts", "jumper", "tracksuit", "trainers", "sandals", "swimsuit", "uniform", "pyjamas", "cap", "scarf", "glove", "belt", "tie", "umbrella", "handbag", "purse", "wallet", "backpack", "jewellery", "ring", "necklace", "earring", "bracelet", "sunglasses", "pocket", "size", "large", "medium", "try on", "fit", "comfortable", "pale", "gold", "silver", "cheap", "expensive", "sale", "department store", "market", "sell", "change", "receipt"],
+        B1: ["pullover", "sweatshirt", "raincoat", "underwear", "tights", "collar", "sleeve", "button", "zip", "high heels", "costume", "fashion", "fashionable", "stylish", "smart", "well-dressed", "casual", "old-fashioned", "neat", "messy", "make-up", "perfume", "handkerchief", "fold", "hang", "worn out", "laundry", "tight", "loose", "match", "go with", "material", "cotton", "wool", "leather", "silk", "plastic", "pattern", "plain", "striped", "spotted", "label", "bargain", "discount", "half-price", "reduced", "reasonable", "value", "luxury", "second-hand", "on sale", "order online", "delivery", "damaged", "faulty", "return", "exchange", "refund", "guarantee", "queue", "browse", "shopper", "stall"]
+      },
+      {
+        id: "7",
+        title: "7. Local Commuting & Driving",
+        A1: ["car", "bus", "train", "taxi", "bicycle", "boat", "plane", "walk", "drive", "ride", "go", "stop", "station", "bus stop", "street", "road", "ticket", "left", "right", "near", "far"],
+        A2: ["underground", "subway", "coach", "tram", "truck", "motorbike", "helicopter", "ship", "platform", "bus station", "railway", "timetable", "fare", "single", "return", "pass", "catch", "miss", "get on", "get off", "wait", "waiting room", "passenger", "journey", "trip", "late", "fast", "slow", "driving licence", "traffic", "traffic lights", "bridge", "corner", "crossing", "roundabout", "car park", "petrol station", "map", "way", "straight on", "turn", "across", "along", "past", "opposite", "between", "next to", "behind", "in front of", "lost"],
+        B1: ["public transport", "bus service", "commuter", "rush hour", "delay", "delayed", "due", "cancel", "connection", "direct", "route", "zone", "inspector", "by rail", "on time", "in time", "board", "get in", "set off", "vehicle", "van", "scooter", "cyclist", "pedestrian", "pedestrian crossing", "crossroads", "tunnel", "motorway", "main road", "lane", "pavement", "signpost", "road sign", "one-way", "speed limit", "traffic jam", "hold up", "give way", "overtake", "parking space", "seat belt", "helmet", "brake", "engine", "steering wheel", "flat tyre", "windscreen", "boot", "car alarm", "fuel", "fill up", "break down", "garage", "mechanic", "repair", "accident", "crash", "injure", "damage", "insurance"]
+      },
+      {
+        id: "8",
+        title: "8. International Travel & Holidays",
+        A1: ["holiday", "vacation", "hotel", "room", "beach", "sea", "sun", "bag", "camera", "photo", "ticket", "passport", "plane", "airport", "fly", "visit", "see"],
+        A2: ["flight", "luggage", "baggage", "suitcase", "backpack", "check-in desk", "gate", "passenger", "pilot", "take off", "land", "arrive", "depart", "delay", "tour", "tourist", "tour guide", "guidebook", "map", "postcard", "souvenir", "reception", "receptionist", "guest", "campsite", "tent", "camping", "single room", "double room", "lift", "pool", "book", "stay", "pack"],
+        B1: ["abroad", "foreign", "foreigner", "airline", "jet", "terminal", "boarding pass", "security", "customs", "immigration", "border", "visa", "embassy", "declare", "duty-free", "currency", "exchange rate", "announcement", "arrival", "departure", "destination", "on board", "cabin crew", "ferry", "cruise", "voyage", "expedition", "backpacker", "set out", "get back", "unpack", "hostel", "resort", "cabin", "facilities", "air conditioning", "room service", "wake-up call", "check in", "check out", "reservation", "in advance", "confirm", "vacant", "overnight", "view", "brochure", "sightseeing", "monument", "castle", "palace", "cathedral", "temple", "statue", "ruin", "gallery", "museum", "exhibition", "architecture", "historic", "ancient", "attraction", "spectacular", "scenery", "coast", "harbour", "bay", "island", "sunbathe", "explore", "adventure", "unforgettable"]
+      },
+      {
+        id: "9",
+        title: "9. Health, Illnesses & Medical Care",
+        A1: ["body", "head", "face", "eye", "ear", "nose", "mouth", "tooth", "teeth", "hair", "arm", "hand", "finger", "leg", "foot", "back", "doctor", "nurse", "hospital", "sick", "ill", "well", "fine", "tired", "hurt"],
+        A2: ["neck", "shoulder", "stomach", "knee", "toe", "heart", "brain", "blood", "skin", "ache", "headache", "toothache", "stomach ache", "earache", "cold", "cough", "fever", "temperature", "cut", "broken", "fall", "pain", "feel better", "dentist", "pharmacy", "medicine", "ambulance", "appointment", "check", "rest", "lie down", "soap", "toothbrush", "toothpaste", "comb", "brush"],
+        B1: ["ankle", "chin", "cheek", "lip", "throat", "tongue", "thumb", "elbow", "wrist", "chest", "bone", "muscle", "heel", "breath", "breathe", "sight", "hearing", "flu", "sore throat", "virus", "disease", "illness", "infection", "dizzy", "exhausted", "weak", "pale", "bleed", "burn", "bruise", "sprain", "injury", "wound", "suffer", "stressed", "depressed", "shock", "painful", "serious", "emergency", "accident", "patient", "specialist", "surgeon", "clinic", "operation", "examine", "examination", "treatment", "cure", "heal", "recover", "get over", "prescription", "pill", "tablet", "aspirin", "bandage", "plaster", "first aid", "injection", "blood pressure", "X-ray", "wheelchair", "look after", "take care of"]
+      },
+      {
+        id: "10",
+        title: "10. Fitness, Sports & Leisure",
+        A1: ["sport", "game", "ball", "football", "soccer", "tennis", "basketball", "baseball", "swimming", "swim", "run", "walk", "ride a bike", "play", "park", "zoo", "music", "song", "sing", "dance", "draw", "paint", "picture", "book", "read", "movie", "watch", "listen", "camera", "photo", "computer game"],
+        A2: ["badminton", "cricket", "golf", "hockey", "table tennis", "volleyball", "skiing", "skating", "skateboarding", "surfing", "sailing", "fishing", "cycling", "climbing", "jogging", "race", "match", "competition", "team", "player", "winner", "win", "lose", "hit", "kick", "catch", "throw", "club", "gym", "sports centre", "stadium", "swimming pool", "racket", "cinema", "theatre", "concert", "band", "singer", "musician", "dancer", "instrument", "piano", "guitar", "drum", "violin", "classical", "pop", "rock", "jazz", "cartoon", "comedy", "horror", "programme", "magazine", "newspaper", "article", "chess", "board game", "collect", "hobby", "photography"],
+        B1: ["athletics", "athlete", "gymnastics", "boxing", "diving", "extreme sport", "yoga", "keep fit", "get fit", "fitness", "workout", "work out", "exercise", "take part in", "join in", "train", "training", "trainer", "coach", "instructor", "competitor", "champion", "championship", "tournament", "contest", "league", "court", "track", "pitch", "net", "goal", "goalkeeper", "score", "beat", "defeat", "draw", "season", "supporter", "fan", "prize", "medal", "break a record", "kit", "tracksuit", "helmet", "locker", "changing room", "exhibition", "gallery", "museum", "sculpture", "painting", "author", "novelist", "poetry", "literature", "biography", "science fiction", "thriller", "romance", "drama", "documentary", "series", "talk show", "quiz", "review", "headline", "studio", "stage", "screen", "scene", "audience", "clap", "performance", "perform", "festival", "fireworks", "orchestra", "live music", "interval", "admission", "book tickets", "hang out", "socialise", "leisure", "spare time", "keen on", "fond of", "interested in", "puzzle"]
+      },
+      {
+        id: "11",
+        title: "11. Education & Language Learning",
+        A1: ["school", "class", "classroom", "student", "teacher", "pupil", "desk", "chair", "board", "book", "notebook", "pen", "pencil", "eraser", "ruler", "bag", "read", "write", "listen", "speak", "ask", "answer", "know", "learn", "understand", "page", "question", "test", "number", "letter", "word"],
+        A2: ["art", "biology", "chemistry", "physics", "science", "geography", "history", "mathematics", "music", "PE", "language", "English", "college", "university", "library", "playground", "headteacher", "classmate", "dictionary", "textbook", "pencil case", "blackboard", "noticeboard", "homework", "lesson", "course", "exam", "mark", "grade", "pass", "fail", "study", "teach", "remember", "forget", "clever", "easy", "difficult", "right", "wrong", "mistake", "example", "break", "term", "holiday", "spell", "spelling", "sentence", "say", "tell", "talk", "chat", "meaning"],
+        B1: ["primary school", "secondary school", "kindergarten", "elementary", "intermediate", "advanced", "curriculum", "economics", "information technology", "drama", "photography", "lecture", "lecturer", "professor", "instructor", "coach", "laboratory", "canteen", "timetable", "schedule", "session", "absent", "present", "attend", "register", "project", "essay", "composition", "instructions", "knowledge", "revise", "revision", "practise", "take an exam", "result", "certificate", "qualification", "diploma", "degree", "grant", "apply", "graduate", "hand in", "hand out", "write down", "take notes", "look up", "cross out", "underline", "copy", "rub out", "calculate", "calculator", "concentrate", "pay attention", "interrupt", "behave", "strict", "rule", "experiment", "research", "level", "skill", "talent", "talented", "improve", "improvement", "progress", "beginner", "expert", "vocabulary", "grammar", "tense", "punctuation", "paragraph", "phrase", "topic", "translate", "translation", "pronounce", "pronunciation", "accent", "fluent", "communicate", "conversation", "discuss", "discussion", "argue", "explain", "explanation", "describe", "description", "suggest", "suggestion", "persuade", "convince", "insist", "apologize", "opinion", "agree", "disagree"]
+      },
+      {
+        id: "12",
+        title: "12. Technology & Digital Communication",
+        A1: ["computer", "phone", "mobile phone", "TV", "camera", "email", "internet", "website", "watch", "listen", "call", "new"],
+        A2: ["laptop", "PC", "screen", "keyboard", "mouse", "printer", "print", "MP3 player", "DVD player", "CD", "video", "digital camera", "web page", "online", "chat", "text", "text message", "send", "receive", "turn on", "turn off", "click", "download", "game", "programme"],
+        B1: ["tablet", "webcam", "speaker", "headphones", "microphone", "hardware", "machine", "equipment", "electronic", "digital", "hard drive", "memory", "server", "network", "battery", "cable", "plug in", "switch on", "switch off", "button", "remote control", "volume", "channel", "signal", "calculator", "invent", "invention", "technology", "system", "software", "app", "application", "program", "internet access", "homepage", "blog", "blogger", "chatroom", "social media", "link", "password", "username", "user", "file", "folder", "document", "data", "graphics", "video clip", "upload", "install", "update", "delete", "save", "copy", "drag and drop", "browse", "search", "connect", "connection", "crash", "virus", "error", "out of order", "fix", "repair", "operator", "call back", "ring up", "hang up", "pick up", "hold on", "put through", "dial", "engaged", "voicemail", "message", "contact", "by post", "parcel", "envelope"]
+      },
+      {
+        id: "13",
+        title: "13. Weather, Geography & The Environment",
+        A1: ["weather", "sun", "sunny", "rain", "snow", "wind", "windy", "hot", "cold", "warm", "nice", "bad", "sky", "tree", "flower", "grass", "park", "beach", "sea", "river", "animal", "dog", "cat", "bird", "fish", "horse", "cow", "pig", "sheep", "zoo", "world"],
+        A2: ["cloud", "cloudy", "fog", "foggy", "storm", "thunderstorm", "ice", "icy", "wet", "dry", "temperature", "degree", "spring", "summer", "autumn", "winter", "season", "blow", "shine", "mountain", "hill", "lake", "island", "forest", "wood", "field", "farm", "countryside", "desert", "jungle", "ocean", "coast", "air", "fire", "water", "rock", "sand", "star", "moon", "space", "plant", "grow", "north", "south", "east", "west", "bear", "elephant", "lion", "monkey", "tiger", "snake", "duck", "chicken", "rabbit", "mouse", "insect", "bee", "fly", "pet", "wild"],
+        B1: ["weather forecast", "Celsius", "thermometer", "breeze", "gale", "strong wind", "shower", "rainfall", "snowfall", "lightning", "thunder", "freezing", "frozen", "freeze", "humid", "mild", "cool", "heat", "sunshine", "get wet", "flood", "natural disaster", "cliff", "cave", "bay", "harbour", "port", "canal", "stream", "waterfall", "valley", "peak", "mountain range", "region", "area", "border", "continent", "earth", "planet", "universe", "rainforest", "farmland", "ground", "soil", "stone", "wave", "shore", "seaside", "sunrise", "sunset", "shade", "shadow", "scenery", "view", "landscape", "environment", "environmental", "nature", "natural", "northern", "southern", "eastern", "western", "wildlife", "creature", "species", "dolphin", "whale", "shark", "penguin", "frog", "camel", "giraffe", "goat", "kangaroo", "parrot", "zebra", "kitten", "puppy", "mosquito", "butterfly", "ant", "spider", "fur", "wing", "feather", "cage", "feed", "protect", "climate", "climate change", "global warming", "pollution", "pollute", "fuel", "coal", "energy", "save energy", "solar power", "litter", "rubbish", "waste", "bottle bank", "recycle", "recycling", "conservation"]
+      },
+      {
+        id: "14",
+        title: "14. Describing People: Appearance, Character & Mood",
+        A1: ["tall", "short", "big", "small", "thin", "old", "young", "beautiful", "pretty", "nice", "hair", "eye", "happy", "sad", "tired", "hungry", "thirsty", "angry", "good", "bad", "funny", "friendly", "kind", "sorry", "fine", "well"],
+        A2: ["slim", "blonde", "dark", "fair", "long", "short", "straight", "curly", "beard", "moustache", "glasses", "handsome", "attractive", "good-looking", "smart", "look like", "clever", "intelligent", "silly", "lazy", "polite", "rude", "quiet", "noisy", "loud", "brave", "careful", "careless", "lucky", "unlucky", "strange", "pleasant", "sweet", "popular", "famous", "bored", "boring", "excited", "exciting", "interested", "interesting", "worried", "afraid", "scared", "surprised", "unhappy", "upset", "glad", "pleased", "ready", "sure", "important", "special", "wonderful", "fantastic", "great", "terrible", "horrible", "awful", "easy", "difficult", "hard", "busy", "free", "alone", "together"],
+        B1: ["medium height", "middle-aged", "elderly", "youth", "bald", "wavy", "pale", "skin", "complexion", "well-dressed", "casual", "neat", "messy", "smart", "cute", "gorgeous", "charming", "twin", "image", "appearance", "reliable", "honest", "generous", "patient", "impatient", "sensible", "easygoing", "sociable", "confident", "ambitious", "active", "lively", "creative", "talented", "serious", "strict", "bossy", "selfish", "shy", "curious", "calm", "gentle", "crazy", "reasonable", "responsible", "independent", "ordinary", "typical", "unusual", "character", "attitude", "behaviour", "delighted", "cheerful", "grateful", "proud", "relieved", "satisfied", "fond of", "keen on", "in love", "hopeful", "anxious", "nervous", "stressed", "stressful", "miserable", "depressed", "disappointed", "disappointing", "embarrassed", "embarrassing", "ashamed", "guilty", "jealous", "confused", "confusing", "annoyed", "annoying", "amazed", "amazing", "shocked", "shocking", "frightened", "frightening", "terrified", "exhausted", "tiring", "lonely", "homesick", "fed up", "mood", "feeling", "emotion", "pleasure", "happiness", "admire", "respect", "trust", "blame", "forgive", "regret"]
+      }
+    ];
+
+    // =====================================================================
+    // 🧠 SINGLE SOURCE OF TRUTH: LESSON_DATA POPULATED FROM MISSION 10 BLUEPRINT
+    // =====================================================================
+    const LESSON_DATA = {
+      meta: {
+        level: "A2–B1",
+        descriptor: "Middle School (Grades 7–8)",
+        category: "Live Commentary & Narrative Sequencing",
+        title: "Mission 10 — The School Sports Day",
+        grammarTopic: "Past Continuous & Past Simple (While / When + was/were -ing)",
+        grammarExplanation: "Use 'was / were + -ing' for the background ongoing action, and Past Simple for the sudden event that interrupted it!"
+      },
+      voices: { partner: "Aoede", student: "Zephyr", teacher: "Charon" },
+      vocab: [
+        { word: "competitor", trans: "person in race", start: "Each competitor", chunk: "was warming up before the match.", end: "" },
+        { word: "relay", trans: "team baton race", start: "Our team", chunk: "was leading while running the relay.", end: "" },
+        { word: "spectator", trans: "person watching event", start: "Excited spectators", chunk: "were cheering when the runners started.", end: "" },
+        { word: "determination", trans: "strong will / spirit", start: "Alfie", chunk: "showed great determination when he tripped.", end: "" },
+        { word: "record-breaking", trans: "beating best time", start: "She", chunk: "was running toward a record-breaking finish.", end: "" }
+      ],
+      photoPool: [
+        {
+          title: "School Athletics Track & Sprinters Passing Batons",
+          url: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=900&q=80",
+          defaultTopicId: "10"
+        },
+        {
+          title: "Track & Field Finish Line Sprint",
+          url: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=900&q=80",
+          defaultTopicId: "10"
+        },
+        {
+          title: "Packed Stadium Bleachers & Cheering Fans",
+          url: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=900&q=80",
+          defaultTopicId: "10"
+        },
+        {
+          title: "Relay Athletes Warming Up on Grass",
+          url: "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=900&q=80",
+          defaultTopicId: "10"
+        }
+      ],
+      warmup: {
+        title: "🖼️ Warm-Up: Visual Detective & 10-Word CEFR Sampler",
+        imageUrl: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=900&q=80",
+        emoji: "🏃‍♂️",
+        caption: "School Track Relay — Sprinters passing batons while spectators cheer!",
+        questions: [
+          "Who was leading while the runners were turning?",
+          "What were the spectators holding in the stands?",
+          "What sports event did you watch last term?"
+        ],
+        pillars: [
+          { title: "1. Background = was/were -ing", desc: "Ongoing scenes take continuous: 'Spectators were cheering loudly during the race.'" },
+          { title: "2. Sudden Event = Past Simple", desc: "The quick interruption takes past simple: 'While Daniel was running, he heard the bell.'" },
+          { title: "3. No Double 'was'", desc: "Say 'He fell while running,' NEVER say 'He was fell.'" }
+        ]
+      },
+      listening: {
+        title: "🎧 Trackside Announcement from Daniel",
+        desc: "Listen to Daniel's live trackside announcement (~37 words) and answer the check questions.",
+        transcript: "Welcome to our annual sports day! Class 2 was leading the relay. Suddenly, Class 3 sped up while spectators were shouting. Alfie caught the baton smoothly. He was sprinting when the final buzzer sounded! What an exciting race!",
+        questions: [
+          "Which class was leading the relay first?",
+          "What were spectators doing when Class 3 sped up?",
+          "What sounded while Alfie was sprinting?"
+        ]
+      },
+      drills: [
+        { type: "Relay Action", prompt: "Daniel / run / when / he / hear / cheer", answer: "Daniel was running when he heard the cheer." },
+        { type: "Background Scene", prompt: "spectators / shout / while / team / pass / baton", answer: "Spectators were shouting while teams passed the baton." },
+        { type: "Pre-Race Event", prompt: "Alfie / warm up / when / race / start", answer: "Alfie was warming up when the race started." },
+        { type: "Weather Interruption", prompt: "rain / fall / while / athletes / compete", answer: "Rain was falling while athletes competed." },
+        { type: "Record Watch", prompt: "we / watch / when / record / break", answer: "We were watching when the record broke." },
+        { type: "Final Lap Sprint", prompt: "she / sprint / when / bell / ring", answer: "She was sprinting when the bell rang." },
+        { type: "Teacher Reaction", prompt: "teachers / clap / while / students / celebrate", answer: "Teachers were clapping while students celebrated." },
+        { type: "Question Form", prompt: "who / lead / when / turn / come ?", answer: "Who was leading when the turn came?" }
+      ],
+      scenes: {
+        1: {
+          title: "💬 Scene 1: Live Trackside Commentary",
+          turns: [
+            { role: "partner", name: "Leo", text: "Look at lane four! Who is running now?" },
+            { role: "you", name: "Daniel", start: "Alfie", cloze: "was trailing behind when he suddenly sped up", end: "." },
+            { role: "partner", name: "Leo", text: "The crowd is going wild right now!" },
+            { role: "you", name: "Daniel", start: "Spectators", cloze: "were shouting while he passed the runner", end: "." },
+            { role: "partner", name: "Leo", text: "Can our class win this heat today?" },
+            { role: "you", name: "Daniel", start: "Yes, he", cloze: "was smiling when he crossed the line", end: "." }
+          ]
+        },
+        2: {
+          title: "💬 Scene 2: Post-Race Athlete Interview",
+          turns: [
+            { role: "partner", name: "Maya", text: "Alfie, congratulations! How did the race feel?" },
+            { role: "you", name: "Alfie", start: "I", cloze: "was feeling nervous when the starter gun fired", end: "." },
+            { role: "partner", name: "Maya", text: "What happened at the final baton exchange?" },
+            { role: "you", name: "Alfie", start: "Daniel", cloze: "was calling my name while passing it", end: "." },
+            { role: "partner", name: "Maya", text: "Did you hear the cheering fans near the finish?" },
+            { role: "you", name: "Alfie", start: "Yes, everyone", cloze: "was jumping when I reached the end", end: "." }
+          ]
+        }
+      },
+      fluency: {
+        keywords: [
+          "pass the baton",
+          "cheer from stands",
+          "cross the line",
+          "warm up carefully",
+          "hear the whistle",
+          "break school record",
+          "wave team flags",
+          "feel proud together"
+        ],
+        topicCards: [
+          {
+            tag: "TOPIC 1 · LIVE RACE PLAY-BY-PLAY",
+            question: "Describe an exciting moment during a school sports event:",
+            steps: [
+              {
+                label: "Step 1 · The opening scene (0:00–0:15)",
+                frame: "Yesterday, our school was holding a sports day where...",
+                ideas: "students gathered outside / track teams competed / crowds cheered loudly",
+                followUp: "+ Add: What was the weather like?"
+              },
+              {
+                label: "Step 2 · Action in progress (0:15–0:30)",
+                frame: "Our fastest runner was sprinting while...",
+                ideas: "spectators shouted slogans / classmates waved banners / rival teams chased",
+                followUp: "+ Add: Who was in the lead?"
+              },
+              {
+                label: "Step 3 · The sudden twist (0:30–0:45)",
+                frame: "Suddenly, someone tripped when...",
+                ideas: "the final turn approached / the bell rang / the baton slipped",
+                followUp: "+ Add: Did the athlete get up?"
+              },
+              {
+                label: "Step 4 · The dramatic finish (0:45–1:00)",
+                frame: "Everyone was cheering when our class...",
+                ideas: "crossed the finish line / took first place / set a record",
+                followUp: "+ Add: How did you celebrate?"
+              }
+            ],
+            starter: "Yesterday, our school was holding a sports day outside. Our fastest runner was sprinting while spectators shouted loudly. Suddenly, someone tripped when the final turn approached. Everyone was cheering when our class crossed the finish line!"
+          },
+          {
+            tag: "TOPIC 2 · POST-GAME INTERVIEW",
+            question: "Roleplay an interview with a classmate after their big win:",
+            steps: [
+              {
+                label: "Step 1 · Congratulating them (0:00–0:15)",
+                frame: "You looked amazing while you were...",
+                ideas: "running the relay / playing soccer / jumping the hurdles",
+                followUp: "+ Add: How long have you trained?"
+              },
+              {
+                label: "Step 2 · Key challenge (0:15–0:30)",
+                frame: "What were you thinking when...",
+                ideas: "the opponent caught up / your energy dropped / the whistle blew",
+                followUp: "+ Add: Were you worried?"
+              },
+              {
+                label: "Step 3 · Teamwork moment (0:30–0:45)",
+                frame: "Our teammates were shouting while we...",
+                ideas: "defended the goal / exchanged the baton / pushed forward",
+                followUp: "+ Add: Who helped you most?"
+              },
+              {
+                label: "Step 4 · Final feelings (0:45–1:00)",
+                frame: "I felt so proud when...",
+                ideas: "the coach smiled / we lifted the trophy / the crowd clapped",
+                followUp: "+ Add: What is your next goal?"
+              }
+            ],
+            starter: "You looked amazing while you were running the relay! What were you thinking when the opponent caught up? Our teammates were shouting while we pushed forward. I felt so proud when we lifted the trophy!"
+          },
+          {
+            tag: "TOPIC 3 · MEMORABLE MATCH STORY",
+            question: "Tell a story about an unexpected sports day event:",
+            steps: [
+              {
+                label: "Step 1 · The background (0:00–0:15)",
+                frame: "Last October, I was participating in an event when...",
+                ideas: "the sky turned gray / rain started falling / the wind blew hard",
+                followUp: "+ Add: What event was it?"
+              },
+              {
+                label: "Step 2 · Action interrupted (0:15–0:30)",
+                frame: "Athletes were warming up while...",
+                ideas: "teachers delayed the race / rain stopped / parents arrived",
+                followUp: "+ Add: How did the runners feel?"
+              },
+              {
+                label: "Step 3 · The restart (0:30–0:45)",
+                frame: "The sun came out when...",
+                ideas: "runners lined up / officials signaled / the race began",
+                followUp: "+ Add: Was the track slippery?"
+              },
+              {
+                label: "Step 4 · The finish (0:45–1:00)",
+                frame: "We were laughing together when...",
+                ideas: "mud splashed everywhere / our team won medals / the day ended",
+                followUp: "+ Add: Would you do it again?"
+              }
+            ],
+            starter: "Last October, I was participating in an event when rain started falling. Athletes were warming up while teachers delayed the race. The sun came out when the race began. We were laughing together when our team won medals!"
+          }
+        ],
+        branching: [
+          {
+            q: "What were you doing when your school team scored last time?",
+            starter: "I was ______ when my team scored because..."
+          },
+          {
+            q: "Who was cheering for you while you were competing?",
+            starter: "My friends were cheering while I was ______."
+          },
+          {
+            q: "What sport was everyone watching during the afternoon?",
+            starter: "Everyone was watching the ______ because our class was..."
+          }
+        ]
+      },
+      simulation: {
+        suggestions: [
+          "Alfie was sprinting while spectators were cheering loudly.",
+          "I was warming up when the starter gun fired.",
+          "Our team was leading when he passed the baton.",
+          "Everyone was shouting while we crossed the finish line."
+        ],
+        slaRules: {
+          targetPattern: "\\b(was|were)\\s+\\w+ing\\b.*\\b(when|while)\\b|\\b(while|when)\\b.*\\b(was|were)\\s+\\w+ing\\b",
+          trapPattern: "\\b(was|were)\\s+(run|fall|hear|start|win|break|ring|drop)\\b",
+          trapTip: "Use '-ing' after was/were for background actions, or simple past for sudden events (e.g., 'He fell while running', not 'He was fell')."
+        },
+        scenarios: {
+          1: {
+            shortTitle: "Trackside Commentary",
+            title: "Live Chat: Trackside Commentary",
+            character: "Leo (Student Broadcaster)",
+            greeting: "Alfie, grab the microphone! Class 1 and Class 3 are neck-and-neck. What is happening right now?",
+            placeholder: "Describe the race action using was/were -ing + while/when...",
+            instructions: "Provide fast commentary describing ongoing action and sudden events using <strong>Past Continuous and Past Simple</strong>.",
+            contextGoal: "Give real-time commentary describing actions in progress using Past Continuous and Past Simple.",
+            localReplies: [
+              "Incredible pace! Who was leading when they rounded the bend?",
+              "Look at lane three! Was someone catching up while the crowd cheered?",
+              "Unbelievable finish! What happened when they reached the line?"
+            ]
+          },
+          2: {
+            shortTitle: "Post-Race Interview",
+            title: "Live Chat: Post-Race Locker Room Interview",
+            character: "Coach Henderson",
+            greeting: "Great race out there! You looked focused while you were running. How did you feel at the final lap?",
+            placeholder: "Tell Coach Henderson how you felt using was/were -ing and when...",
+            instructions: "Explain race moments, teamwork, and sudden twists with Coach Henderson.",
+            contextGoal: "Discuss race highlights and sudden events using Past Continuous and Past Simple.",
+            localReplies: [
+              "You handled the pressure well. What were you thinking when the rival team sped up?",
+              "Teamwork won that race! Who passed the baton while you were accelerating?",
+              "Rest up today! You showed real determination when the heat got tough."
+            ]
+          }
+        },
+        teacherNotes: [
+          "<strong>Grammar Golden Thread:</strong> Focus on juxtaposing Past Continuous (was/were -ing) for background actions and Past Simple for the interrupting event.",
+          "<strong>L1 Transfer Watchlist:</strong> Chinese learners often produce 'He was fell' or drop 'was/were' in continuous narration ('He running when whistle blow'). Guide them to crisp, 10-word capped sentences.",
+          "<strong>Part 3 Listening Key:</strong> 1. Class 2. 2. Spectators were shouting. 3. The final buzzer.",
+          "<strong>CEFR Topic Sampler:</strong> Topic 10 (Fitness, Sports & Leisure) is pre-selected. Have learners tap 3 words and form spontaneous live-action sentences."
+        ]
+      }
+    };
+
+    // =====================================================================
+    // 🎲 10-WORD CEFR SAMPLER & PHOTO POOL LOGIC
+    // =====================================================================
+    let currentVocabLevel = "B1";
+    let currentSampledWords = [];
+    let localImagePool = [];
+    let builtInPoolIndex = 0;
+
+    function initVocabSamplerControls() {
+      const sel = document.getElementById('vocabTopicSelect');
+      if (!sel) return;
+      CEFR_VOCAB_BANK.forEach(topic => {
+        const opt = document.createElement('option');
+        opt.value = topic.id;
+        opt.innerText = topic.title;
+        sel.appendChild(opt);
+      });
+      sel.value = "10";
+      setVocabLevel("B1");
+    }
+
+    function setVocabLevel(lvl) {
+      currentVocabLevel = lvl;
+      ['A1', 'A2', 'B1', 'ALL'].forEach(l => {
+        const btn = document.getElementById(`lvl-btn-${l}`);
+        if (!btn) return;
+        btn.className = (l === lvl)
+          ? 'py-1 rounded-lg text-xs font-black bg-indigo-600 text-white transition shadow-xs'
+          : 'py-1 rounded-lg text-xs font-black text-slate-300 hover:text-white transition';
+      });
+      sampleTenWords();
+    }
+
+    function sampleTenWords() {
+      const topicVal = document.getElementById('vocabTopicSelect')?.value || 'all';
+      const selectedTopics = topicVal === 'all'
+        ? CEFR_VOCAB_BANK
+        : CEFR_VOCAB_BANK.filter(t => t.id === topicVal);
+
+      let pool = [];
+      selectedTopics.forEach(t => {
+        const levelsToPull = currentVocabLevel === 'ALL' ? ['A1', 'A2', 'B1'] : [currentVocabLevel];
+        levelsToPull.forEach(lv => {
+          (t[lv] || []).forEach(word => {
+            pool.push({ word, level: lv, topicTitle: t.title });
+          });
+        });
+      });
+
+      const seen = new Set();
+      const uniquePool = pool.filter(item => {
+        const k = item.word.toLowerCase();
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+
+      for (let i = uniquePool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [uniquePool[i], uniquePool[j]] = [uniquePool[j], uniquePool[i]];
+      }
+
+      currentSampledWords = uniquePool.slice(0, 10);
+      renderSampledWords();
+    }
+
+    function renderSampledWords() {
+      const grid = document.getElementById('sampled-words-grid');
+      if (!grid) return;
+
+      const badgeColors = {
+        A1: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30',
+        A2: 'bg-sky-500/20 text-sky-300 border-sky-400/30',
+        B1: 'bg-amber-500/20 text-amber-300 border-amber-400/30'
+      };
+
+      grid.innerHTML = currentSampledWords.map((item) => `
+        <div onclick="toggleSampleWordUsed(this)" class="vocab-sample-chip cursor-pointer bg-slate-800/90 hover:bg-slate-800 border border-slate-700 rounded-xl p-2.5 flex flex-col justify-between gap-1.5 select-none" data-used="false">
+          <div class="flex items-center justify-between gap-1">
+            <span class="text-[9px] font-black px-1.5 py-0.5 rounded border ${badgeColors[item.level] || badgeColors.B1}">${item.level}</span>
+            <button type="button" data-speak="${escapeAttr(item.word)}" data-role="teacher" onclick="event.stopPropagation(); speakFromAttr(this)" class="text-[10px] font-bold text-slate-300 hover:text-white bg-slate-700/70 px-1.5 py-0.5 rounded">🔊</button>
+          </div>
+          <div class="text-xs sm:text-sm font-extrabold text-white leading-tight break-words">${item.word}</div>
+        </div>
+      `).join('');
+
+      updateSamplerUsedCounter();
+    }
+
+    function toggleSampleWordUsed(cardEl) {
+      const isUsed = cardEl.getAttribute('data-used') === 'true';
+      cardEl.setAttribute('data-used', !isUsed);
+      cardEl.classList.toggle('used-word', !isUsed);
+      const wordTextEl = cardEl.querySelector('div:last-child');
+      if (wordTextEl) {
+        wordTextEl.className = !isUsed
+          ? 'text-xs sm:text-sm font-extrabold text-emerald-950 leading-tight break-words'
+          : 'text-xs sm:text-sm font-extrabold text-white leading-tight break-words';
+      }
+      updateSamplerUsedCounter();
+    }
+
+    function resetSampledUsed() {
+      document.querySelectorAll('#sampled-words-grid .vocab-sample-chip').forEach(el => {
+        el.setAttribute('data-used', 'false');
+        el.classList.remove('used-word');
+        const wordTextEl = el.querySelector('div:last-child');
+        if (wordTextEl) wordTextEl.className = 'text-xs sm:text-sm font-extrabold text-white leading-tight break-words';
+      });
+      updateSamplerUsedCounter();
+    }
+
+    function updateSamplerUsedCounter() {
+      const used = document.querySelectorAll('#sampled-words-grid .vocab-sample-chip[data-used="true"]').length;
+      const total = currentSampledWords.length;
+      const counterEl = document.getElementById('sampler-used-counter');
+      if (counterEl) counterEl.innerText = `${used} / ${total}`;
+    }
+
+    function loadLocalPhotoBank(event) {
+      const files = Array.from(event.target.files).filter(f => f.type.startsWith('image/'));
+      if (!files.length) return;
+      localImagePool = files.map(file => ({
+        title: file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " "),
+        url: URL.createObjectURL(file)
+      }));
+      document.getElementById('photoBankCount').innerText = `${localImagePool.length} Local`;
+      pickRandomPhoto();
+    }
+
+    function pickRandomPhoto() {
+      const imgEl = document.getElementById('warmup-img');
+      imgEl.style.display = '';
+      document.getElementById('warmup-img-fallback').classList.add('hidden');
+
+      if (localImagePool.length > 0) {
+        const picked = localImagePool[Math.floor(Math.random() * localImagePool.length)];
+        imgEl.src = picked.url;
+        document.getElementById('warmup-caption').innerText = `Scene: ${picked.title}`;
+      } else {
+        builtInPoolIndex = (builtInPoolIndex + 1) % LESSON_DATA.photoPool.length;
+        const picked = LESSON_DATA.photoPool[builtInPoolIndex];
+        imgEl.src = picked.url;
+        document.getElementById('warmup-caption').innerText = picked.title;
+        if (picked.defaultTopicId) {
+          const sel = document.getElementById('vocabTopicSelect');
+          if (sel) sel.value = picked.defaultTopicId;
+        }
+      }
+      sampleTenWords();
+    }
+
+    function convertGoogleDriveUrl(rawUrl) {
+      const trimmed = (rawUrl || "").trim();
+      if (!trimmed) return "";
+      const fileMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (fileMatch && fileMatch[1]) {
+        return `https://lh3.googleusercontent.com/d/${fileMatch[1]}=w1200`;
+      }
+      return trimmed;
+    }
+
+    function applyPastedDriveLink() {
+      const inputEl = document.getElementById('gdrive-link-input');
+      const raw = inputEl ? inputEl.value.trim() : "";
+      if (!raw) return;
+      const finalUrl = convertGoogleDriveUrl(raw);
+      const imgEl = document.getElementById('warmup-img');
+      imgEl.style.display = '';
+      document.getElementById('warmup-img-fallback').classList.add('hidden');
+      imgEl.src = finalUrl;
+      document.getElementById('warmup-caption').innerText = "Custom Track Scene — Inspect & Deduce!";
+      localImagePool.push({ title: `GDrive Scene ${localImagePool.length + 1}`, url: finalUrl });
+      document.getElementById('photoBankCount').innerText = `${localImagePool.length} Loaded`;
+      inputEl.value = "";
+      sampleTenWords();
+    }
+
+    function handleWarmupDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('border-indigo-500', 'ring-4', 'ring-indigo-300');
+    }
+
+    function handleWarmupDragLeave(e) {
+      e.currentTarget.classList.remove('border-indigo-500', 'ring-4', 'ring-indigo-300');
+    }
+
+    function handleWarmupDrop(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('border-indigo-500', 'ring-4', 'ring-indigo-300');
+      const files = Array.from(e.dataTransfer?.files || []).filter(f => f.type.startsWith('image/'));
+      if (files.length > 0) {
+        files.forEach(f => {
+          localImagePool.push({
+            title: f.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " "),
+            url: URL.createObjectURL(f)
+          });
+        });
+        document.getElementById('photoBankCount').innerText = `${localImagePool.length} Loaded`;
+        const latest = localImagePool[localImagePool.length - 1];
+        const imgEl = document.getElementById('warmup-img');
+        imgEl.style.display = '';
+        document.getElementById('warmup-img-fallback').classList.add('hidden');
+        imgEl.src = latest.url;
+        document.getElementById('warmup-caption').innerText = `Scene: ${latest.title}`;
+        sampleTenWords();
+      }
+    }
+
+    window.addEventListener('paste', (e) => {
+      const items = Array.from(e.clipboardData?.items || []);
+      const imgItem = items.find(it => it.type.startsWith('image/'));
+      if (imgItem) {
+        const file = imgItem.getAsFile();
+        if (!file) return;
+        const objUrl = URL.createObjectURL(file);
+        localImagePool.push({ title: `Pasted Scene ${localImagePool.length + 1}`, url: objUrl });
+        document.getElementById('photoBankCount').innerText = `${localImagePool.length} Loaded`;
+        const imgEl = document.getElementById('warmup-img');
+        imgEl.style.display = '';
+        document.getElementById('warmup-img-fallback').classList.add('hidden');
+        imgEl.src = objUrl;
+        document.getElementById('warmup-caption').innerText = `Pasted Track Scene — Inspect & Deduce!`;
+        sampleTenWords();
+      }
+    });
+
+    // =====================================================================
+    // 🔊 GEMINI 2.5 FLASH TTS ENGINE
+    // =====================================================================
+    const apiKey = "";
+    let savedApiKey = "";
+    try { savedApiKey = localStorage.getItem('gemini_api_key') || ""; } catch (e) {}
+
+    function getActiveApiKey() {
+      return (savedApiKey && savedApiKey.trim()) ? savedApiKey.trim() : apiKey;
+    }
+
+    const VALID_VOICES = new Set(["Aoede", "Charon", "Fenrir", "Kore", "Leda", "Orus", "Puck", "Zephyr"]);
+    function getSafeVoice(role) {
+      const requested = role === 'partner' ? LESSON_DATA.voices.partner : (role === 'teacher' ? LESSON_DATA.voices.teacher : LESSON_DATA.voices.student);
+      return VALID_VOICES.has(requested) ? requested : "Zephyr";
+    }
+
+    const audioCache = new Map();
+    const pendingRequests = new Map();
+    let sharedAudioPlayer = new Audio();
+    let isPlayingDialogue = false;
+    let activeSceneNum = null;
+    let focusMode = true;
+    const preloadedParts = new Set();
+    const totalParts = [1, 2, 3, 4, 5, 6, 7, 8, 'roadmap'];
+
+    function setVoiceBadge(status, text) {
+      const btn = document.getElementById('header-key-btn');
+      if (!btn) return;
+      if (status === 'ready') {
+        btn.className = 'px-2.5 py-1 bg-emerald-900/70 hover:bg-emerald-800 border border-emerald-500/50 rounded-lg text-xs font-bold text-emerald-200 transition flex items-center gap-1.5';
+        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> <span>${text || 'Gemini Voices Active'}</span>`;
+      } else if (status === 'loading') {
+        btn.className = 'px-2.5 py-1 bg-indigo-900/70 border border-indigo-400/50 rounded-lg text-xs font-bold text-indigo-200 transition flex items-center gap-1.5';
+        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span> <span>${text || 'Loading Gemini Voice...'}</span>`;
+      } else if (status === 'warn') {
+        btn.className = 'px-2.5 py-1 bg-rose-950/80 hover:bg-rose-900 border border-rose-500/50 rounded-lg text-xs font-bold text-rose-200 transition flex items-center gap-1.5';
+        btn.innerHTML = `⚠️ <span>${text || 'Set API Key for Natural Voices'}</span>`;
+      }
+    }
+
+    function pcmToWav(base64Pcm, sampleRate = 24000) {
+      const binaryString = atob(base64Pcm);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+      const buffer = new ArrayBuffer(44 + bytes.length);
+      const view = new DataView(buffer);
+      const writeString = (view, offset, string) => {
+        for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+      };
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, 36 + bytes.length, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, bytes.length, true);
+      for (let i = 0; i < bytes.length; i++) view.setUint8(44 + i, bytes[i]);
+      return URL.createObjectURL(new Blob([view], { type: 'audio/wav' }));
+    }
+
+    async function fetchGeminiTTS(text, voiceName = "Zephyr") {
+      const cleanText = (text || "").trim();
+      if (!cleanText) throw new Error("Empty text");
+      const cacheKey = `${voiceName}:${cleanText}`;
+      if (audioCache.has(cacheKey)) return audioCache.get(cacheKey);
+      if (pendingRequests.has(cacheKey)) return pendingRequests.get(cacheKey);
+
+      const requestPromise = (async () => {
+        const keyParam = getActiveApiKey();
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${keyParam}`;
+        const payload = {
+          contents: [{ parts: [{ text: `Read this aloud naturally: ${cleanText}` }] }],
+          generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceName } } }
+          },
+          model: "gemini-2.5-flash-preview-tts"
+        };
+
+        for (let attempt = 1, delay = 1200; attempt <= 3; attempt++, delay *= 2) {
+          try {
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+              const errJson = await response.json().catch(() => ({}));
+              const status = response.status;
+              if (status === 400 || status === 403) {
+                setVoiceBadge('warn', 'Click to Connect Gemini Key');
+                throw new Error(errJson.error?.message || `HTTP ${status}`);
+              }
+              throw new Error(`HTTP ${status}`);
+            }
+            const result = await response.json();
+            const base64Pcm = result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+            if (!base64Pcm) throw new Error("No inline audio returned");
+            const wavUrl = pcmToWav(base64Pcm);
+            audioCache.set(cacheKey, wavUrl);
+            setVoiceBadge('ready', 'Gemini Voices Active');
+            return wavUrl;
+          } catch (e) {
+            if (attempt === 3) throw e;
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      })();
+
+      pendingRequests.set(cacheKey, requestPromise);
+      try {
+        return await requestPromise;
+      } finally {
+        pendingRequests.delete(cacheKey);
+      }
+    }
+
+    function fallbackSpeak(text, onendedCallback, rate = 1.0) {
+      if (!('speechSynthesis' in window)) {
+        if (onendedCallback) onendedCallback();
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = rate;
+      utterance.lang = 'en-US';
+      utterance.onend = () => { if (onendedCallback) onendedCallback(); };
+      utterance.onerror = () => { if (onendedCallback) onendedCallback(); };
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function speakFromAttr(btnElement) {
+      const text = btnElement.getAttribute('data-speak');
+      const role = btnElement.getAttribute('data-role') || 'student';
+      speakText(text, btnElement, role, 1.0);
+    }
+
+    async function speakText(text, btnElement, role = 'student', playbackRate = 1.0) {
+      stopAudio();
+      if (!text) return;
+      sharedAudioPlayer.pause();
+
+      const originalHtml = btnElement ? btnElement.innerHTML : '';
+      if (btnElement) {
+        btnElement.innerHTML = '⏳';
+        btnElement.disabled = true;
+      }
+
+      const voice = getSafeVoice(role);
+      try {
+        setVoiceBadge('loading', 'Generating Gemini Voice...');
+        const url = await fetchGeminiTTS(text, voice);
+        sharedAudioPlayer.src = url;
+        sharedAudioPlayer.playbackRate = playbackRate;
+        if (btnElement) btnElement.innerHTML = '🔊';
+        sharedAudioPlayer.onended = () => {
+          if (btnElement) { btnElement.innerHTML = originalHtml; btnElement.disabled = false; }
+        };
+        sharedAudioPlayer.onerror = () => {
+          if (btnElement) { btnElement.innerHTML = originalHtml; btnElement.disabled = false; }
+        };
+        await sharedAudioPlayer.play();
+      } catch (err) {
+        setVoiceBadge('warn', 'Click to Set Gemini API Key');
+        fallbackSpeak(text, () => {
+          if (btnElement) { btnElement.innerHTML = originalHtml; btnElement.disabled = false; }
+        }, playbackRate);
+      }
+    }
+
+    async function toggleBriefing(playbackRate, btnId) {
+      const btn = document.getElementById(btnId);
+      if (!sharedAudioPlayer.paused && isPlayingDialogue === false && sharedAudioPlayer.currentTime > 0) {
+        stopAudio();
+        return;
+      }
+      const transcript = LESSON_DATA.listening.transcript.trim();
+      await speakText(transcript, btn, 'teacher', playbackRate);
+    }
+
+    function stopAudio() {
+      isPlayingDialogue = false;
+      activeSceneNum = null;
+      try {
+        sharedAudioPlayer.pause();
+        sharedAudioPlayer.currentTime = 0;
+      } catch (e) {}
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      const btn1 = document.getElementById('btnPlayBriefing1');
+      const btn2 = document.getElementById('btnPlayBriefing2');
+      if (btn1) { btn1.innerHTML = '▶️ Listen Normal (1.0x)'; btn1.disabled = false; }
+      if (btn2) { btn2.innerHTML = '⚡ Listen Fast (1.25x)'; btn2.disabled = false; }
+      [1, 2].forEach(n => { const b = document.getElementById(`btnPlayDialogue${n}`); if (b) b.innerHTML = '▶️ Play Scene'; });
+      document.querySelectorAll('.script-line').forEach(l => l.classList.remove('ring-2', 'ring-indigo-500'));
+    }
+
+    async function toggleDialogue(sceneNum) {
+      const btn = document.getElementById(`btnPlayDialogue${sceneNum}`);
+      if (isPlayingDialogue && activeSceneNum === sceneNum) {
+        stopAudio();
+        return;
+      }
+      stopAudio();
+      sharedAudioPlayer.pause();
+      isPlayingDialogue = true;
+      activeSceneNum = sceneNum;
+      btn.innerHTML = '⏹ Stop Scene';
+
+      const lines = document.querySelectorAll(`#dialogueContainer${sceneNum} .script-line`);
+      for (let i = 0; i < lines.length; i++) {
+        if (!isPlayingDialogue || activeSceneNum !== sceneNum) break;
+        lines.forEach(l => l.classList.remove('ring-2', 'ring-indigo-500'));
+        lines[i].classList.add('ring-2', 'ring-indigo-500');
+
+        const sentenceEl = lines[i].querySelector('.final-sentence');
+        const lineText = (sentenceEl.getAttribute('data-original') || sentenceEl.textContent || '').trim();
+        const role = lines[i].getAttribute('data-role');
+        const voice = getSafeVoice(role);
+
+        await new Promise(async (resolve) => {
+          try {
+            const wavUrl = await fetchGeminiTTS(lineText, voice);
+            if (!isPlayingDialogue || activeSceneNum !== sceneNum) return resolve();
+            sharedAudioPlayer.src = wavUrl;
+            sharedAudioPlayer.playbackRate = 1.0;
+            sharedAudioPlayer.onended = () => setTimeout(resolve, 300);
+            sharedAudioPlayer.onerror = () => fallbackSpeak(lineText, resolve);
+            await sharedAudioPlayer.play();
+          } catch (e) {
+            setVoiceBadge('warn', 'Click to Set Gemini API Key');
+            fallbackSpeak(lineText, resolve);
+          }
+        });
+      }
+      stopAudio();
+    }
+
+    async function preloadPartAudio(partId) {
+      if (preloadedParts.has(partId)) return;
+      preloadedParts.add(partId);
+      try {
+        if (partId === 1) {
+          for (const v of LESSON_DATA.vocab) {
+            const full = `${v.start} ${v.chunk} ${v.end}`.replace(/\s+/g, ' ').trim();
+            await fetchGeminiTTS(full, getSafeVoice('student'));
+            await new Promise(r => setTimeout(r, 650));
+          }
+        }
+      } catch (e) {
+        preloadedParts.delete(partId);
+      }
+    }
+
+    // =====================================================================
+    // 🖥️ DOM RENDERER & INTERACTIVE LOGIC
+    // =====================================================================
+    function escapeAttr(str) {
+      return (str || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    function renderApp() {
+      document.getElementById('page-title').innerText = `${LESSON_DATA.meta.level} - ${LESSON_DATA.meta.title}`;
+      document.getElementById('hdr-level').innerText = `${LESSON_DATA.meta.level} · ${LESSON_DATA.meta.descriptor}`;
+      document.getElementById('hdr-category').innerText = LESSON_DATA.meta.category;
+      document.getElementById('hdr-title').innerText = LESSON_DATA.meta.title;
+      document.getElementById('hdr-grammar-topic').innerText = `Golden Thread: ${LESSON_DATA.meta.grammarTopic}`;
+      document.getElementById('hdr-grammar-exp').innerText = LESSON_DATA.meta.grammarExplanation;
+
+      const labels = { 1: "1. Words", 2: "2. Warm-Up + 10 Words", 3: "3. Listen", 4: "4. Drills", 5: "5. Scene 1", 6: "6. Scene 2", 7: "7. Sprint", 8: "8. Roleplay", roadmap: "Key" };
+      document.getElementById('nav-pills-container').innerHTML = totalParts.map(id =>
+        `<button id="pill-${id}" onclick="focusOnPart('${id}')" class="px-2 py-1 text-[11px] font-bold rounded-lg transition">${labels[id]}</button>`
+      ).join('');
+
+      // Part 1: Vocab
+      document.getElementById('vocab-read-list').innerHTML = LESSON_DATA.vocab.map((v) => {
+        const full = `${v.start} ${v.chunk} ${v.end}`.replace(/\s+/g, ' ').trim();
+        return `
+          <div class="vocab-row bg-white p-2.5 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2" data-read="false">
+            <div class="flex items-center gap-2 min-w-[155px]">
+              <span class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-black text-xs">${v.word}</span>
+              <span class="text-xs text-slate-400 font-semibold">(${v.trans})</span>
+            </div>
+            <div class="text-xs sm:text-sm font-semibold text-slate-700 flex-1">
+              ${v.start} <span class="vocab-chunk font-black text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200" onclick="this.classList.remove('chunk-masked')">${v.chunk}</span> ${v.end}
+            </div>
+            <div class="flex items-center gap-1.5 self-end sm:self-auto">
+              <button data-speak="${escapeAttr(full)}" data-role="student" onclick="speakFromAttr(this)" class="px-2.5 py-1 rounded text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">🔊 Listen</button>
+              <button onclick="toggleRowRead(this)" class="check-btn px-2.5 py-1 rounded text-xs font-bold bg-slate-100 text-slate-600">○ Read</button>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Part 2: Picture & Detective Warm-Up
+      document.getElementById('warmup-title').innerText = LESSON_DATA.warmup.title;
+      const imgEl = document.getElementById('warmup-img');
+      imgEl.src = LESSON_DATA.warmup.imageUrl || "";
+      document.getElementById('warmup-emoji').innerText = LESSON_DATA.warmup.emoji || "🏃‍♂️";
+      document.getElementById('warmup-caption').innerText = LESSON_DATA.warmup.caption;
+      document.getElementById('warmup-caption-fallback').innerText = LESSON_DATA.warmup.caption;
+      document.getElementById('warmup-questions-list').innerHTML = LESSON_DATA.warmup.questions.map((q, idx) => `
+        <div class="bg-white p-3 rounded-xl border border-amber-200/80 shadow-2xs flex items-center justify-between gap-2">
+          <p class="text-xs sm:text-sm font-bold text-slate-800"><span class="text-amber-600 font-black mr-1">${idx + 1}.</span> ${q}</p>
+          <button data-speak="${escapeAttr(q)}" data-role="teacher" onclick="speakFromAttr(this)" class="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold shrink-0">🔊</button>
+        </div>`).join('');
+
+      document.getElementById('grammar-pillars').innerHTML = LESSON_DATA.warmup.pillars.map(p => `
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+          <span class="font-black text-indigo-700 block mb-1">${p.title}</span>
+          <p class="text-slate-600 font-medium">${p.desc}</p>
+        </div>`).join('');
+
+      initVocabSamplerControls();
+
+      // Part 3: Listening
+      document.getElementById('listen-title').innerText = LESSON_DATA.listening.title;
+      document.getElementById('listen-desc').innerText = LESSON_DATA.listening.desc;
+      document.getElementById('listen-transcript').innerText = `"${LESSON_DATA.listening.transcript}"`;
+      document.getElementById('listen-questions').innerHTML = LESSON_DATA.listening.questions.map(q => `<li>${q}</li>`).join('');
+
+      // Part 4: Drills
+      document.getElementById('drills-grid').innerHTML = LESSON_DATA.drills.map(d => `
+        <div class="drill-card bg-white p-4 rounded-2xl border border-slate-200 flex flex-col justify-between">
+          <div>
+            <span class="text-[11px] font-black uppercase text-rose-600">${d.type}</span>
+            <p class="font-mono text-sm font-bold text-slate-800 mt-1 mb-3">${d.prompt}</p>
+            <div class="answer-box hidden p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-950 text-xs font-bold mb-3">"${d.answer}"</div>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+            <button onclick="toggleAnswer(this)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-800">👁 Show Answer</button>
+            <button data-speak="${escapeAttr(d.answer)}" data-role="student" onclick="speakFromAttr(this)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">🔊 Listen</button>
+          </div>
+        </div>`).join('');
+
+      // Parts 5 & 6: Dialogues
+      [1, 2].forEach(num => {
+        const scene = LESSON_DATA.scenes[num];
+        document.getElementById(`scene${num}-title`).innerText = scene.title;
+        document.getElementById(`scene${num}-controls`).innerHTML = `
+          <button id="btnPlayDialogue${num}" onclick="toggleDialogue(${num})" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-white">▶️ Play Scene</button>
+          <button id="btnBlindfold${num}" onclick="toggleBlindfold(${num})" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-200 text-slate-700">🙈 Blindfold</button>
+          <button id="btnCloze${num}" onclick="toggleCloze(${num})" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-100 text-indigo-800">🕳️ Cloze</button>
+          <button onclick="scrambleDiscourse(${num})" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-100 text-purple-800">🔀 Scramble</button>
+          <button onclick="resetMasks(${num})" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white border border-slate-300 text-slate-600">🔄 Reset</button>`;
+
+        document.getElementById(`dialogueContainer${num}`).innerHTML = scene.turns.map((t, idx) => {
+          const isYou = t.role === 'you';
+          const rawFull = isYou ? `${t.start} ${t.cloze} ${t.end}`.replace(/\s+/g, ' ').trim() : t.text;
+          const innerHtml = isYou ? `${t.start} <span class="cloze-target">${t.cloze}</span> ${t.end}` : t.text;
+          return `
+            <div class="turn-item script-line flex items-center gap-2 ${isYou ? 'flex-row-reverse' : ''}" data-role="${t.role}" data-original-index="${idx}">
+              <span class="drag-grip text-slate-300 hover:text-slate-600 px-1 text-xs cursor-grab select-none">⋮⋮</span>
+              <div class="w-6 h-6 rounded-full ${isYou ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center font-bold text-[10px] shrink-0">${t.name}</div>
+              <div class="flex-1">
+                <div class="${isYou ? 'bubble-you rounded-tr-none' : 'bubble-partner rounded-tl-none text-slate-800'} py-2 px-3 rounded-xl shadow-2xs text-xs sm:text-sm font-medium flex items-center justify-between gap-2">
+                  <p class="final-sentence flex-1 select-text" data-original="${escapeAttr(rawFull)}">${innerHtml}</p>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button data-speak="${escapeAttr(rawFull)}" data-role="${t.role}" onclick="speakFromAttr(this)" class="px-1.5 py-0.5 rounded text-[10px] font-bold ${isYou ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}">🔊</button>
+                    <button onclick="toggleBuildMode(this)" class="mini-build-btn px-1.5 py-0.5 rounded text-[10px] font-bold ${isYou ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}">🧩 Build</button>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+        setupDragAndDrop(num);
+      });
+
+      // Part 7: Guided Speaking Scaffold
+      document.getElementById('concept-keywords-list').innerHTML = LESSON_DATA.fluency.keywords.map(k =>
+        `<button type="button" data-speak="${escapeAttr(k)}" data-role="student" onclick="speakFromAttr(this)" class="px-2.5 py-1 bg-white hover:bg-teal-100 border border-teal-200 text-teal-950 rounded-lg text-xs font-bold shadow-2xs transition flex items-center gap-1"><span>${k}</span> <span class="text-[10px] text-teal-600">🔊</span></button>`
+      ).join('');
+      document.getElementById('branching-prompts').innerHTML = LESSON_DATA.fluency.branching.map((b, i) => `
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-xs sm:text-sm font-bold text-slate-800"><span class="text-teal-600 font-black">${i + 1}.</span> ${b.q}</p>
+            <button type="button" data-speak="${escapeAttr(b.q)}" data-role="teacher" onclick="speakFromAttr(this)" class="px-2 py-0.5 rounded bg-white border border-slate-200 text-xs font-bold text-slate-600 shrink-0">🔊</button>
+          </div>
+          <p class="text-xs font-semibold text-teal-800 bg-teal-50/80 px-2.5 py-1 rounded border border-teal-200/70">🗣️ <strong>Starter:</strong> <em>"${b.starter}"</em></p>
+        </div>
+      `).join('');
+      spinTopicCard(0);
+
+      // Part 8: Simulation
+      document.getElementById('btn-scen-1').innerText = `1. ${LESSON_DATA.simulation.scenarios[1].shortTitle}`;
+      document.getElementById('btn-scen-2').innerText = `2. ${LESSON_DATA.simulation.scenarios[2].shortTitle}`;
+      document.getElementById('sim-suggestions').innerHTML = `<span class="text-slate-400 font-bold shrink-0">💡 Try:</span>` +
+        LESSON_DATA.simulation.suggestions.map(s => `<button onclick="insertSuggestedPrompt(this)" class="px-2 py-1 rounded bg-white border border-slate-300 text-slate-700 hover:border-indigo-400 font-semibold shrink-0">"${s}"</button>`).join('');
+
+      document.getElementById('part-body-roadmap').innerHTML = LESSON_DATA.simulation.teacherNotes.map(n => `<p>${n}</p>`).join('');
+      switchSimulationScenario(1);
+      updateNavPills();
+
+      if (savedApiKey) {
+        document.getElementById('input-gemini-key').value = savedApiKey;
+        setVoiceBadge('ready', 'Saved Key Loaded');
+      }
+      preloadPartAudio(1);
+    }
+
+    let baseFontSize = 16;
+    function changeFontSize(step) {
+      baseFontSize = Math.min(28, Math.max(12, baseFontSize + step * 2));
+      document.documentElement.style.fontSize = baseFontSize + 'px';
+    }
+
+    function toggleRowRead(btn) {
+      const row = btn.closest('.vocab-row');
+      const done = row.getAttribute('data-read') === 'true';
+      row.setAttribute('data-read', !done);
+      btn.innerHTML = !done ? '✅ Done' : '○ Read';
+      btn.className = !done ? 'check-btn px-2.5 py-1 rounded text-xs font-bold bg-indigo-600 text-white' : 'check-btn px-2.5 py-1 rounded text-xs font-bold bg-slate-100 text-slate-600';
+      document.getElementById('vocab-read-count').innerText = document.querySelectorAll('.vocab-row[data-read="true"]').length;
+    }
+
+    let isMaskedVocab = false;
+    function toggleVocabMask() {
+      isMaskedVocab = !isMaskedVocab;
+      document.querySelectorAll('.vocab-chunk').forEach(c => c.classList.toggle('chunk-masked', isMaskedVocab));
+      document.getElementById('btn-toggle-vocab-mask').innerHTML = isMaskedVocab ? '👁 Reveal Chunks' : '🙈 Mask Chunks';
+    }
+
+    function toggleAnswer(btn) {
+      const box = btn.closest('.drill-card').querySelector('.answer-box');
+      const hidden = box.classList.toggle('hidden');
+      btn.innerHTML = hidden ? '👁 Show Answer' : '🙈 Hide Answer';
+    }
+
+    let allAnswersShown = false;
+    function toggleAllAnswers() {
+      allAnswersShown = !allAnswersShown;
+      document.querySelectorAll('.answer-box').forEach(b => b.classList.toggle('hidden', !allAnswersShown));
+      document.getElementById('btn-toggle-all').innerHTML = allAnswersShown ? '🙈 Hide All Answers' : '👁 Show All Answers';
+    }
+
+    function toggleBlindfold(num) {
+      const sents = document.querySelectorAll(`#dialogueContainer${num} .final-sentence`);
+      const any = Array.from(sents).some(s => s.classList.contains('blurred-text'));
+      sents.forEach(s => { s.classList.toggle('blurred-text', !any); s.onclick = () => s.classList.remove('blurred-text'); });
+    }
+
+    function toggleCloze(num) {
+      const targets = document.querySelectorAll(`#dialogueContainer${num} .cloze-target`);
+      const any = Array.from(targets).some(t => t.classList.contains('cloze-masked'));
+      targets.forEach(t => {
+        t.classList.toggle('cloze-masked', !any);
+        t.classList.remove('cloze-revealed');
+        t.onclick = () => { t.classList.remove('cloze-masked'); t.classList.add('cloze-revealed'); };
+      });
+    }
+
+    function toggleBuildMode(btn) {
+      const bubble = btn.closest('.bubble-you, .bubble-partner');
+      const sentEl = bubble.querySelector('.final-sentence');
+      const existing = bubble.parentElement.querySelector('.interactive-build-ui');
+      if (existing) { existing.remove(); sentEl.style.display = ''; btn.innerHTML = '🧩 Build'; return; }
+      sentEl.style.display = 'none'; btn.innerHTML = '👁 Text';
+      const words = sentEl.getAttribute('data-original').split(/\s+/);
+      const shuffled = [...words].sort(() => Math.random() - 0.5);
+      const ui = document.createElement('div');
+      ui.className = 'interactive-build-ui mt-2 p-2.5 rounded-xl bg-slate-100 border border-slate-300 space-y-2 text-left';
+      const dz = document.createElement('div');
+      dz.className = 'drop-zone'; dz.setAttribute('data-placeholder', 'Tap words in order...');
+      const wb = document.createElement('div');
+      wb.className = 'flex flex-wrap gap-1.5';
+      shuffled.forEach(w => {
+        const chip = document.createElement('button');
+        chip.className = 'word-chip'; chip.innerText = w;
+        chip.onclick = () => {
+          (chip.parentElement === wb ? dz : wb).appendChild(chip);
+          const current = Array.from(dz.children).map(c => c.innerText).join(' ');
+          if (current === words.join(' ')) {
+            dz.className = 'drop-zone bg-emerald-500 text-white border-transparent';
+            setTimeout(() => { ui.remove(); sentEl.style.display = ''; btn.innerHTML = '🧩 Build'; }, 900);
+          }
+        };
+        wb.appendChild(chip);
+      });
+      ui.append(dz, wb);
+      bubble.parentElement.appendChild(ui);
+    }
+
+    function scrambleDiscourse(num) {
+      const c = document.getElementById(`dialogueContainer${num}`);
+      Array.from(c.children).sort(() => Math.random() - 0.5).forEach(el => c.appendChild(el));
+    }
+
+    function resetMasks(num) {
+      const c = document.getElementById(`dialogueContainer${num}`);
+      c.querySelectorAll('.final-sentence').forEach(s => { s.classList.remove('blurred-text'); s.style.display = ''; });
+      c.querySelectorAll('.cloze-target').forEach(t => t.classList.remove('cloze-masked', 'cloze-revealed'));
+      c.querySelectorAll('.interactive-build-ui').forEach(u => u.remove());
+      c.querySelectorAll('.mini-build-btn').forEach(b => b.innerHTML = '🧩 Build');
+      Array.from(c.children).sort((a, b) => +a.dataset.originalIndex - +b.dataset.originalIndex).forEach(el => c.appendChild(el));
+    }
+
+    function setupDragAndDrop(num) {
+      const c = document.getElementById(`dialogueContainer${num}`);
+      c.querySelectorAll('.turn-item').forEach(item => {
+        item.setAttribute('draggable', 'true');
+        item.ondragstart = () => item.classList.add('dragging');
+        item.ondragend = () => { item.classList.remove('dragging'); c.querySelectorAll('.turn-item').forEach(i => i.classList.remove('drag-over')); };
+        item.ondragover = e => { e.preventDefault(); item.classList.add('drag-over'); };
+        item.ondragleave = () => item.classList.remove('drag-over');
+        item.ondrop = e => { e.preventDefault(); item.classList.remove('drag-over'); const d = c.querySelector('.dragging'); if (d && d !== item) c.insertBefore(d, item); };
+      });
+    }
+
+    let currentTopicIndex = -1;
+    function spinTopicCard(forceIdx) {
+      const cards = LESSON_DATA.fluency.topicCards;
+      currentTopicIndex = typeof forceIdx === 'number' ? forceIdx : (currentTopicIndex + 1) % cards.length;
+      const card = cards[currentTopicIndex];
+      document.getElementById('sprint-card-tag').innerText = card.tag;
+      document.getElementById('sprint-card-question').innerText = card.question;
+      document.getElementById('sprint-card-starter').innerText = `"${card.starter}"`;
+
+      const stepsGrid = document.getElementById('sprint-steps-grid');
+      if (stepsGrid && card.steps) {
+        stepsGrid.innerHTML = card.steps.map((st) => `
+          <div onclick="toggleSprintStepDone(this)" class="sprint-step-card cursor-pointer bg-white/10 hover:bg-white/15 border border-white/15 rounded-xl p-3.5 space-y-1.5 transition select-none" data-done="false">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] font-black uppercase tracking-wider text-teal-300">${st.label}</span>
+              <span class="step-status-badge text-[10px] font-bold px-2 py-0.5 rounded bg-white/10 text-slate-300">○ Tap when said</span>
+            </div>
+            <div class="text-sm font-black text-amber-300">"${st.frame}"</div>
+            <div class="text-xs font-semibold text-white bg-black/25 px-2.5 py-1 rounded-lg border border-white/10">
+              💡 <strong>Ideas:</strong> ${st.ideas}
+            </div>
+            <div class="text-[11px] font-medium text-teal-200">${st.followUp}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function toggleSprintStepDone(el) {
+      const done = el.getAttribute('data-done') === 'true';
+      el.setAttribute('data-done', !done);
+      const badge = el.querySelector('.step-status-badge');
+      if (!done) {
+        el.className = 'sprint-step-card cursor-pointer bg-emerald-900/50 border-2 border-emerald-400 rounded-xl p-3.5 space-y-1.5 transition select-none';
+        if (badge) { badge.innerText = '✅ Completed!'; badge.className = 'step-status-badge text-[10px] font-black px-2 py-0.5 rounded bg-emerald-400 text-slate-950'; }
+      } else {
+        el.className = 'sprint-step-card cursor-pointer bg-white/10 hover:bg-white/15 border border-white/15 rounded-xl p-3.5 space-y-1.5 transition select-none';
+        if (badge) { badge.innerText = '○ Tap when said'; badge.className = 'step-status-badge text-[10px] font-bold px-2 py-0.5 rounded bg-white/10 text-slate-300'; }
+      }
+    }
+
+    function playCurrentTopicStarter(btn) {
+      speakText(LESSON_DATA.fluency.topicCards[currentTopicIndex].starter, btn, 'student', 1.0);
+    }
+
+    function toggleSprintSection(sectionId, btnId, labelText) {
+      const sec = document.getElementById(sectionId);
+      const btn = document.getElementById(btnId);
+      if (!sec || !btn) return;
+      const isHidden = sec.classList.toggle('hidden');
+      btn.innerHTML = isHidden ? `👁️ Show ${labelText}` : `🙈 Hide ${labelText}`;
+    }
+
+    let sprintInterval = null, sprintDuration = 60, sprintSecs = 60, sprintRound = 1;
+    const roundNames = { 1: "Round 1 · Follow the 4 Steps", 2: "Round 2 · Add While / When Connectors", 3: "Round 3 · Smooth & Excited Flow" };
+    function setSprintDuration(secs) {
+      pauseSprintTimer();
+      sprintDuration = secs;
+      sprintSecs = secs;
+      updateSprintDisplay();
+      document.getElementById('btn-dur-60').className = secs === 60
+        ? 'px-2.5 py-1.5 bg-teal-900/80 border border-teal-400 text-teal-200 font-black rounded-xl text-xs'
+        : 'px-2.5 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs';
+      document.getElementById('btn-dur-120').className = secs === 120
+        ? 'px-2.5 py-1.5 bg-teal-900/80 border border-teal-400 text-teal-200 font-black rounded-xl text-xs'
+        : 'px-2.5 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs';
+    }
+    function updateSprintDisplay() {
+      document.getElementById('sprint-display').innerText = `${String(Math.floor(sprintSecs / 60)).padStart(2, '0')}:${String(sprintSecs % 60).padStart(2, '0')}`;
+    }
+    function startSprintTimer() {
+      if (sprintInterval) return;
+      document.getElementById('btn-start-timer').innerText = 'Running...';
+      sprintInterval = setInterval(() => {
+        if (sprintSecs > 0) { sprintSecs--; updateSprintDisplay(); }
+        else {
+          pauseSprintTimer();
+          sprintRound = sprintRound < 3 ? sprintRound + 1 : 1;
+          document.getElementById('sprint-round-label').innerText = roundNames[sprintRound];
+          sprintSecs = sprintDuration; updateSprintDisplay();
+        }
+      }, 1000);
+    }
+    function pauseSprintTimer() { clearInterval(sprintInterval); sprintInterval = null; document.getElementById('btn-start-timer').innerText = '▶ Start Timer'; }
+    function resetSprintTimer() { pauseSprintTimer(); sprintSecs = sprintDuration; updateSprintDisplay(); }
+
+    let currentScenario = 1, aiChatHistory = [], localTurnStep = 0;
+
+    function switchSimulationScenario(num) {
+      currentScenario = num; aiChatHistory = []; localTurnStep = 0;
+      const cfg = LESSON_DATA.simulation.scenarios[num];
+      document.getElementById('btn-scen-1').className = num === 1 ? 'px-3 py-1.5 rounded-lg text-xs font-black bg-indigo-600 text-white' : 'px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700';
+      document.getElementById('btn-scen-2').className = num === 2 ? 'px-3 py-1.5 rounded-lg text-xs font-black bg-indigo-600 text-white' : 'px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700';
+      document.getElementById('simulation-header-title').innerText = cfg.title;
+      document.getElementById('simulation-character-badge').innerText = cfg.character;
+      document.getElementById('ai-chat-input').placeholder = cfg.placeholder;
+      document.getElementById('simulation-instructions').innerHTML = cfg.instructions;
+      document.getElementById('ai-live-chat-log').innerHTML = `
+        <div class="bubble-partner p-3.5 rounded-2xl rounded-bl-none max-w-[88%] self-start text-xs sm:text-sm font-medium">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <strong class="text-[11px] text-slate-400">${cfg.character}</strong>
+            <button data-speak="${escapeAttr(cfg.greeting)}" data-role="partner" onclick="speakFromAttr(this)" class="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">🔊 Listen</button>
+          </div>
+          <span>${cfg.greeting}</span>
+        </div>`;
+    }
+
+    function resetSimulationChat() { switchSimulationScenario(currentScenario); }
+    function insertSuggestedPrompt(btn) { const i = document.getElementById('ai-chat-input'); i.value = btn.innerText.replace(/"/g, ''); i.focus(); }
+    function toggleSimSuggestions() {
+      const box = document.getElementById('sim-suggestions');
+      const btn = document.getElementById('btn-toggle-sim-try');
+      if (!box || !btn) return;
+      const isHidden = box.classList.toggle('hidden');
+      btn.innerHTML = isHidden ? "👁️ Show 'Try' Chunks" : "🙈 Hide 'Try' Chunks";
+    }
+
+    function evaluateLocalSla(text) {
+      const rules = LESSON_DATA.simulation.slaRules;
+      const cfg = LESSON_DATA.simulation.scenarios[currentScenario];
+      const reply = cfg.localReplies[localTurnStep % cfg.localReplies.length];
+      localTurnStep++;
+      const trapRx = rules.trapPattern ? new RegExp(rules.trapPattern, "i") : null;
+      const targetRx = rules.targetPattern ? new RegExp(rules.targetPattern, "i") : null;
+      if (trapRx && trapRx.test(text) && !(targetRx && targetRx.test(text))) {
+        return {
+          feedback: { category: 'polish', original_chunk: text, refined_chunk: "Check continuous -ing form", coaching_tip: rules.trapTip },
+          reply
+        };
+      }
+      if (targetRx && targetRx.test(text)) {
+        return {
+          feedback: { category: 'mastery', original_chunk: text, coaching_tip: `Great job combining Past Continuous and Past Simple naturally!` },
+          reply
+        };
+      }
+      return {
+        feedback: { category: 'pragmatics', original_chunk: text, coaching_tip: `Good comment! In your next turn, try: "... was/were -ing when ..." to tell what happened.` },
+        reply
+      };
+    }
+
+    function formatFeedbackCard(fb) {
+      if (!fb) return '';
+      const styles = {
+        mastery: { bg: 'bg-indigo-50 border-indigo-200 text-indigo-950', badge: '🎯 Great Grammar!' },
+        pragmatics: { bg: 'bg-sky-50 border-sky-200 text-sky-950', badge: '💬 Narration Tip' },
+        polish: { bg: 'bg-amber-50 border-amber-200 text-amber-950', badge: '💡 Quick Polish' }
+      }[fb.category] || { bg: 'bg-amber-50 border-amber-200 text-amber-950', badge: '💡 Coach' };
+      return `
+        <div class="p-3 border rounded-2xl text-xs max-w-[95%] self-center space-y-1 ${styles.bg}">
+          <div class="font-black uppercase text-[10px]">${styles.badge}</div>
+          ${fb.refined_chunk ? `<div class="font-bold text-indigo-900">Try: "${fb.refined_chunk}"</div>` : ''}
+          <div>${fb.coaching_tip}</div>
+        </div>`;
+    }
+
+    async function sendAiMsg() {
+      const input = document.getElementById('ai-chat-input');
+      const chatLog = document.getElementById('ai-live-chat-log');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      chatLog.insertAdjacentHTML('beforeend', `<div class="bubble-you p-3 rounded-2xl rounded-br-none max-w-[85%] self-end text-xs sm:text-sm font-medium">${text}</div>`);
+      chatLog.scrollTop = chatLog.scrollHeight;
+
+      const cfg = LESSON_DATA.simulation.scenarios[currentScenario];
+      const localRes = evaluateLocalSla(text);
+
+      aiChatHistory.push({ role: "user", parts: [{ text }] });
+      const sys = `You are ${cfg.character}. Scenario: ${cfg.contextGoal}. Target grammar: ${LESSON_DATA.meta.grammarTopic}. Keep sentences under 10 words. Reply excitedly and naturally in under 15 words, ending with an easy sports question. Return JSON: {"feedback":{"category":"mastery"|"polish"|"pragmatics","original_chunk":"...","refined_chunk":"...","coaching_tip":"1 short friendly sentence"},"reply":"..."}`;
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${getActiveApiKey()}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] }, contents: aiChatHistory, generationConfig: { responseMimeType: "application/json" } })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const parsed = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim());
+          aiChatHistory.push({ role: "model", parts: [{ text: parsed.reply }] });
+          chatLog.insertAdjacentHTML('beforeend', formatFeedbackCard(parsed.feedback || localRes.feedback));
+          chatLog.insertAdjacentHTML('beforeend', `
+            <div class="bubble-partner p-3.5 rounded-2xl rounded-bl-none max-w-[88%] self-start text-xs sm:text-sm font-medium">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <strong class="text-[11px] text-slate-400">${cfg.character}</strong>
+                <button data-speak="${escapeAttr(parsed.reply)}" data-role="partner" onclick="speakFromAttr(this)" class="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">🔊 Listen</button>
+              </div>
+              <span>${parsed.reply}</span>
+            </div>`);
+          chatLog.scrollTop = chatLog.scrollHeight;
+          return;
+        }
+      } catch (e) {}
+
+      chatLog.insertAdjacentHTML('beforeend', formatFeedbackCard(localRes.feedback));
+      chatLog.insertAdjacentHTML('beforeend', `
+        <div class="bubble-partner p-3.5 rounded-2xl rounded-bl-none max-w-[88%] self-start text-xs sm:text-sm font-medium">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <strong class="text-[11px] text-slate-400">${cfg.character}</strong>
+            <button data-speak="${escapeAttr(localRes.reply)}" data-role="partner" onclick="speakFromAttr(this)" class="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">🔊 Listen</button>
+          </div>
+          <span>${localRes.reply}</span>
+        </div>`);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function togglePart(partId) {
+      const body = document.getElementById(`part-body-${partId}`);
+      const isCollapsed = body.classList.contains('collapsed');
+      if (isCollapsed && focusMode) collapseAllParts();
+      body.classList.toggle('collapsed', !isCollapsed);
+      document.getElementById(`chevron-${partId}`)?.classList.toggle('collapsed', !isCollapsed);
+      updateNavPills();
+      if (isCollapsed) preloadPartAudio(Number(partId) || partId);
+    }
+    function expandAllParts() { totalParts.forEach(id => { document.getElementById(`part-body-${id}`)?.classList.remove('collapsed'); document.getElementById(`chevron-${id}`)?.classList.remove('collapsed'); }); updateNavPills(); }
+    function collapseAllParts() { totalParts.forEach(id => { document.getElementById(`part-body-${id}`)?.classList.add('collapsed'); document.getElementById(`chevron-${id}`)?.classList.add('collapsed'); }); updateNavPills(); }
+    function toggleFocusMode() {
+      focusMode = !focusMode;
+      const b = document.getElementById('btn-focus-mode');
+      b.innerHTML = `🎯 Focus Mode: <strong>${focusMode ? 'ON' : 'OFF'}</strong>`;
+      b.className = focusMode ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white transition' : 'px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 transition';
+    }
+    function focusOnPart(id) {
+      if (focusMode) collapseAllParts();
+      document.getElementById(`part-body-${id}`)?.classList.remove('collapsed');
+      document.getElementById(`chevron-${id}`)?.classList.remove('collapsed');
+      updateNavPills();
+      preloadPartAudio(Number(id) || id);
+      document.getElementById(`section-part-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    function updateNavPills() {
+      totalParts.forEach(id => {
+        const pill = document.getElementById(`pill-${id}`);
+        const open = !document.getElementById(`part-body-${id}`)?.classList.contains('collapsed');
+        if (pill) pill.className = open ? 'px-2 py-1 text-[11px] font-black rounded-lg bg-indigo-600 text-white' : 'px-2 py-1 text-[11px] font-bold rounded-lg bg-slate-100 text-slate-600 hover:bg-indigo-50';
+      });
+    }
+    function promptApiKeyModal() { document.getElementById('api-key-config-box').classList.toggle('hidden'); }
+    async function saveApiKeyFromInput() {
+      const val = document.getElementById('input-gemini-key').value.trim();
+      const resEl = document.getElementById('api-test-result');
+      if (!val) return;
+      savedApiKey = val;
+      try { localStorage.setItem('gemini_api_key', val); } catch (e) {}
+      resEl.className = 'text-xs font-bold text-indigo-300 block';
+      resEl.innerText = '⏳ Testing Gemini 2.5 Flash TTS voice...';
+      try {
+        sharedAudioPlayer.pause();
+        const url = await fetchGeminiTTS("Gemini natural voices are ready for Sports Day.", "Zephyr");
+        sharedAudioPlayer.src = url;
+        await sharedAudioPlayer.play();
+        resEl.className = 'text-xs font-bold text-emerald-400 block';
+        resEl.innerText = '✓ Gemini TTS voice verified! Preloading Part 1...';
+        preloadedParts.clear();
+        preloadPartAudio(1);
+        setTimeout(() => document.getElementById('api-key-config-box').classList.add('hidden'), 1200);
+      } catch (e) {
+        resEl.className = 'text-xs font-bold text-rose-400 block';
+        resEl.innerText = `❌ TTS Error: ${e.message}. Check your API key permissions.`;
+      }
+    }
+    function clearApiKey() {
+      savedApiKey = "";
+      try { localStorage.removeItem('gemini_api_key'); } catch (e) {}
+      document.getElementById('input-gemini-key').value = "";
+      setVoiceBadge('warn', 'Key Cleared');
+    }
+
+    let selectedText = "";
+    const transBtn = document.getElementById('highlight-translate-btn');
+    document.addEventListener('mouseup', e => {
+      if (e.target.closest('#highlight-translate-btn, #translate-modal')) return;
+      setTimeout(() => {
+        const sel = window.getSelection();
+        const txt = sel.toString().trim();
+        if (txt.length > 1) {
+          selectedText = txt;
+          const rect = sel.getRangeAt(0).getBoundingClientRect();
+          transBtn.style.left = `${Math.max(10, rect.left + window.scrollX)}px`;
+          transBtn.style.top = `${rect.top + window.scrollY - 42}px`;
+          transBtn.style.display = 'flex';
+        } else transBtn.style.display = 'none';
+      }, 15);
+    });
+    transBtn.onclick = async () => {
+      transBtn.style.display = 'none';
+      document.getElementById('translate-modal').style.display = 'block';
+      const resEl = document.getElementById('t-modal-result');
+      resEl.innerText = 'Translating...';
+      document.getElementById('t-modal-original').innerText = `"${selectedText}"`;
+      const tl = document.getElementById('targetLanguage').value;
+      try {
+        const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${tl}&dt=t&q=${encodeURIComponent(selectedText)}`);
+        const d = await r.json();
+        resEl.dir = ['ar', 'fa', 'he', 'ur'].includes(tl) ? 'rtl' : 'ltr';
+        resEl.innerText = d[0].map(c => c[0]).join('');
+      } catch (e) { resEl.innerText = 'Translation unavailable.'; }
+    };
+
+    window.addEventListener('load', renderApp);
+  </script>
+</body>
+</html>

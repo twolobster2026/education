@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">ESL Lesson - Part 2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .bubble-you { background: linear-gradient(135deg, #0284c7, #2563eb); color: white; border-bottom-right-radius: 4px; }
+    .bubble-partner { background: white; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; }
+    .blurred-text { color: transparent !important; text-shadow: 0 0 12px rgba(255,255,255,0.9) !important; filter: blur(5px) !important; cursor: pointer; }
+    .cloze-masked { background: #fde047; color: transparent !important; border-bottom: 2px dashed #ca8a04; border-radius: 4px; padding: 0 4px; cursor: pointer; user-select: none; }
+    .part-body.collapsed { display: none !important; }
+    .chevron-icon { transition: transform 0.2s ease; display: inline-block; font-size: 0.75rem; }
+    .chevron-icon.collapsed { transform: rotate(-90deg); }
+    .collapsible-header { cursor: pointer; user-select: none; }
+    #highlight-translate-btn { position: absolute; display: none; z-index: 1000; background: #1e293b; color: white; border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.25); align-items: center; gap: 6px; }
+    #translate-modal { display: none; position: fixed; bottom: 30px; right: 30px; background: white; border-radius: 16px; width: 340px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 2px solid #e2e8f0; z-index: 9999; overflow: hidden; }
+  </style>
+</head>
+<body class="min-h-screen pb-16 selection:bg-indigo-100 selection:text-indigo-900">
+
+  <!-- 21-LANGUAGE TRANSLATOR -->
+  <button id="highlight-translate-btn">🌍 Translate</button>
+  <div id="translate-modal">
+    <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center font-extrabold text-slate-700 text-xs">
+      <span>🌍 Instant Translation</span>
+      <button onclick="document.getElementById('translate-modal').style.display='none'">✖</button>
+    </div>
+    <div class="p-4 text-base font-semibold text-slate-900" id="t-modal-result">Loading...</div>
+    <div class="px-4 pb-3 text-xs italic text-slate-500 border-t border-dashed border-slate-200 pt-2" id="t-modal-original"></div>
+  </div>
+
+  <!-- HEADER WITH RECYCLED CHUNKS BAR -->
+  <header class="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 text-white shadow-lg">
+    <div class="max-w-4xl mx-auto px-4 py-5">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-700/60 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-teal-500/20 text-teal-300 border border-teal-400/30 rounded text-[11px] font-black">PART 2 OF 4 · DIALOGUES, STORY & ROLEPLAY</span>
+          <label for="targetLanguage" class="text-xs text-slate-400 font-bold hidden sm:inline">Translate to:</label>
+          <select id="targetLanguage" class="bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-semibold">
+            <optgroup label="Middle East &amp; South Asia">
+              <option value="ar">🇸🇦 Arabic (العربية)</option>
+              <option value="fa">🇮🇷 Persian (فارسی)</option>
+              <option value="ur">🇵🇰 Urdu (اردو)</option>
+              <option value="tr">🇹🇷 Turkish (Türkçe)</option>
+              <option value="hi">🇮🇳 Hindi (हिन्दी)</option>
+            </optgroup>
+            <optgroup label="East &amp; Southeast Asia">
+              <option value="zh-CN">🇨🇳 Chinese Simplified (简体中文)</option>
+              <option value="zh-TW">🇹🇼 Chinese Traditional (繁體中文)</option>
+              <option value="ja">🇯🇵 Japanese (日本語)</option>
+              <option value="ko">🇰🇷 Korean (한국어)</option>
+              <option value="vi">🇻🇳 Vietnamese (Tiếng Việt)</option>
+              <option value="id">🇮🇩 Indonesian (Bahasa Indonesia)</option>
+              <option value="th">🇹🇭 Thai (ไทย)</option>
+            </optgroup>
+            <optgroup label="Europe &amp; Americas">
+              <option value="es">🇪🇸 Spanish (Español)</option>
+              <option value="pt">🇵🇹🇧🇷 Portuguese (Português)</option>
+              <option value="fr">🇫🇷 French (Français)</option>
+              <option value="de">🇩🇪 German (Deutsch)</option>
+              <option value="it">🇮🇹 Italian (Italiano)</option>
+              <option value="ru">🇷🇺 Russian (Русский)</option>
+              <option value="uk">🇺🇦 Ukrainian (Українська)</option>
+              <option value="pl">🇵🇱 Polish (Polski)</option>
+              <option value="nl">🇳🇱 Dutch (Nederlands)</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="document.getElementById('api-key-config-box').classList.toggle('hidden')" id="header-key-btn" class="px-2.5 py-1 bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-amber-300 flex items-center gap-1.5">🔑 <span>Voice & API Settings</span></button>
+          <button onclick="changeFontSize(-1)" class="px-2.5 py-1 bg-slate-800 rounded text-xs font-bold">A-</button>
+          <button onclick="changeFontSize(1)" class="px-2.5 py-1 bg-slate-800 rounded text-xs font-bold">A+</button>
+        </div>
+      </div>
+
+      <div id="api-key-config-box" class="hidden mb-4 p-3.5 bg-slate-800/95 border border-indigo-500/40 rounded-xl space-y-2">
+        <p class="text-xs text-slate-300">Paste your Gemini API key for <strong>Gemini 2.5 Flash TTS voices</strong> (audible in online lessons via screen-share audio).</p>
+        <div class="flex gap-2">
+          <input type="password" id="input-gemini-key" class="flex-1 px-3 py-1.5 text-xs bg-slate-900 border border-slate-700 rounded-lg text-white" placeholder="Paste Gemini API key (AIzaSy...)">
+          <button onclick="saveApiKeyFromInput()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold">Save & Test Voice</button>
+        </div>
+        <div id="api-test-result" class="text-xs font-bold hidden"></div>
+      </div>
+
+      <h1 id="hdr-title" class="text-xl sm:text-2xl font-black text-white"></h1>
+      <p id="hdr-grammar" class="text-xs text-indigo-200 font-semibold mt-1"></p>
+
+      <div class="mt-3 bg-white/10 border border-white/15 p-2.5 rounded-xl flex flex-wrap items-center gap-1.5">
+        <span class="text-[10px] font-black uppercase text-amber-300 mr-1">♻️ Part 1 Chunks:</span>
+        <div id="recycled-bar" class="flex flex-wrap gap-1.5 select-text"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 pt-5 space-y-5">
+    <!-- NAVIGATOR -->
+    <div class="bg-white p-3 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex gap-1.5">
+        <button id="btn-focus" onclick="toggleFocusMode()" class="px-3 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white">🎯 Focus: ON</button>
+        <button onclick="expandAll()" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-700">🔽 Expand All</button>
+      </div>
+      <div class="flex flex-wrap gap-1" id="nav-pills"></div>
+    </div>
+
+    <!-- PART 5: SCENE 1 -->
+    <section id="sec-5" class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-purple-50/70 border-b border-purple-100" onclick="togglePart(5)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-800 text-xs font-black rounded">PART 5</span>
+          <h2 id="scene1-title" class="text-base font-black"></h2>
+        </div>
+        <span id="chev-5" class="chevron-icon">▼</span>
+      </div>
+      <div id="body-5" class="part-body p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap gap-1.5" id="scene1-controls"></div>
+          <button onclick="spinVibe(1)" id="vibe-badge-1" class="px-2.5 py-1 rounded-lg text-xs font-black bg-purple-100 text-purple-900">🎭 Vibe: Normal</button>
+        </div>
+        <div id="dialogue-1" class="space-y-2.5 select-text"></div>
+        <div class="bg-purple-50 border border-purple-200 p-3.5 rounded-2xl flex items-center justify-between gap-2 select-text">
+          <div>
+            <span class="text-[10px] font-black uppercase text-purple-800 block">🎙️ Make It Yours (Real-Life Swap):</span>
+            <p id="swap-1" class="text-xs sm:text-sm font-bold text-slate-800"></p>
+          </div>
+          <button onclick="translateTextDirect(document.getElementById('swap-1').innerText)" class="px-2 py-1 bg-white rounded border border-purple-200 text-xs font-bold">🌍</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 6: SCENE 2 -->
+    <section id="sec-6" class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-purple-50/70 border-b border-purple-100" onclick="togglePart(6)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-800 text-xs font-black rounded">PART 6</span>
+          <h2 id="scene2-title" class="text-base font-black"></h2>
+        </div>
+        <span id="chev-6" class="chevron-icon collapsed">▼</span>
+      </div>
+      <div id="body-6" class="part-body collapsed p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap gap-1.5" id="scene2-controls"></div>
+          <button onclick="spinVibe(2)" id="vibe-badge-2" class="px-2.5 py-1 rounded-lg text-xs font-black bg-purple-100 text-purple-900">🎭 Vibe: Normal</button>
+        </div>
+        <div id="dialogue-2" class="space-y-2.5 select-text"></div>
+        <div class="bg-purple-50 border border-purple-200 p-3.5 rounded-2xl flex items-center justify-between gap-2 select-text">
+          <div>
+            <span class="text-[10px] font-black uppercase text-purple-800 block">🎙️ Make It Yours (Real-Life Swap):</span>
+            <p id="swap-2" class="text-xs sm:text-sm font-bold text-slate-800"></p>
+          </div>
+          <button onclick="translateTextDirect(document.getElementById('swap-2').innerText)" class="px-2 py-1 bg-white rounded border border-purple-200 text-xs font-bold">🌍</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 7: CALM, FOCUSED 4-SENTENCE STORY BUILDER -->
+    <section id="sec-7" class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-teal-50/70 border-b border-teal-100" onclick="togglePart(7)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-teal-100 text-teal-800 text-xs font-black rounded">PART 7</span>
+          <h2 class="text-base font-black">🗣️ Build Your 4-Sentence Answer (One Step at a Time)</h2>
+        </div>
+        <span id="chev-7" class="chevron-icon collapsed">▼</span>
+      </div>
+      <div id="body-7" class="part-body collapsed p-5 space-y-5">
+
+        <!-- Clean Topic Header -->
+        <div class="bg-teal-50/60 border border-teal-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 select-text">
+          <div>
+            <span id="story-tag" class="text-[10px] font-black uppercase text-teal-700 bg-teal-100 px-2 py-0.5 rounded">TOPIC 1</span>
+            <h3 id="story-question" class="text-base sm:text-lg font-black text-slate-900 mt-1"></h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="nextStoryTopic()" class="px-3 py-1.5 rounded-xl text-xs font-black bg-teal-600 text-white">🔄 Switch Topic</button>
+            <button onclick="document.getElementById('teacher-scaff-bar').classList.toggle('hidden')" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-600">⚙️ Level & View</button>
+          </div>
+        </div>
+
+        <!-- Collapsible Teacher Level & View Drawer -->
+        <div id="teacher-scaff-bar" class="hidden bg-slate-100 p-3 rounded-xl flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-1.5">
+            <span class="font-bold text-slate-600">Support Level:</span>
+            <button onclick="setSupportLevel(1)" id="lvl-1" class="px-2.5 py-1 rounded-lg font-black bg-teal-600 text-white">🌱 1: Guided Choices</button>
+            <button onclick="setSupportLevel(2)" id="lvl-2" class="px-2.5 py-1 rounded-lg font-bold bg-white text-slate-700">🌿 2: Starters Only</button>
+            <button onclick="setSupportLevel(3)" id="lvl-3" class="px-2.5 py-1 rounded-lg font-bold bg-white text-slate-700">🌳 3: Free Answer</button>
+          </div>
+          <button onclick="toggleWizardView()" id="btn-wiz-view" class="px-2.5 py-1 rounded-lg font-bold bg-white border border-slate-300">📋 Show All 4 Steps at Once</button>
+        </div>
+
+        <!-- Simple 4-Step Tabs -->
+        <div class="grid grid-cols-4 gap-2" id="step-tabs-bar"></div>
+
+        <!-- Clean Single-Step Workspace -->
+        <div id="steps-container" class="space-y-3 select-text"></div>
+
+        <!-- Assembled 4-Sentence Story Card -->
+        <div class="bg-slate-900 text-white rounded-2xl p-4 sm:p-5 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="text-[10px] font-black uppercase text-teal-400">🎙️ Your Complete 4-Sentence Answer</span>
+              <p class="text-xs text-slate-400">Read your 4 sentences aloud smoothly, or test your memory!</p>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <button onclick="playMyStory(this)" class="px-3 py-1.5 rounded-xl text-xs font-black bg-teal-400 text-slate-950">🔊 Listen</button>
+              <button onclick="translateTextDirect(getFullStorySentences().join(' '))" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 border border-slate-700 text-slate-200">🌍 Translate</button>
+              <button onclick="cycleMemoryMode()" id="btn-mem-mode" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 border border-slate-700 text-teal-200">👁️ View: Full Sentences</button>
+            </div>
+          </div>
+
+          <div id="assembled-story-box" class="bg-slate-800/90 border border-slate-700 rounded-xl p-4 text-sm sm:text-base font-bold text-amber-200 leading-relaxed select-text"></div>
+
+          <!-- Optional Off-Script Follow-Up Question -->
+          <div class="bg-indigo-950/80 border border-indigo-500/30 p-3 rounded-xl flex items-center justify-between gap-2 select-text">
+            <div>
+              <span class="text-[10px] font-black uppercase text-indigo-300 block">🦅 Bonus Unscripted Question:</span>
+              <p id="story-free-twist" class="text-xs sm:text-sm font-bold text-white"></p>
+            </div>
+            <button onclick="speakText(document.getElementById('story-free-twist').innerText, this, 'teacher')" class="px-2.5 py-1 rounded bg-indigo-800 text-indigo-100 text-xs font-bold shrink-0">🔊</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 8: ROLEPLAY WITH CURVEBALL TWIST -->
+    <section id="sec-8" class="bg-indigo-50/40 rounded-3xl border border-indigo-100 overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-indigo-100/60 border-b border-indigo-200" onclick="togglePart(8)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-indigo-200 text-indigo-900 text-xs font-black rounded">PART 8</span>
+          <h2 class="text-base font-black">🤖 Real-Life Roleplay & Curveball Twist</h2>
+        </div>
+        <span id="chev-8" class="chevron-icon collapsed">▼</span>
+      </div>
+      <div id="body-8" class="part-body collapsed p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-2.5 rounded-xl border border-slate-200">
+          <div class="flex gap-1.5">
+            <button id="scen-btn-1" onclick="setScenario(1)" class="px-3 py-1.5 rounded-lg text-xs font-black bg-indigo-600 text-white"></button>
+            <button id="scen-btn-2" onclick="setScenario(2)" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700"></button>
+          </div>
+          <div class="flex gap-1.5">
+            <button onclick="dropCurveball()" class="px-3 py-1.5 rounded-lg text-xs font-black bg-amber-400 text-slate-950">⚡ Throw Curveball!</button>
+            <button onclick="setScenario(curScen)" class="px-2.5 py-1 text-xs font-bold text-slate-500">🔄 Reset</button>
+          </div>
+        </div>
+        <p id="sim-instructions" class="text-xs sm:text-sm font-semibold text-slate-700 select-text"></p>
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div id="chat-log" class="p-4 space-y-2.5 min-h-[160px] max-h-80 overflow-y-auto bg-slate-50/50 flex flex-col select-text"></div>
+          <div class="px-3 py-2 bg-slate-100 border-t border-slate-200 flex items-center justify-between text-xs">
+            <span class="text-slate-500 font-bold">Need a hint?</span>
+            <button onclick="document.getElementById('sim-hints').classList.toggle('hidden')" class="px-2 py-0.5 rounded bg-white border border-slate-300 font-bold text-indigo-700">👁️ Show/Hide Hints</button>
+          </div>
+          <div id="sim-hints" class="hidden px-3 py-2 bg-slate-100 border-t border-slate-200 flex gap-1.5 overflow-x-auto text-xs"></div>
+          <div class="p-3 bg-white border-t border-slate-200 flex gap-2">
+            <input id="chat-input" type="text" class="flex-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs sm:text-sm" onkeypress="if(event.key==='Enter') sendChat()">
+            <button onclick="sendChat()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // =====================================================================
+    // 🧠 POPULATE LESSON_DATA FROM APPROVED BLUEPRINT (PART 2: SECTIONS 5-8)
+    // =====================================================================
+    const LESSON_DATA = {
+      meta: {
+        level: "B1",
+        title: "Catching Up on a Busy Day",
+        grammarTopic: "Present Perfect ('already', 'yet', 'just')",
+        recycledChunks: ["grab a coffee", "walk the dog", "do the grocery shopping", "pay the bills", "reply to messages", "clean up the kitchen", "take a quick break"]
+      },
+      voices: { partner: "Aoede", student: "Zephyr", teacher: "Charon" },
+      scenes: {
+        1: {
+          title: "💬 Scene 1: Checking In With a Housemate",
+          swapPrompt: "Answer your partner's 3 questions using your REAL day today!",
+          turns: [
+            { role: "partner", name: "M", text: "Hey! How's your afternoon going so far?" },
+            { role: "you", name: "Y", start: "Pretty good! I", cloze: "'ve already walked the dog", end: "and cleaned up." },
+            { role: "partner", name: "M", text: "Nice! Have you done the grocery shopping yet?" },
+            { role: "you", name: "Y", start: "No, I", cloze: "haven't gone to the store", end: "yet." },
+            { role: "partner", name: "M", text: "No problem. Do you want a cup of coffee first?" },
+            { role: "you", name: "Y", start: "Thanks, but I", cloze: "'ve just had a cup", end: "ten minutes ago!" }
+          ]
+        },
+        2: {
+          title: "💬 Scene 2: Getting Ready for the Weekend",
+          swapPrompt: "Tell your partner what you've already done—and haven't done yet—this week!",
+          turns: [
+            { role: "partner", name: "L", text: "Are you ready for the weekend?" },
+            { role: "you", name: "Y", start: "Almost! Thankfully, I", cloze: "'ve already paid the bills", end: "for this month." },
+            { role: "partner", name: "L", text: "That's a relief. Have you replied to Sara's message yet?" },
+            { role: "you", name: "Y", start: "Actually, I", cloze: "'ve just texted her back", end: "now." },
+            { role: "partner", name: "L", text: "Awesome. Have you made lunch yet?" },
+            { role: "you", name: "Y", start: "No, I", cloze: "haven't eaten anything", end: "yet. Let's order food!" }
+          ]
+        }
+      },
+      fluency: {
+        topicCards: [
+          {
+            tag: "FORMAT A · VOICE NOTE STATUS UPDATE",
+            question: "Tell a friend how your day or week has gone so far—what you've already done and what's still waiting!",
+            freeTwist: "Which chore on your list do you wish someone else would do for you today, and why?",
+            steps: [
+              {
+                label: "Step 1 · How Today Feels",
+                thinkPrompt: "How has your day been so far?",
+                frame: "So far, today has been a really",
+                options: ["busy day", "quiet morning", "productive day"],
+                details: ["at home", "at work", "for me"]
+              },
+              {
+                label: "Step 2 · Done Already! (Positive)",
+                thinkPrompt: "What is one thing you've already finished?",
+                frame: "Thankfully, I've already",
+                options: ["grabbed a coffee", "walked the dog", "paid the bills"],
+                details: ["this morning", "so I feel relieved", "and tidied up"]
+              },
+              {
+                label: "Step 3 · Not Done Yet (Contrast)",
+                thinkPrompt: "What haven't you done yet?",
+                frame: "However, I still haven't",
+                options: ["done the grocery shopping yet", "replied to my messages yet", "cleaned up the kitchen yet"],
+                details: ["because I was busy", "so I'll do it later"]
+              },
+              {
+                label: "Step 4 · Tonight's Plan",
+                thinkPrompt: "How do you want to finish the day?",
+                frame: "Tonight, I just want to",
+                options: ["take a quick break", "make a simple dinner", "relax on the sofa"],
+                details: ["with my family", "and go to bed early"]
+              }
+            ]
+          },
+          {
+            tag: "FORMAT B · GETTING READY FOR GUESTS OR A TRIP",
+            question: "Imagine friends are visiting tonight (or you're leaving on a trip). What have you done so far?",
+            freeTwist: "What is one thing you ALWAYS leave until the very last minute when you prepare?",
+            steps: [
+              {
+                label: "Step 1 · The Big Event",
+                thinkPrompt: "Who is coming over, or where are you going?",
+                frame: "Tonight, I'm getting ready for",
+                options: ["a family dinner at home", "friends coming over", "a weekend trip"],
+                details: ["at seven o'clock", "and I'm excited"]
+              },
+              {
+                label: "Step 2 · Finished Tasks",
+                thinkPrompt: "What have you already prepared?",
+                frame: "I've already",
+                options: ["cleaned up the kitchen", "done the grocery shopping", "made a big salad"],
+                details: ["so the house looks nice", "this afternoon"]
+              },
+              {
+                label: "Step 3 · Still Left to Do",
+                thinkPrompt: "What haven't you finished yet?",
+                frame: "I still haven't",
+                options: ["cooked the main dish yet", "taken a shower yet", "chosen the music yet"],
+                details: ["because it's too early", "so I need to hurry"]
+              },
+              {
+                label: "Step 4 · How It Will Go",
+                thinkPrompt: "How do you feel about tonight?",
+                frame: "I've just",
+                options: ["taken a quick break", "grabbed a coffee", "called my friend"],
+                details: ["and it's going to be a fun night"]
+              }
+            ]
+          }
+        ]
+      },
+      simulation: {
+        suggestions: [
+          "I've already cleaned up the kitchen.",
+          "I haven't done the grocery shopping yet.",
+          "I've just grabbed a coffee.",
+          "Have you made lunch yet?"
+        ],
+        slaRules: {
+          targetPattern: "\\b(have|has|'ve|'s|haven't|hasn't)\\s+(already\\s+|just\\s+)?[a-z]+",
+          trapPattern: "\\b(I|you|we|they)\\s+(already|just)\\s+(walked|paid|done|grabbed|made|cleaned)\\b",
+          trapTip: "In natural Present Perfect, keep 've / have before 'already' or 'just' (e.g., 'I've already paid' or 'I've just grabbed')."
+        },
+        scenarios: {
+          1: {
+            shortTitle: "Afternoon Check-In",
+            character: "Maya (Friend)",
+            greeting: "Hey! It's been a crazy week. What have you already crossed off your to-do list today?",
+            placeholder: "Reply using 'I've already...', 'I've just...', or 'I haven't ... yet'...",
+            instructions: "Catch up with Maya about what you've <strong>already / just</strong> done today and what you <strong>haven't done yet</strong>.",
+            contextGoal: "Friendly check-in about today's errands and chores.",
+            curveball: "⚡ CURVEBALL: Oh no! Your cousin just texted: 'I'm outside your building! Can I come up for tea in 5 minutes?' Tell Maya if your home is ready or what you haven't cleaned up yet!",
+            localReplies: [
+              "Nice! Have you done the grocery shopping for the week yet?",
+              "I hear you! I've just taken a quick break myself. Have you had lunch yet?",
+              "Good idea! What's one thing you still haven't finished yet today?"
+            ]
+          },
+          2: {
+            shortTitle: "Hosting Dinner Tonight",
+            character: "Leo (Housemate)",
+            greeting: "Hey! Our friends are arriving for dinner in an hour. Have you cleaned up the living room yet?",
+            placeholder: "Tell Leo what you've already/just done and haven't done yet...",
+            instructions: "Coordinate last-minute dinner prep with Leo using <strong>already, just, and yet</strong>.",
+            contextGoal: "Prepare the apartment before dinner guests arrive.",
+            curveball: "⚡ CURVEBALL: Leo says: 'Wait—our friends just told me they don't eat meat! Have you already cooked the chicken, or what can we make instead?'",
+            localReplies: [
+              "Great! I've already washed the dishes. Have you gone to the supermarket yet?",
+              "Okay, no rush! I've just made a fresh salad. Have you replied to their text yet?",
+              "Awesome, we're almost ready! Let's take a quick break before they ring the bell."
+            ]
+          }
+        }
+      }
+    };
+
+    // =====================================================================
+    // 🔊 PURE GEMINI 2.5 FLASH TTS ENGINE (ONLINE LESSON SCREEN-SHARE READY)
+    // =====================================================================
+    const apiKey = "";
+    let savedApiKey = "";
+    try { savedApiKey = localStorage.getItem('gemini_api_key') || ""; } catch (e) {}
+
+    function getActiveApiKey() { return (savedApiKey && savedApiKey.trim()) ? savedApiKey.trim() : apiKey; }
+
+    const VALID_VOICES = new Set(["Aoede", "Charon", "Fenrir", "Kore", "Leda", "Orus", "Puck", "Zephyr"]);
+    function getSafeVoice(roleOrVoice) {
+      if (VALID_VOICES.has(roleOrVoice)) return roleOrVoice;
+      const requested = roleOrVoice === 'partner' ? LESSON_DATA.voices.partner : (roleOrVoice === 'teacher' ? LESSON_DATA.voices.teacher : LESSON_DATA.voices.student);
+      return VALID_VOICES.has(requested) ? requested : "Zephyr";
+    }
+
+    const audioCache = new Map();
+    const pendingRequests = new Map();
+    const sharedAudioPlayer = new Audio();
+    let isPlayingScene = false, activeSceneNum = null;
+    let focusMode = true, curTopic = 0, curStep = 0, supportLevel = 1, wizardMode = true, memoryMode = 0;
+    let userChoices = [];
+    let curScen = 1, chatHist = [], localStep = 0;
+    const vibes = ["Normal", "🏃 In a Huge Rush!", "🤩 Super Excited!", "🥱 Half-Asleep", "🤫 Secret Whisper"];
+    let sceneVibes = { 1: 0, 2: 0 };
+
+    function setVoiceBadge(status, text) {
+      const btn = document.getElementById('header-key-btn');
+      if (!btn) return;
+      if (status === 'ready') {
+        btn.className = 'px-2.5 py-1 bg-emerald-900/70 border border-emerald-500/50 rounded-lg text-xs font-bold text-emerald-200 flex items-center gap-1.5';
+        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> <span>${text || 'Gemini Voices Active'}</span>`;
+      } else if (status === 'loading') {
+        btn.className = 'px-2.5 py-1 bg-indigo-900/70 border border-indigo-400/50 rounded-lg text-xs font-bold text-indigo-200 flex items-center gap-1.5';
+        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span> <span>${text || 'Generating Voice...'}</span>`;
+      } else if (status === 'warn') {
+        btn.className = 'px-2.5 py-1 bg-rose-950/80 border border-rose-500/50 rounded-lg text-xs font-bold text-rose-200 flex items-center gap-1.5';
+        btn.innerHTML = `⚠️ <span>${text || 'Set Gemini Key'}</span>`;
+      }
+    }
+
+    function pcmToWav(b64, rate = 24000) {
+      const bin = atob(b64), bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const buf = new ArrayBuffer(44 + bytes.length), view = new DataView(buf);
+      const ws = (o, s) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+      ws(0, 'RIFF'); view.setUint32(4, 36 + bytes.length, true); ws(8, 'WAVE'); ws(12, 'fmt ');
+      view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+      view.setUint32(24, rate, true); view.setUint32(28, rate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+      ws(36, 'data'); view.setUint32(40, bytes.length, true);
+      for (let i = 0; i < bytes.length; i++) view.setUint8(44 + i, bytes[i]);
+      return URL.createObjectURL(new Blob([view], { type: 'audio/wav' }));
+    }
+
+    async function fetchGeminiTTS(text, voiceName = "Zephyr") {
+      const cleanText = (text || "").trim();
+      const ck = `${voiceName}:${cleanText}`;
+      if (audioCache.has(ck)) return audioCache.get(ck);
+      if (pendingRequests.has(ck)) return pendingRequests.get(ck);
+
+      const req = (async () => {
+        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${getActiveApiKey()}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `Read this aloud naturally: ${cleanText}` }] }],
+            generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } } }
+          })
+        });
+        if (!r.ok) {
+          setVoiceBadge('warn', 'Click to Set Gemini Key');
+          document.getElementById('api-key-config-box')?.classList.remove('hidden');
+          throw new Error("TTS");
+        }
+        const d = await r.json();
+        const url = pcmToWav(d.candidates[0].content.parts[0].inlineData.data);
+        audioCache.set(ck, url);
+        setVoiceBadge('ready', 'Gemini Voices Active');
+        return url;
+      })();
+
+      pendingRequests.set(ck, req);
+      try { return await req; } finally { pendingRequests.delete(ck); }
+    }
+
+    async function speakText(text, btn, roleOrVoice = "student") {
+      isPlayingScene = false;
+      sharedAudioPlayer.pause();
+      sharedAudioPlayer.currentTime = 0;
+      const orig = btn ? btn.innerHTML : "";
+      if (btn) { btn.innerHTML = "⏳"; btn.disabled = true; }
+      const voice = getSafeVoice(roleOrVoice);
+      try {
+        setVoiceBadge('loading', 'Generating Voice...');
+        const url = await fetchGeminiTTS(text, voice);
+        sharedAudioPlayer.src = url;
+        if (btn) btn.innerHTML = "🔊";
+        sharedAudioPlayer.onended = () => { if (btn) { btn.innerHTML = orig; btn.disabled = false; } };
+        sharedAudioPlayer.onerror = () => { if (btn) { btn.innerHTML = orig; btn.disabled = false; } };
+        await sharedAudioPlayer.play();
+      } catch (e) {
+        if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+      }
+    }
+
+    async function playFullScene(num, btn) {
+      if (isPlayingScene && activeSceneNum === num) {
+        isPlayingScene = false;
+        sharedAudioPlayer.pause();
+        btn.innerHTML = "▶️ Play Scene";
+        return;
+      }
+      isPlayingScene = true;
+      activeSceneNum = num;
+      btn.innerHTML = "⏹ Stop";
+      const turns = LESSON_DATA.scenes[num].turns;
+      for (let i = 0; i < turns.length; i++) {
+        if (!isPlayingScene || activeSceneNum !== num) break;
+        const t = turns[i];
+        const raw = t.role === 'you' ? `${t.start} ${t.cloze} ${t.end}`.replace(/\s+/g, ' ').replace(/ '/g, "'").trim() : t.text;
+        const voice = getSafeVoice(t.role);
+        try {
+          const url = await fetchGeminiTTS(raw, voice);
+          if (!isPlayingScene || activeSceneNum !== num) break;
+          await new Promise(res => {
+            sharedAudioPlayer.src = url;
+            sharedAudioPlayer.onended = () => setTimeout(res, 250);
+            sharedAudioPlayer.onerror = res;
+            sharedAudioPlayer.play().catch(res);
+          });
+        } catch (e) { break; }
+      }
+      isPlayingScene = false;
+      btn.innerHTML = "▶️ Play Scene";
+    }
+
+    async function saveApiKeyFromInput() {
+      const v = document.getElementById('input-gemini-key').value.trim();
+      if (!v) return;
+      savedApiKey = v;
+      try { localStorage.setItem('gemini_api_key', v); } catch (e) {}
+      await speakText("Gemini natural voices are ready.", null, "student");
+      document.getElementById('api-key-config-box').classList.add('hidden');
+    }
+
+    function esc(s) { return (s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+
+    function renderApp() {
+      document.getElementById('page-title').innerText = `${LESSON_DATA.meta.level} - ${LESSON_DATA.meta.title} (Part 2)`;
+      document.getElementById('hdr-title').innerText = LESSON_DATA.meta.title;
+      document.getElementById('hdr-grammar').innerText = `Golden Thread: ${LESSON_DATA.meta.grammarTopic}`;
+
+      document.getElementById('recycled-bar').innerHTML = (LESSON_DATA.meta.recycledChunks || []).map(c =>
+        `<button data-s="${esc(c)}" onclick="speakText(this.dataset.s, this, 'student')" class="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-xs font-bold text-white">${c} 🔊</button>`
+      ).join('');
+
+      const names = { 5: "5. Scene 1", 6: "6. Scene 2", 7: "7. 4-Step Story", 8: "8. Roleplay" };
+      document.getElementById('nav-pills').innerHTML = [5, 6, 7, 8].map(n =>
+        `<button id="pill-${n}" onclick="focusPart(${n})" class="px-2.5 py-1 text-xs font-bold rounded-lg">${names[n]}</button>`
+      ).join('');
+
+      [1, 2].forEach(num => {
+        const sc = LESSON_DATA.scenes[num];
+        document.getElementById(`scene${num}-title`).innerText = sc.title;
+        document.getElementById(`swap-${num}`).innerText = sc.swapPrompt;
+        document.getElementById(`scene${num}-controls`).innerHTML = `
+          <button onclick="playFullScene(${num}, this)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-white">▶️ Play Scene</button>
+          <button onclick="toggleCloze(${num})" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-100 text-indigo-800">🕳️ Cloze</button>
+          <button onclick="toggleImprovLast(${num})" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-900">🎤 Improv Ending</button>
+          <button onclick="toggleBlindfold(${num})" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-200 text-slate-700">🙈 Blindfold</button>
+          <button onclick="resetScene(${num})" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white border border-slate-300">🔄 Reset</button>`;
+
+        document.getElementById(`dialogue-${num}`).innerHTML = sc.turns.map((t, idx) => {
+          const isYou = t.role === 'you';
+          const raw = isYou ? `${t.start} ${t.cloze} ${t.end}`.replace(/\s+/g, ' ').replace(/ '/g, "'").trim() : t.text;
+          const html = isYou ? `${t.start} <span class="cloze-chunk font-extrabold underline decoration-amber-300">${t.cloze}</span> ${t.end}`.replace(/ '/g, "'") : t.text;
+          return `<div class="turn-row flex items-center gap-2 ${isYou ? 'flex-row-reverse' : ''}" data-idx="${idx}">
+            <div class="w-6 h-6 rounded-full ${isYou ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center font-bold text-[10px] shrink-0">${t.name}</div>
+            <div class="flex-1 ${isYou ? 'bubble-you' : 'bubble-partner text-slate-800'} py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-between gap-2">
+              <span class="sent-text">${html}</span>
+              <div class="flex gap-1 shrink-0">
+                <button data-s="${esc(raw)}" onclick="speakText(this.dataset.s, this, '${isYou ? 'student' : 'partner'}')" class="px-2 py-0.5 rounded text-[10px] font-bold ${isYou ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'}">🔊</button>
+                <button data-s="${esc(raw)}" onclick="translateTextDirect(this.dataset.s)" class="px-1.5 py-0.5 rounded text-[10px] font-bold ${isYou ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'}">🌍</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+      });
+
+      initStoryTopic(0);
+
+      document.getElementById('scen-btn-1').innerText = `1. ${LESSON_DATA.simulation.scenarios[1].shortTitle}`;
+      document.getElementById('scen-btn-2').innerText = `2. ${LESSON_DATA.simulation.scenarios[2].shortTitle}`;
+      document.getElementById('sim-hints').innerHTML = LESSON_DATA.simulation.suggestions.map(s =>
+        `<button data-s="${esc(s)}" onclick="document.getElementById('chat-input').value=this.dataset.s" class="px-2 py-1 rounded bg-white border border-slate-300 text-slate-700 shrink-0">"${s}"</button>`
+      ).join('');
+      setScenario(1);
+      updatePills();
+
+      if (savedApiKey) {
+        document.getElementById('input-gemini-key').value = savedApiKey;
+        setVoiceBadge('ready', 'Saved Key Loaded');
+      }
+    }
+
+    function spinVibe(num) {
+      sceneVibes[num] = (sceneVibes[num] + 1) % vibes.length;
+      document.getElementById(`vibe-badge-${num}`).innerText = `🎭 Vibe: ${vibes[sceneVibes[num]]}`;
+    }
+    function toggleCloze(n) {
+      document.querySelectorAll(`#dialogue-${n} .cloze-chunk`).forEach(el => {
+        el.classList.toggle('cloze-masked');
+        el.onclick = () => el.classList.remove('cloze-masked');
+      });
+    }
+    function toggleImprovLast(n) {
+      const rows = document.querySelectorAll(`#dialogue-${n} .turn-row`);
+      const last = rows[rows.length - 1]?.querySelector('.sent-text');
+      if (!last) return;
+      if (!last.dataset.origHtml) last.dataset.origHtml = last.innerHTML;
+      if (last.dataset.improv === '1') {
+        last.innerHTML = last.dataset.origHtml;
+        last.dataset.improv = '0';
+      } else {
+        last.innerHTML = `🎤 <em>Improvise your own last line using ${LESSON_DATA.meta.grammarTopic}!</em>`;
+        last.dataset.improv = '1';
+      }
+    }
+    function toggleBlindfold(n) {
+      document.querySelectorAll(`#dialogue-${n} .sent-text`).forEach(el => {
+        el.classList.toggle('blurred-text');
+        el.onclick = () => el.classList.remove('blurred-text');
+      });
+    }
+    function resetScene(n) {
+      document.querySelectorAll(`#dialogue-${n} .cloze-chunk`).forEach(el => el.classList.remove('cloze-masked'));
+      document.querySelectorAll(`#dialogue-${n} .sent-text`).forEach(el => {
+        el.classList.remove('blurred-text');
+        if (el.dataset.origHtml) { el.innerHTML = el.dataset.origHtml; el.dataset.improv = '0'; }
+      });
+    }
+
+    // =====================================================================
+    // 👣 CALM, STEP-BY-STEP STORY BUILDER LOGIC
+    // =====================================================================
+    function initStoryTopic(idx) {
+      const cards = LESSON_DATA.fluency.topicCards;
+      curTopic = idx % cards.length;
+      curStep = 0;
+      const card = cards[curTopic];
+      document.getElementById('story-tag').innerText = card.tag;
+      document.getElementById('story-question').innerText = card.question;
+      document.getElementById('story-free-twist').innerText = card.freeTwist || "Ask your partner a follow-up question about their story!";
+      userChoices = card.steps.map(st => ({ main: st.options[0], detail: "" }));
+      renderStoryBuilder();
+    }
+    function nextStoryTopic() { initStoryTopic(curTopic + 1); }
+
+    function setSupportLevel(lvl) {
+      supportLevel = lvl;
+      [1, 2, 3].forEach(n => {
+        document.getElementById(`lvl-${n}`).className = n === lvl ? 'px-2.5 py-1 rounded-lg font-black bg-teal-600 text-white' : 'px-2.5 py-1 rounded-lg font-bold bg-white text-slate-700';
+      });
+      renderStoryBuilder();
+    }
+    function toggleWizardView() {
+      wizardMode = !wizardMode;
+      document.getElementById('btn-wiz-view').innerText = wizardMode ? '📋 Show All 4 Steps at Once' : '👣 One Step at a Time';
+      renderStoryBuilder();
+    }
+
+    function buildStepSentence(st, ch) {
+      const raw = supportLevel === 3 && ch.customFull ? ch.customFull : `${st.frame} ${ch.main || '...'} ${ch.detail || ''}`;
+      return raw.replace(/\s+/g, ' ').trim().replace(/[.!?]+$/, '') + '.';
+    }
+
+    function renderStoryBuilder() {
+      const card = LESSON_DATA.fluency.topicCards[curTopic];
+
+      document.getElementById('step-tabs-bar').innerHTML = card.steps.map((st, i) =>
+        `<button onclick="curStep=${i}; renderStoryBuilder()" class="p-2 rounded-xl text-xs font-black border transition ${curStep === i && wizardMode ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-teal-300'}">
+          ${i + 1}. ${st.label.replace(/Step \d+ · /, '')}
+        </button>`
+      ).join('');
+
+      const idxs = wizardMode ? [curStep] : card.steps.map((_, i) => i);
+      document.getElementById('steps-container').innerHTML = idxs.map(i => {
+        const st = card.steps[i];
+        const ch = userChoices[i];
+        const preview = buildStepSentence(st, ch);
+
+        return `<div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black uppercase text-teal-800">${st.label}</span>
+            <span class="text-xs font-semibold text-slate-500">💭 ${st.thinkPrompt}</span>
+          </div>
+
+          ${supportLevel < 3 ? `
+            <div class="p-3 bg-white rounded-xl border border-teal-200 flex items-center justify-between gap-2">
+              <span class="text-sm sm:text-base font-black text-slate-900">"${preview}"</span>
+              <div class="flex gap-1 shrink-0">
+                <button data-s="${esc(preview)}" onclick="speakText(this.dataset.s, this, 'student')" class="px-2.5 py-1 bg-teal-50 text-teal-800 rounded-lg text-xs font-bold">🔊</button>
+                <button data-s="${esc(preview)}" onclick="translateTextDirect(this.dataset.s)" class="px-2 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold">🌍</button>
+              </div>
+            </div>
+          ` : ''}
+
+          ${supportLevel === 1 ? `
+            <div class="space-y-2">
+              <span class="text-[11px] font-bold text-slate-500 block">1. Tap an idea (or type your own below):</span>
+              <div class="flex flex-wrap gap-2">
+                ${st.options.map(opt => `
+                  <button data-v="${esc(opt)}" onclick="pickMain(${i}, this.dataset.v)" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition ${ch.main === opt ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-slate-800 border-slate-200 hover:border-teal-400'}">${opt}</button>
+                `).join('')}
+              </div>
+              <div class="pt-1">
+                <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="text-[11px] font-bold text-indigo-700 underline">➕ Want to make your sentence longer? (Optional details)</button>
+                <div class="hidden flex flex-wrap gap-1.5 mt-2">
+                  ${(st.details || []).map(dt => `
+                    <button data-v="${esc(dt)}" onclick="pickDetail(${i}, this.dataset.v)" class="px-2.5 py-1 rounded-lg text-xs font-bold border ${ch.detail === dt ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200'}">+ "${dt}"</button>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          ` : ''}
+
+          <div>
+            <input type="text" value="${esc(supportLevel === 3 ? (ch.customFull || '') : ch.main)}" oninput="typeCustom(${i}, this.value)" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs sm:text-sm text-slate-900" placeholder="${supportLevel === 3 ? 'Write or say your own complete sentence...' : 'Or type your own personal words here...'}">
+          </div>
+
+          ${wizardMode ? `
+            <div class="flex justify-between pt-2 border-t border-slate-200/80">
+              <button onclick="curStep=Math.max(0,curStep-1); renderStoryBuilder()" class="px-3 py-1 rounded-lg text-xs font-bold bg-white border border-slate-200 text-slate-600 ${i === 0 ? 'invisible' : ''}">⬅ Previous Step</button>
+              <button onclick="curStep=Math.min(${card.steps.length - 1},curStep+1); renderStoryBuilder()" class="px-3.5 py-1.5 rounded-lg text-xs font-black bg-teal-600 text-white ${i === card.steps.length - 1 ? 'hidden' : ''}">Next Step ➔</button>
+            </div>
+          ` : ''}
+        </div>`;
+      }).join('');
+
+      renderAssembledStory();
+    }
+
+    function pickMain(i, val) { userChoices[i].main = val; renderStoryBuilder(); }
+    function pickDetail(i, val) { userChoices[i].detail = userChoices[i].detail === val ? "" : val; renderStoryBuilder(); }
+    function typeCustom(i, val) {
+      if (supportLevel === 3) userChoices[i].customFull = val;
+      else userChoices[i].main = val;
+      renderAssembledStory();
+    }
+
+    function getFullStorySentences() {
+      const card = LESSON_DATA.fluency.topicCards[curTopic];
+      return card.steps.map((st, i) => buildStepSentence(st, userChoices[i]));
+    }
+
+    function renderAssembledStory() {
+      const card = LESSON_DATA.fluency.topicCards[curTopic];
+      const sents = getFullStorySentences();
+      const box = document.getElementById('assembled-story-box');
+      if (memoryMode === 0) {
+        box.innerHTML = sents.map((s, i) => `<span class="inline-block mr-1"><strong class="text-teal-400">${i + 1}.</strong> ${s}</span>`).join(' ');
+      } else if (memoryMode === 1) {
+        box.innerHTML = card.steps.map((st, i) => `<div class="mb-1"><strong class="text-teal-400">${i + 1}.</strong> ${st.frame} <span class="text-slate-400 underline">______</span></div>`).join('');
+      } else {
+        box.innerHTML = card.steps.map((st, i) => `<div class="mb-1"><strong class="text-teal-400">Cue ${i + 1}:</strong> <span class="px-2 py-0.5 bg-slate-700 rounded text-white">${userChoices[i].main || '...'}</span></div>`).join('');
+      }
+    }
+
+    function cycleMemoryMode() {
+      memoryMode = (memoryMode + 1) % 3;
+      const labels = ["👁️ View: Full Sentences", "🕳️ View: Starters Only", "🦅 View: Cue-Words Only"];
+      document.getElementById('btn-mem-mode').innerText = labels[memoryMode];
+      renderAssembledStory();
+    }
+
+    function playMyStory(btn) {
+      speakText(getFullStorySentences().join(' '), btn, 'student');
+    }
+
+    // =====================================================================
+    // 🤖 ROLEPLAY & CURVEBALL ENGINE
+    // =====================================================================
+    function setScenario(num) {
+      curScen = num; chatHist = []; localStep = 0;
+      const sc = LESSON_DATA.simulation.scenarios[num];
+      document.getElementById('scen-btn-1').className = num === 1 ? 'px-3 py-1.5 rounded-lg text-xs font-black bg-indigo-600 text-white' : 'px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700';
+      document.getElementById('scen-btn-2').className = num === 2 ? 'px-3 py-1.5 rounded-lg text-xs font-black bg-indigo-600 text-white' : 'px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700';
+      document.getElementById('sim-instructions').innerHTML = sc.instructions;
+      document.getElementById('chat-input').placeholder = sc.placeholder;
+      document.getElementById('chat-log').innerHTML = `
+        <div class="bubble-partner p-3 rounded-2xl max-w-[85%] self-start text-xs sm:text-sm font-medium">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <strong class="text-[10px] text-slate-400">${sc.character}</strong>
+            <button data-s="${esc(sc.greeting)}" onclick="speakText(this.dataset.s, this, 'partner')" class="text-[10px] font-bold bg-slate-100 px-1.5 py-0.5 rounded">🔊</button>
+          </div>
+          <span>${sc.greeting}</span>
+        </div>`;
+    }
+
+    function dropCurveball() {
+      const sc = LESSON_DATA.simulation.scenarios[curScen];
+      const cb = sc.curveball || "⚡ CURVEBALL: Plans just changed! How do you adjust?";
+      const log = document.getElementById('chat-log');
+      log.insertAdjacentHTML('beforeend', `<div class="p-3 bg-amber-100 border-2 border-amber-400 text-amber-950 rounded-2xl text-xs font-black self-center max-w-[92%]">${cb}</div>`);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    async function sendChat() {
+      const inp = document.getElementById('chat-input');
+      const log = document.getElementById('chat-log');
+      const txt = inp.value.trim();
+      if (!txt) return;
+      inp.value = "";
+      log.insertAdjacentHTML('beforeend', `<div class="bubble-you p-3 rounded-2xl max-w-[85%] self-end text-xs sm:text-sm font-medium">${txt}</div>`);
+
+      const sc = LESSON_DATA.simulation.scenarios[curScen];
+      const rules = LESSON_DATA.simulation.slaRules;
+      const trap = rules.trapPattern ? new RegExp(rules.trapPattern, "i").test(txt) : false;
+      const hit = rules.targetPattern ? new RegExp(rules.targetPattern, "i").test(txt) : false;
+      const tip = trap ? `💡 Quick Polish: ${rules.trapTip}` : (hit ? `🎯 Great job using ${LESSON_DATA.meta.grammarTopic}!` : `💬 Good! Try using ${LESSON_DATA.meta.grammarTopic} in your next turn.`);
+      const fallbackReply = sc.localReplies[localStep++ % sc.localReplies.length];
+
+      chatHist.push({ role: "user", parts: [{ text: txt }] });
+      try {
+        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${getActiveApiKey()}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: `You are ${sc.character}. Goal: ${sc.contextGoal}. Reply naturally in under 15 words and ask a question.` }] },
+            contents: chatHist
+          })
+        });
+        const d = await r.json();
+        const reply = d.candidates?.[0]?.content?.parts?.[0]?.text || fallbackReply;
+        chatHist.push({ role: "model", parts: [{ text: reply }] });
+        log.insertAdjacentHTML('beforeend', `<div class="px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-xl text-xs font-bold text-indigo-950 self-center">${tip}</div>`);
+        log.insertAdjacentHTML('beforeend', `<div class="bubble-partner p-3 rounded-2xl max-w-[85%] self-start text-xs sm:text-sm font-medium"><div class="flex items-center justify-between gap-2 mb-1"><strong class="text-[10px] text-slate-400">${sc.character}</strong><button data-s="${esc(reply)}" onclick="speakText(this.dataset.s, this, 'partner')" class="text-[10px] font-bold bg-slate-100 px-1.5 py-0.5 rounded">🔊</button></div><span>${reply}</span></div>`);
+      } catch (e) {
+        log.insertAdjacentHTML('beforeend', `<div class="px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-xl text-xs font-bold text-indigo-950 self-center">${tip}</div>`);
+        log.insertAdjacentHTML('beforeend', `<div class="bubble-partner p-3 rounded-2xl max-w-[85%] self-start text-xs sm:text-sm font-medium"><div class="flex items-center justify-between gap-2 mb-1"><strong class="text-[10px] text-slate-400">${sc.character}</strong><button data-s="${esc(fallbackReply)}" onclick="speakText(this.dataset.s, this, 'partner')" class="text-[10px] font-bold bg-slate-100 px-1.5 py-0.5 rounded">🔊</button></div><span>${fallbackReply}</span></div>`);
+      }
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function togglePart(n) {
+      const b = document.getElementById(`body-${n}`);
+      const c = b.classList.contains('collapsed');
+      if (c && focusMode) [5, 6, 7, 8].forEach(i => { document.getElementById(`body-${i}`).classList.add('collapsed'); document.getElementById(`chev-${i}`).classList.add('collapsed'); });
+      b.classList.toggle('collapsed', !c);
+      document.getElementById(`chev-${n}`).classList.toggle('collapsed', !c);
+      updatePills();
+    }
+    function focusPart(n) {
+      if (focusMode) [5, 6, 7, 8].forEach(i => { document.getElementById(`body-${i}`).classList.add('collapsed'); document.getElementById(`chev-${i}`).classList.add('collapsed'); });
+      document.getElementById(`body-${n}`).classList.remove('collapsed');
+      document.getElementById(`chev-${n}`).classList.remove('collapsed');
+      updatePills();
+    }
+    function expandAll() { [5, 6, 7, 8].forEach(i => { document.getElementById(`body-${i}`).classList.remove('collapsed'); document.getElementById(`chev-${i}`).classList.remove('collapsed'); }); updatePills(); }
+    function toggleFocusMode() { focusMode = !focusMode; document.getElementById('btn-focus').innerText = `🎯 Focus: ${focusMode ? 'ON' : 'OFF'}`; }
+    function updatePills() {
+      [5, 6, 7, 8].forEach(i => {
+        const open = !document.getElementById(`body-${i}`).classList.contains('collapsed');
+        document.getElementById(`pill-${i}`).className = open ? 'px-2.5 py-1 text-xs font-black rounded-lg bg-indigo-600 text-white' : 'px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600';
+      });
+    }
+    let fs = 16;
+    function changeFontSize(d) { fs = Math.min(24, Math.max(12, fs + d * 2)); document.documentElement.style.fontSize = fs + 'px'; }
+
+    // =====================================================================
+    // 🌍 21-LANGUAGE TRANSLATION ENGINE (+ RTL SUPPORT)
+    // =====================================================================
+    async function translateTextDirect(txt) {
+      if (!txt) return;
+      document.getElementById('translate-modal').style.display = 'block';
+      document.getElementById('t-modal-original').innerText = `"${txt}"`;
+      const resEl = document.getElementById('t-modal-result');
+      resEl.innerText = 'Translating...';
+      const tl = document.getElementById('targetLanguage').value;
+      try {
+        const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${tl}&dt=t&q=${encodeURIComponent(txt)}`);
+        const d = await r.json();
+        resEl.dir = ['ar', 'fa', 'he', 'ur'].includes(tl) ? 'rtl' : 'ltr';
+        resEl.innerText = d[0].map(c => c[0]).join('');
+      } catch (e) { resEl.innerText = 'Unavailable.'; }
+    }
+
+    let selTxt = "";
+    const tBtn = document.getElementById('highlight-translate-btn');
+    document.addEventListener('mouseup', e => {
+      if (e.target.closest('#highlight-translate-btn, #translate-modal')) return;
+      setTimeout(() => {
+        const s = window.getSelection().toString().trim();
+        if (s.length > 1) {
+          selTxt = s;
+          const r = window.getSelection().getRangeAt(0).getBoundingClientRect();
+          tBtn.style.left = `${Math.max(10, r.left + window.scrollX)}px`;
+          tBtn.style.top = `${r.top + window.scrollY - 40}px`;
+          tBtn.style.display = 'flex';
+        } else tBtn.style.display = 'none';
+      }, 15);
+    });
+    tBtn.onclick = () => {
+      tBtn.style.display = 'none';
+      translateTextDirect(selTxt);
+    };
+
+    window.addEventListener('load', renderApp);
+  </script>
+</body>
+</html>

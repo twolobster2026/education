@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">ESL Lesson - Part 1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .chunk-masked { filter: blur(5px); color: transparent !important; text-shadow: 0 0 8px rgba(2,132,199,0.7); cursor: pointer; user-select: none; }
+    .part-body.collapsed { display: none !important; }
+    .chevron-icon { transition: transform 0.2s ease; display: inline-block; font-size: 0.75rem; }
+    .chevron-icon.collapsed { transform: rotate(-90deg); }
+    .collapsible-header { cursor: pointer; user-select: none; }
+    .vocab-card-active { ring: 3px solid #6366f1; background-color: #eef2ff !important; border-color: #6366f1 !important; }
+    .vocab-card-used { background-color: #f0fdf4 !important; border-color: #22c55e !important; }
+    #highlight-translate-btn { position: absolute; display: none; z-index: 1000; background: #1e293b; color: white; border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.25); align-items: center; gap: 6px; }
+    #translate-modal { display: none; position: fixed; bottom: 30px; right: 30px; background: white; border-radius: 16px; width: 340px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 2px solid #e2e8f0; z-index: 9999; overflow: hidden; }
+  </style>
+</head>
+<body class="min-h-screen pb-16 selection:bg-indigo-100 selection:text-indigo-900">
+
+  <!-- 21-LANGUAGE HIGHLIGHT & ONE-CLICK TRANSLATOR -->
+  <button id="highlight-translate-btn">🌍 Translate</button>
+  <div id="translate-modal">
+    <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center font-extrabold text-slate-700 text-xs">
+      <span>🌍 Instant Translation</span>
+      <button onclick="document.getElementById('translate-modal').style.display='none'" class="text-slate-400 hover:text-rose-500">✖</button>
+    </div>
+    <div class="p-4 text-base font-semibold text-slate-900" id="t-modal-result">Loading...</div>
+    <div class="px-4 pb-3 text-xs italic text-slate-500 border-t border-dashed border-slate-200 pt-2" id="t-modal-original"></div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-lg">
+    <div class="max-w-4xl mx-auto px-4 py-5">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-700/60 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded text-[11px] font-black">PART 1 OF 4 · INPUT, WARM-UP & DRILLS</span>
+          <label for="targetLanguage" class="text-xs text-slate-400 font-bold hidden sm:inline">Translate to:</label>
+          <select id="targetLanguage" class="bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none">
+            <optgroup label="Middle East &amp; South Asia">
+              <option value="ar">🇸🇦 Arabic (العربية)</option>
+              <option value="fa">🇮🇷 Persian (فارسی)</option>
+              <option value="ur">🇵🇰 Urdu (اردو)</option>
+              <option value="tr">🇹🇷 Turkish (Türkçe)</option>
+              <option value="hi">🇮🇳 Hindi (हिन्दी)</option>
+            </optgroup>
+            <optgroup label="East &amp; Southeast Asia">
+              <option value="zh-CN">🇨🇳 Chinese Simplified (简体中文)</option>
+              <option value="zh-TW">🇹🇼 Chinese Traditional (繁體中文)</option>
+              <option value="ja">🇯🇵 Japanese (日本語)</option>
+              <option value="ko">🇰🇷 Korean (한국어)</option>
+              <option value="vi">🇻🇳 Vietnamese (Tiếng Việt)</option>
+              <option value="id">🇮🇩 Indonesian (Bahasa Indonesia)</option>
+              <option value="th">🇹🇭 Thai (ไทย)</option>
+            </optgroup>
+            <optgroup label="Europe &amp; Americas">
+              <option value="es">🇪🇸 Spanish (Español)</option>
+              <option value="pt">🇵🇹🇧🇷 Portuguese (Português)</option>
+              <option value="fr">🇫🇷 French (Français)</option>
+              <option value="de">🇩🇪 German (Deutsch)</option>
+              <option value="it">🇮🇹 Italian (Italiano)</option>
+              <option value="ru">🇷🇺 Russian (Русский)</option>
+              <option value="uk">🇺🇦 Ukrainian (Українська)</option>
+              <option value="pl">🇵🇱 Polish (Polski)</option>
+              <option value="nl">🇳🇱 Dutch (Nederlands)</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="spinAllModules()" class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-lg text-xs font-black">🎰 Spin Activity Modes</button>
+          <button onclick="document.getElementById('api-key-config-box').classList.toggle('hidden')" id="header-key-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-bold text-amber-300 transition flex items-center gap-1.5">
+            🔑 <span>Voice & API Settings</span>
+          </button>
+          <button onclick="changeFontSize(-1)" class="px-2.5 py-1 bg-slate-800 rounded text-xs font-bold">A-</button>
+          <button onclick="changeFontSize(1)" class="px-2.5 py-1 bg-slate-800 rounded text-xs font-bold">A+</button>
+        </div>
+      </div>
+
+      <!-- API KEY MODAL BAR (PURE GEMINI 2.5 FLASH TTS FOR ONLINE SCREEN SHARE) -->
+      <div id="api-key-config-box" class="hidden mb-4 p-3.5 bg-slate-800/95 border border-indigo-500/40 rounded-xl space-y-2.5">
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Enter your Gemini API key to activate natural <strong>Gemini 2.5 Flash TTS voices</strong> (<code class="text-indigo-300">Aoede</code>, <code class="text-indigo-300">Zephyr</code>, <code class="text-indigo-300">Charon</code>) played through standard HTML5 audio so students can hear every word clearly over Zoom/Meet screen-share!
+        </p>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input type="password" id="input-gemini-key" class="flex-1 px-3 py-1.5 text-xs bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none" placeholder="Paste Gemini API key (AIzaSy...)">
+          <button onclick="saveApiKeyFromInput()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition">Save & Test Voice</button>
+          <button onclick="clearApiKey()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs font-bold transition">Clear</button>
+        </div>
+        <div id="api-test-result" class="text-xs font-bold hidden"></div>
+      </div>
+
+      <div class="flex items-center gap-2 mb-1">
+        <span id="hdr-level" class="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-500 text-white uppercase"></span>
+        <span id="hdr-category" class="text-xs text-slate-400 font-medium"></span>
+      </div>
+      <h1 id="hdr-title" class="text-xl sm:text-2xl font-black text-white"></h1>
+      <div class="mt-3 bg-white/10 border border-white/15 p-3 rounded-xl text-xs sm:text-sm">
+        <strong id="hdr-grammar-topic" class="text-indigo-200 block"></strong>
+        <p id="hdr-grammar-exp" class="text-slate-300 mt-0.5"></p>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 pt-5 space-y-5">
+    <!-- NAVIGATOR -->
+    <div class="bg-white p-3 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex gap-1.5">
+        <button id="btn-focus" onclick="toggleFocusMode()" class="px-3 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white">🎯 Focus: ON</button>
+        <button onclick="expandAll()" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-700">🔽 Expand All</button>
+      </div>
+      <div class="flex flex-wrap gap-1" id="nav-pills"></div>
+    </div>
+
+    <!-- PART 1: 5 CORE CHUNKS -->
+    <section id="sec-1" class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-slate-50 border-b border-slate-200" onclick="togglePart(1)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs font-black rounded">PART 1</span>
+          <h2 class="text-base font-black">🗣️ 5 Core Conversational Chunks</h2>
+        </div>
+        <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+          <button onclick="toggleVocabMask()" id="btn-mask-vocab" class="text-xs font-bold text-indigo-800 bg-indigo-50 px-2.5 py-1 rounded border border-indigo-200">🙈 Mask Chunks</button>
+          <span id="chev-1" class="chevron-icon">▼</span>
+        </div>
+      </div>
+      <div id="body-1" class="part-body p-4 space-y-2">
+        <div id="vocab-list" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <!-- PART 2: ALIGNED SCENARIO WARM-UP & INTERACTIVE SENTENCE FRAME BUILDER -->
+    <section id="sec-2" class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-amber-50/70 border-b border-amber-100" onclick="togglePart(2)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-amber-100 text-amber-900 text-xs font-black rounded">PART 2</span>
+          <h2 id="warmup-title" class="text-base font-black"></h2>
+        </div>
+        <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+          <button onclick="cycleWarmupMode()" id="btn-warmup-mode" class="px-2.5 py-1 rounded-lg text-xs font-black bg-amber-200 text-amber-950">🎲 Mode: Real-Life Scenario</button>
+          <button onclick="document.getElementById('optional-photo-drawer').classList.toggle('hidden')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white border border-amber-300 text-amber-900">🖼️ Photo (Optional)</button>
+          <span id="chev-2" class="chevron-icon collapsed">▼</span>
+        </div>
+      </div>
+      <div id="body-2" class="part-body collapsed p-5 space-y-5">
+
+        <!-- Optional Collapsible Photo Drawer (Never required for questions!) -->
+        <div id="optional-photo-drawer" class="hidden bg-slate-900 text-white p-3.5 rounded-2xl space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <span class="font-bold text-amber-300">🖼️ Optional Visual Scene (Questions below work with or without a photo):</span>
+            <div class="flex gap-2">
+              <a href="https://drive.google.com/drive/folders/1mZrs__3B_dM52MxDh8lFQekhDvNg6C_q?usp=sharing" target="_blank" class="px-2.5 py-1 bg-indigo-600 rounded-lg font-bold">☁️ Open GDrive Photos ↗</a>
+              <button onclick="nextScenePhoto()" class="px-2.5 py-1 bg-amber-400 text-slate-950 rounded-lg font-black">🎲 Next Built-In Photo</button>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <input id="gdrive-input" type="text" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white" placeholder="Paste any Google Drive image link or URL...">
+            <button onclick="loadPastedPhoto()" class="px-3 py-1 bg-emerald-500 text-slate-950 rounded-lg text-xs font-black">Show Photo</button>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-slate-700 bg-slate-800 max-h-56 flex items-center justify-center">
+            <img id="warmup-img" src="" alt="Optional scene" class="w-full h-48 object-cover" onerror="this.style.display='none'">
+          </div>
+        </div>
+
+        <!-- Photo-Independent Real-Life Scenario + Aligned Warm-Up Activity -->
+        <div class="bg-amber-50/50 p-4 rounded-2xl border border-amber-200/80 space-y-3">
+          <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex items-start gap-3">
+            <span id="warmup-emoji" class="text-2xl shrink-0">☕</span>
+            <div class="flex-1">
+              <span class="text-[10px] font-black uppercase tracking-wider text-amber-800 block">📌 Today's Real-Life Situation:</span>
+              <p id="warmup-scene-text" class="text-xs sm:text-sm font-bold text-slate-800 mt-0.5 select-text"></p>
+            </div>
+            <div class="flex gap-1 shrink-0">
+              <button onclick="speakText(LESSON_DATA.warmup.sceneText, this, 'teacher')" class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 text-xs font-bold">🔊</button>
+              <button onclick="translateTextDirect(LESSON_DATA.warmup.sceneText)" class="px-2 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold">🌍</button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <h3 id="warmup-mode-badge" class="text-xs font-black uppercase text-amber-900"></h3>
+            <button onclick="cycleWarmupMode()" class="text-xs font-bold text-indigo-700 underline">🔀 Switch Warm-Up Game</button>
+          </div>
+          <div id="warmup-q-list" class="space-y-2"></div>
+        </div>
+
+        <!-- INTERACTIVE SENTENCE FRAME BUILDER + 10 SELECTABLE EXPRESSIONS -->
+        <div class="bg-slate-50 border-2 border-indigo-100 p-4 sm:p-5 rounded-2xl space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="text-[10px] font-black uppercase px-2 py-0.5 bg-indigo-600 text-white rounded">Interactive Expression Playground</span>
+              <h3 class="text-sm sm:text-base font-black text-slate-900 mt-1">🗣️ Step 1: Pick a Sentence Frame ➔ Step 2: Tap Any Expression Below!</h3>
+              <p class="text-xs text-slate-500">Highlight any phrase on the page to translate it into 21 languages, or click 🌍 on any card.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-slate-600 bg-white px-2.5 py-1 rounded-lg border border-slate-200">Used: <strong id="used-count" class="text-emerald-600">0 / 10</strong></span>
+              <button onclick="dealThreeChallenge()" class="px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-xs font-black">🎯 Deal 3 to Use</button>
+            </div>
+          </div>
+
+          <!-- 3 Clickable Sentence Frames -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="vocab-frames-bar"></div>
+
+          <!-- Live Plug-and-Play Sentence Preview -->
+          <div class="bg-indigo-950 text-white p-3.5 rounded-xl flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <span class="text-[10px] font-black uppercase text-indigo-300 block">🎙️ Your Live Sentence (Say It Aloud!):</span>
+              <p id="live-frame-sentence" class="text-sm sm:text-base font-black text-amber-300 select-text mt-0.5"></p>
+            </div>
+            <div class="flex gap-1.5">
+              <button onclick="speakText(document.getElementById('live-frame-sentence').innerText, this, 'student')" class="px-3 py-1.5 bg-indigo-500 hover:bg-indigo-400 text-white rounded-lg text-xs font-black">🔊 Listen</button>
+              <button onclick="translateTextDirect(document.getElementById('live-frame-sentence').innerText)" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold">🌍 Translate</button>
+            </div>
+          </div>
+
+          <!-- 10 Selectable, Easy-to-Read & Translate Expression Cards -->
+          <div id="lesson-vocab-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 select-text"></div>
+        </div>
+
+        <div id="grammar-pillars" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs"></div>
+      </div>
+    </section>
+
+    <!-- PART 3: MODULAR LISTENING -->
+    <section id="sec-3" class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-blue-50/70 border-b border-blue-100" onclick="togglePart(3)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-black rounded">PART 3</span>
+          <h2 id="listen-title" class="text-base font-black"></h2>
+        </div>
+        <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+          <button onclick="cycleListenMode()" id="btn-listen-mode" class="px-2.5 py-1 rounded-lg text-xs font-black bg-blue-200 text-blue-950">🎲 Mode: Voice Note</button>
+          <span id="chev-3" class="chevron-icon collapsed">▼</span>
+        </div>
+      </div>
+      <div id="body-3" class="part-body collapsed p-5 space-y-4">
+        <div class="flex flex-wrap gap-2 items-center justify-between">
+          <p id="listen-desc" class="text-xs sm:text-sm text-slate-700 font-medium"></p>
+          <div class="flex gap-2">
+            <button id="btnListen1" onclick="playListening(1.0, 'btnListen1')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white">▶️ Listen Normal (1.0x)</button>
+            <button id="btnListen2" onclick="playListening(1.2, 'btnListen2')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-white">⚡ Listen Fast (1.2x)</button>
+          </div>
+        </div>
+        <div id="listen-module-box" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3"></div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="document.getElementById('transcript-box').classList.toggle('hidden')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white border border-slate-300">👁️ Show / Hide Audio Transcript</button>
+          <button onclick="translateTextDirect(LESSON_DATA.listening.transcript)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 border border-slate-200">🌍 Translate Transcript</button>
+        </div>
+        <div id="transcript-box" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs sm:text-sm italic font-medium text-slate-700 select-text"></div>
+      </div>
+    </section>
+
+    <!-- PART 4: MULTI-MODE SYNTAX DRILLS -->
+    <section id="sec-4" class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+      <div class="collapsible-header flex items-center justify-between p-4 bg-rose-50/70 border-b border-rose-100" onclick="togglePart(4)">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-rose-100 text-rose-800 text-xs font-black rounded">PART 4</span>
+          <h2 class="text-base font-black">⚡ Multi-Mode Syntax & Fluency Drills</h2>
+        </div>
+        <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+          <button onclick="shuffleDrills()" class="text-xs font-bold bg-rose-100 text-rose-900 px-2.5 py-1 rounded border border-rose-200">🔀 Deal 4 Random</button>
+          <button onclick="showAllDrillsCards()" class="text-xs font-bold bg-white px-2.5 py-1 rounded border border-slate-200">📋 All 8</button>
+          <button onclick="toggleAllDrills()" id="btn-all-drills" class="text-xs font-bold bg-white px-2.5 py-1 rounded border border-slate-200">👁 Answers</button>
+          <span id="chev-4" class="chevron-icon collapsed">▼</span>
+        </div>
+      </div>
+      <div id="body-4" class="part-body collapsed p-5 space-y-3">
+        <div class="flex flex-wrap gap-1.5 items-center text-xs">
+          <span class="font-bold text-slate-500 mr-1">Filter Mode:</span>
+          <button onclick="filterDrills('ALL')" class="px-2.5 py-1 rounded-lg font-black bg-slate-800 text-white">All Types</button>
+          <button onclick="filterDrills('scramble')" class="px-2.5 py-1 rounded-lg font-bold bg-indigo-50 text-indigo-800">🔀 Unscramble</button>
+          <button onclick="filterDrills('bug_hunt')" class="px-2.5 py-1 rounded-lg font-bold bg-amber-50 text-amber-900">🐞 Fix the Bug</button>
+          <button onclick="filterDrills('upgrade')" class="px-2.5 py-1 rounded-lg font-bold bg-emerald-50 text-emerald-900">✨ Natural Upgrade</button>
+        </div>
+        <div id="drills-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // =====================================================================
+    // 🧠 POPULATE LESSON_DATA FROM APPROVED BLUEPRINT (PART 1: SECTIONS 1-4)
+    // =====================================================================
+    const LESSON_DATA = {
+      meta: {
+        level: "B1",
+        descriptor: "Intermediate",
+        category: "Everyday Life & Busy Days",
+        title: "Catching Up on a Busy Day",
+        grammarTopic: "Present Perfect ('already', 'yet', 'just')",
+        grammarExplanation: "Use 'I've already / I've just' for completed actions with a present result, and 'I haven't ... yet' for tasks still on your to-do list."
+      },
+      voices: { partner: "Aoede", student: "Zephyr", teacher: "Charon" },
+      vocab: [
+        { word: "grab a coffee", trans: "get a quick coffee", start: "Thankfully, I", chunk: "'ve already grabbed a coffee", end: "this morning." },
+        { word: "walk the dog", trans: "take the dog out", start: "I", chunk: "'ve just walked the dog", end: "around the block." },
+        { word: "do the grocery shopping", trans: "buy food", start: "We", chunk: "haven't done the grocery shopping", end: "yet." },
+        { word: "pay the bills", trans: "pay monthly costs", start: "She", chunk: "'s already paid the bills", end: "for this month." },
+        { word: "reply to messages", trans: "answer texts", start: "I", chunk: "haven't replied to my messages", end: "yet." }
+      ],
+      photoPool: [
+        { title: "Busy Morning Desk & Coffee Mug", url: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=900&q=80" },
+        { title: "Kitchen Counter with Grocery Bags", url: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80" }
+      ],
+      warmup: {
+        title: "🖼️ Scenario Warm-Up & Expression Builder",
+        mode: "scenario_chat",
+        imageUrl: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=900&q=80",
+        emoji: "☕",
+        sceneText: "It's 3:00 PM on a busy weekday. You have a long to-do list of errands and home chores—some are finished, and some are still waiting!",
+        questions: [
+          "🌟 What is one task or errand you've already finished today that makes you feel relieved?",
+          "☕ Have you taken a break or grabbed a coffee yet today, or have you been too busy?",
+          "⏳ What is one chore at home you still haven't done yet this week?"
+        ],
+        thisOrThat: [
+          { q: "By 10:00 AM, which one have you usually already done?", optA: "☕ Grabbed a coffee", optB: "📱 Replied to messages" },
+          { q: "By Friday evening, which chore have you usually already finished?", optA: "🛒 Done the grocery shopping", optB: "💳 Paid the bills" },
+          { q: "Which task do you usually put off because you haven't found time yet?", optA: "🧹 Cleaning up the kitchen", optB: "🧺 Folding the laundry" }
+        ],
+        alibiPrompt: "🎭 Two Truths & A Lie: Click 3 expressions below using the Sentence Frames. Tell me 2 things you've ALREADY done today/this week and 1 lie! Can I guess the lie?",
+        vocabFrames: [
+          { label: "✅ Positive (Already / Just)", before: "Thankfully, I've already", after: "today." },
+          { label: "⏳ Negative (Not ... Yet)", before: "To be honest, I haven't", after: "yet." },
+          { label: "❓ Ask Your Partner", before: "Have you", after: "yet today?" }
+        ],
+        lessonVocab: [
+          { word: "grab a coffee", pastForm: "grabbed a coffee", trans: "get a quick cup of coffee", level: "A2" },
+          { word: "walk the dog", pastForm: "walked the dog", trans: "take the dog outside", level: "A1" },
+          { word: "do the grocery shopping", pastForm: "done the grocery shopping", trans: "buy food at the supermarket", level: "A2" },
+          { word: "pay the bills", pastForm: "paid the bills", trans: "pay electricity, phone, or rent", level: "B1" },
+          { word: "reply to messages", pastForm: "replied to my messages", trans: "answer texts and emails", level: "B1" },
+          { word: "clean up the kitchen", pastForm: "cleaned up the kitchen", trans: "wash dishes and wipe counters", level: "A2" },
+          { word: "make lunch", pastForm: "made lunch", trans: "prepare a midday meal", level: "A1" },
+          { word: "finish my errands", pastForm: "finished my errands", trans: "complete short trips and tasks", level: "B1" },
+          { word: "call my family", pastForm: "called my family", trans: "phone parents or relatives", level: "A1" },
+          { word: "take a quick break", pastForm: "taken a quick break", trans: "rest for a few minutes", level: "A2" }
+        ],
+        pillars: [
+          { title: "1. 'Already' = Done Sooner", desc: "Say: 'I've already had coffee.' Always contract 'I have' to 'I've' in natural speech!" },
+          { title: "2. 'Yet' = At the End", desc: "Put 'yet' at the end of negatives and questions: 'I haven't eaten lunch yet.'" },
+          { title: "3. No Exact Past Clock Times!", desc: "Never say 'At 8:00 I've had coffee.' Use Past Simple for exact times, or Present Perfect for 'so far today'." }
+        ]
+      },
+      listening: {
+        title: "🎧 Voice Note: A Busy Afternoon Update",
+        mode: "spot_the_lie",
+        desc: "Listen to Sam's 50-word voice note. Switch between Standard Questions, Spot the 3 Sneaky Mistakes, or Predict the Ending!",
+        transcript: "Hey! Today has been super busy so far. Thankfully, I've already walked the dog and paid the bills. I've just grabbed a quick coffee to wake up. However, I still haven't done the grocery shopping or replied to your messages yet. Have you had lunch yet?",
+        questions: [
+          "Which two tasks has Sam already finished?",
+          "What has he just done to wake up?",
+          "What hasn't he done yet?"
+        ],
+        spotTheLieText: "Sam says his day has been very quiet so far. He has already walked the cat and paid the bills. He has just made a big sandwich to wake up. However, he still hasn't cleaned the garage yet.",
+        spotTheLieKey: "1. Busy (not quiet), 2. Walked the dog & grabbed a coffee (not cat/sandwich), 3. Hasn't done the grocery shopping or replied to messages (not cleaned the garage).",
+        predictPrompt: "🔮 If you were Sam's friend replying to this voice note right now, what would you say about your lunch plans?"
+      },
+      drills: [
+        { mode: "scramble", type: "🔀 Unscramble (already)", prompt: "coffee / grab / already / I / a", answer: "I've already grabbed a coffee." },
+        { mode: "bug_hunt", type: "🐞 Fix the Grammar Bug", prompt: "❌ \"I have already pay the bills at 9:00 AM.\"", answer: "I've already paid the bills. (Or: I paid the bills at 9:00 AM.)" },
+        { mode: "upgrade", type: "✨ Natural Upgrade", prompt: "Robotic: \"I did not buy food at the store up to now.\" (Use: grocery shopping / yet)", answer: "I haven't done the grocery shopping yet." },
+        { mode: "scramble", type: "🔀 Unscramble (just)", prompt: "dog / walk / just / she / the", answer: "She's just walked the dog." },
+        { mode: "bug_hunt", type: "🐞 Fix the Grammar Bug", prompt: "❌ \"Have you make lunch already yet?\"", answer: "Have you made lunch yet?" },
+        { mode: "upgrade", type: "✨ Natural Upgrade", prompt: "Robotic: \"One minute ago, I took a short rest.\" (Use: just / quick break)", answer: "I've just taken a quick break." },
+        { mode: "scramble", type: "🔀 Unscramble (yet)", prompt: "messages / reply to / not / I / yet / my", answer: "I haven't replied to my messages yet." },
+        { mode: "bug_hunt", type: "🐞 Fix the Grammar Bug", prompt: "❌ \"They just have clean up the kitchen.\"", answer: "They've just cleaned up the kitchen." }
+      ]
+    };
+
+    // =====================================================================
+    // 🔊 PURE GEMINI 2.5 FLASH TTS ENGINE (100% AUDIBLE IN ONLINE SCREEN-SHARE)
+    // =====================================================================
+    const apiKey = "";
+    let savedApiKey = "";
+    try { savedApiKey = localStorage.getItem('gemini_api_key') || ""; } catch (e) {}
+
+    function getActiveApiKey() {
+      return (savedApiKey && savedApiKey.trim()) ? savedApiKey.trim() : apiKey;
+    }
+
+    const VALID_VOICES = new Set(["Aoede", "Charon", "Fenrir", "Kore", "Leda", "Orus", "Puck", "Zephyr"]);
+    function getSafeVoice(roleOrVoice) {
+      if (VALID_VOICES.has(roleOrVoice)) return roleOrVoice;
+      const requested = roleOrVoice === 'partner' ? LESSON_DATA.voices.partner : (roleOrVoice === 'teacher' ? LESSON_DATA.voices.teacher : LESSON_DATA.voices.student);
+      return VALID_VOICES.has(requested) ? requested : "Zephyr";
+    }
+
+    const audioCache = new Map();
+    const pendingRequests = new Map();
+    const sharedAudioPlayer = new Audio();
+    const preloadedParts = new Set();
+    let focusMode = true, photoIdx = 0, vocabMasked = false, allDrillsShown = false;
+    let curFrameIdx = 0, curVocabIdx = 0;
+    const warmupModes = ["scenario_chat", "this_or_that", "alibi"];
+    const listenModes = ["voicemail", "spot_the_lie", "predict_ending"];
+    let activeDrills = [];
+
+    function setVoiceBadge(status, text) {
+      const btn = document.getElementById('header-key-btn');
+      if (!btn) return;
+      if (status === 'ready') {
+        btn.className = 'px-2.5 py-1 bg-emerald-900/70 hover:bg-emerald-800 border border-emerald-500/50 rounded-lg text-xs font-bold text-emerald-200 transition flex items-center gap-1.5';
+        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> <span>${text || 'Gemini Voices Active'}</span>`;
+      } else if (status === 'loading') {
+        btn.className = 'px-2.5 py-1 bg-indigo-900/70 border border-indigo-400/50 rounded-lg text-xs font-bold text-indigo-200 transition flex items-center gap-1.5';
+        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span> <span>${text || 'Generating Gemini Voice...'}</span>`;
+      } else if (status === 'warn') {
+        btn.className = 'px-2.5 py-1 bg-rose-950/80 hover:bg-rose-900 border border-rose-500/50 rounded-lg text-xs font-bold text-rose-200 transition flex items-center gap-1.5';
+        btn.innerHTML = `⚠️ <span>${text || 'Set Gemini API Key for Audio'}</span>`;
+      }
+    }
+
+    function pcmToWav(base64Pcm, sampleRate = 24000) {
+      const binaryString = atob(base64Pcm);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+      const buffer = new ArrayBuffer(44 + bytes.length);
+      const view = new DataView(buffer);
+      const writeString = (view, offset, string) => {
+        for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+      };
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, 36 + bytes.length, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, bytes.length, true);
+      for (let i = 0; i < bytes.length; i++) view.setUint8(44 + i, bytes[i]);
+      return URL.createObjectURL(new Blob([view], { type: 'audio/wav' }));
+    }
+
+    async function fetchGeminiTTS(text, voiceName = "Zephyr") {
+      const cleanText = (text || "").trim();
+      if (!cleanText) throw new Error("Empty text");
+      const cacheKey = `${voiceName}:${cleanText}`;
+      if (audioCache.has(cacheKey)) return audioCache.get(cacheKey);
+      if (pendingRequests.has(cacheKey)) return pendingRequests.get(cacheKey);
+
+      const requestPromise = (async () => {
+        const keyParam = getActiveApiKey();
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${keyParam}`;
+        const payload = {
+          contents: [{ parts: [{ text: `Read this aloud naturally: ${cleanText}` }] }],
+          generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceName } } }
+          },
+          model: "gemini-2.5-flash-preview-tts"
+        };
+
+        for (let attempt = 1, delay = 1000; attempt <= 3; attempt++, delay *= 2) {
+          try {
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+              const status = response.status;
+              if (status === 400 || status === 403) {
+                setVoiceBadge('warn', 'Click to Connect Gemini Key');
+                document.getElementById('api-key-config-box')?.classList.remove('hidden');
+                throw new Error(`HTTP ${status}`);
+              }
+              throw new Error(`HTTP ${status}`);
+            }
+            const result = await response.json();
+            const base64Pcm = result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+            if (!base64Pcm) throw new Error("No inline audio");
+            const wavUrl = pcmToWav(base64Pcm);
+            audioCache.set(cacheKey, wavUrl);
+            setVoiceBadge('ready', 'Gemini Voices Active');
+            return wavUrl;
+          } catch (e) {
+            if (attempt === 3) throw e;
+            await new Promise(r => setTimeout(r, delay));
+          }
+        }
+      })();
+
+      pendingRequests.set(cacheKey, requestPromise);
+      try {
+        return await requestPromise;
+      } finally {
+        pendingRequests.delete(cacheKey);
+      }
+    }
+
+    async function speakText(text, btn, roleOrVoice = "student", rate = 1.0) {
+      sharedAudioPlayer.pause();
+      sharedAudioPlayer.currentTime = 0;
+      const orig = btn ? btn.innerHTML : "";
+      if (btn) { btn.innerHTML = "⏳"; btn.disabled = true; }
+      const voice = getSafeVoice(roleOrVoice);
+      try {
+        setVoiceBadge('loading', 'Generating Gemini Voice...');
+        const url = await fetchGeminiTTS(text, voice);
+        sharedAudioPlayer.src = url;
+        sharedAudioPlayer.playbackRate = rate;
+        if (btn) btn.innerHTML = "🔊";
+        sharedAudioPlayer.onended = () => { if (btn) { btn.innerHTML = orig; btn.disabled = false; } };
+        sharedAudioPlayer.onerror = () => { if (btn) { btn.innerHTML = orig; btn.disabled = false; } };
+        await sharedAudioPlayer.play();
+      } catch (e) {
+        setVoiceBadge('warn', 'Click to Set Gemini Key');
+        if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+      }
+    }
+
+    async function preloadPartAudio(partId) {
+      if (preloadedParts.has(partId) || !getActiveApiKey()) return;
+      preloadedParts.add(partId);
+      try {
+        if (partId === 1) {
+          for (const v of LESSON_DATA.vocab) {
+            const full = `${v.start} ${v.chunk} ${v.end}`.replace(/\s+/g, ' ').replace(/ '/g, "'").trim();
+            await fetchGeminiTTS(full, getSafeVoice('student'));
+            await new Promise(r => setTimeout(r, 600));
+          }
+        } else if (partId === 3) {
+          await fetchGeminiTTS(LESSON_DATA.listening.transcript.trim(), getSafeVoice('teacher'));
+        }
+      } catch (e) {
+        preloadedParts.delete(partId);
+      }
+    }
+
+    async function saveApiKeyFromInput() {
+      const val = document.getElementById('input-gemini-key').value.trim();
+      const resEl = document.getElementById('api-test-result');
+      if (!val) return;
+      savedApiKey = val;
+      try { localStorage.setItem('gemini_api_key', val); } catch (e) {}
+      resEl.className = 'text-xs font-bold text-indigo-300 block';
+      resEl.innerText = '⏳ Testing Gemini 2.5 Flash TTS voice...';
+      try {
+        sharedAudioPlayer.pause();
+        const url = await fetchGeminiTTS("Gemini natural voices are ready for online screen share.", "Zephyr");
+        sharedAudioPlayer.src = url;
+        await sharedAudioPlayer.play();
+        resEl.className = 'text-xs font-bold text-emerald-400 block';
+        resEl.innerText = '✓ Gemini TTS voice verified! Preloading Part 1...';
+        preloadedParts.clear();
+        preloadPartAudio(1);
+        setTimeout(() => document.getElementById('api-key-config-box').classList.add('hidden'), 1200);
+      } catch (e) {
+        resEl.className = 'text-xs font-bold text-rose-400 block';
+        resEl.innerText = `❌ TTS Error: Check your API key.`;
+      }
+    }
+
+    function clearApiKey() {
+      savedApiKey = "";
+      try { localStorage.removeItem('gemini_api_key'); } catch (e) {}
+      document.getElementById('input-gemini-key').value = "";
+      setVoiceBadge('warn', 'Key Cleared');
+    }
+
+    function esc(s) { return (s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+
+    function renderApp() {
+      document.getElementById('page-title').innerText = `${LESSON_DATA.meta.level} - ${LESSON_DATA.meta.title} (Part 1)`;
+      document.getElementById('hdr-level').innerText = `${LESSON_DATA.meta.level} · ${LESSON_DATA.meta.descriptor}`;
+      document.getElementById('hdr-category').innerText = LESSON_DATA.meta.category;
+      document.getElementById('hdr-title').innerText = LESSON_DATA.meta.title;
+      document.getElementById('hdr-grammar-topic').innerText = `Golden Thread: ${LESSON_DATA.meta.grammarTopic}`;
+      document.getElementById('hdr-grammar-exp').innerText = LESSON_DATA.meta.grammarExplanation;
+
+      const names = { 1: "1. Core Chunks", 2: "2. Scenario & Vocab Builder", 3: "3. Listening Game", 4: "4. Syntax Drills" };
+      document.getElementById('nav-pills').innerHTML = [1, 2, 3, 4].map(n =>
+        `<button id="pill-${n}" onclick="focusPart(${n})" class="px-2.5 py-1 text-xs font-bold rounded-lg">${names[n]}</button>`
+      ).join('');
+
+      document.getElementById('vocab-list').innerHTML = LESSON_DATA.vocab.map(v => {
+        const full = `${v.start} ${v.chunk} ${v.end}`.replace(/\s+/g, ' ').replace(/ '/g, "'").trim();
+        return `<div class="p-3 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 select-text">
+          <div><span class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-black text-xs">${v.word}</span> <span class="text-xs text-slate-400 font-semibold">(${v.trans})</span></div>
+          <div class="text-xs sm:text-sm font-semibold text-slate-700 flex-1">${v.start} <span class="vocab-chunk font-black text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200" onclick="this.classList.remove('chunk-masked')">${v.chunk}</span> ${v.end}</div>
+          <div class="flex gap-1.5">
+            <button data-s="${esc(full)}" onclick="speakText(this.dataset.s, this, 'student')" class="px-2.5 py-1 rounded text-xs font-bold bg-slate-100 hover:bg-slate-200">🔊</button>
+            <button data-s="${esc(v.word)}" onclick="translateTextDirect(this.dataset.s)" class="px-2 py-1 rounded text-xs font-bold bg-slate-100 hover:bg-slate-200">🌍</button>
+          </div>
+        </div>`;
+      }).join('');
+
+      document.getElementById('warmup-title').innerText = LESSON_DATA.warmup.title;
+      document.getElementById('warmup-img').src = LESSON_DATA.warmup.imageUrl;
+      document.getElementById('warmup-emoji').innerText = LESSON_DATA.warmup.emoji || "☕";
+      document.getElementById('warmup-scene-text').innerText = LESSON_DATA.warmup.sceneText || LESSON_DATA.warmup.caption || "";
+      renderWarmupModule();
+      renderVocabPlayground();
+
+      document.getElementById('grammar-pillars').innerHTML = LESSON_DATA.warmup.pillars.map(p =>
+        `<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl"><strong class="text-indigo-700 block mb-1">${p.title}</strong><p class="text-slate-600">${p.desc}</p></div>`
+      ).join('');
+
+      document.getElementById('listen-title').innerText = LESSON_DATA.listening.title;
+      document.getElementById('listen-desc').innerText = LESSON_DATA.listening.desc;
+      document.getElementById('transcript-box').innerText = `"${LESSON_DATA.listening.transcript}"`;
+      renderListenModule();
+
+      activeDrills = [...LESSON_DATA.drills];
+      renderDrillsGrid();
+      updatePills();
+
+      if (savedApiKey) {
+        document.getElementById('input-gemini-key').value = savedApiKey;
+        setVoiceBadge('ready', 'Saved Key Loaded');
+        preloadPartAudio(1);
+      }
+    }
+
+    function renderWarmupModule() {
+      const m = LESSON_DATA.warmup.mode || "scenario_chat";
+      const labels = { scenario_chat: "💬 Real-Life Scenario Questions", this_or_that: "⚖️ This or That Poll", alibi: "🎭 Two Truths & A Lie" };
+      document.getElementById('btn-warmup-mode').innerText = `🎲 ${labels[m] || labels.scenario_chat}`;
+      document.getElementById('warmup-mode-badge').innerText = labels[m] || labels.scenario_chat;
+      const box = document.getElementById('warmup-q-list');
+
+      if (m === "this_or_that" && LESSON_DATA.warmup.thisOrThat) {
+        box.innerHTML = LESSON_DATA.warmup.thisOrThat.map((item, i) =>
+          `<div class="bg-white p-3 rounded-xl border border-amber-200 space-y-2 select-text">
+            <p class="text-xs font-bold text-slate-800">${i + 1}. ${item.q}</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="this.classList.toggle('bg-indigo-600'); this.classList.toggle('text-white')" class="p-2 rounded-lg border border-slate-200 text-xs font-extrabold bg-slate-50">${item.optA}</button>
+              <button onclick="this.classList.toggle('bg-indigo-600'); this.classList.toggle('text-white')" class="p-2 rounded-lg border border-slate-200 text-xs font-extrabold bg-slate-50">${item.optB}</button>
+            </div>
+          </div>`
+        ).join('');
+      } else if (m === "alibi") {
+        const prompt = LESSON_DATA.warmup.alibiPrompt || "Click 3 expressions below: tell 2 truths and 1 lie using the sentence frames!";
+        box.innerHTML = `<div class="bg-white p-4 rounded-xl border-2 border-amber-300 space-y-2 select-text">
+          <p class="text-xs sm:text-sm font-extrabold text-slate-800">${prompt}</p>
+          <p class="text-xs text-slate-500">💡 Use the Sentence Frame Builder right below to test your 3 sentences aloud!</p>
+        </div>`;
+      } else {
+        box.innerHTML = LESSON_DATA.warmup.questions.map((q, i) =>
+          `<div class="bg-white p-3 rounded-xl border border-amber-200 flex items-center justify-between gap-2 select-text">
+            <p class="text-xs sm:text-sm font-bold text-slate-800"><span class="text-amber-600 font-black">${i + 1}.</span> ${q}</p>
+            <div class="flex gap-1 shrink-0">
+              <button data-s="${esc(q)}" onclick="speakText(this.dataset.s, this, 'teacher')" class="px-2 py-1 rounded bg-amber-50 text-amber-900 text-xs font-bold">🔊</button>
+              <button data-s="${esc(q)}" onclick="translateTextDirect(this.dataset.s)" class="px-2 py-1 rounded bg-slate-100 text-slate-700 text-xs font-bold">🌍</button>
+            </div>
+          </div>`
+        ).join('');
+      }
+    }
+
+    function cycleWarmupMode() {
+      const idx = warmupModes.indexOf(LESSON_DATA.warmup.mode || "scenario_chat");
+      LESSON_DATA.warmup.mode = warmupModes[(idx + 1) % warmupModes.length];
+      renderWarmupModule();
+    }
+
+    function renderVocabPlayground() {
+      const frames = LESSON_DATA.warmup.vocabFrames || [
+        { label: "Frame 1 (Positive)", before: "I've already", after: "today." },
+        { label: "Frame 2 (Negative)", before: "I haven't", after: "yet." },
+        { label: "Frame 3 (Question)", before: "Have you", after: "yet?" }
+      ];
+      document.getElementById('vocab-frames-bar').innerHTML = frames.map((f, idx) =>
+        `<button onclick="selectVocabFrame(${idx})" class="p-2.5 rounded-xl border text-left transition ${curFrameIdx === idx ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white text-slate-800 border-slate-200 hover:border-indigo-300'}">
+          <span class="text-[10px] font-black uppercase block ${curFrameIdx === idx ? 'text-indigo-200' : 'text-indigo-600'}">${f.label}</span>
+          <span class="text-xs font-extrabold block mt-0.5">"${f.before} [ ... ] ${f.after}"</span>
+        </button>`
+      ).join('');
+
+      const grid = document.getElementById('lesson-vocab-grid');
+      grid.innerHTML = LESSON_DATA.warmup.lessonVocab.map((item, idx) => {
+        const isSelected = idx === curVocabIdx;
+        const isUsed = item.used === true;
+        return `<div onclick="selectVocabCard(${idx})" class="vocab-card cursor-pointer bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-2 transition hover:border-indigo-300 ${isSelected ? 'vocab-card-active' : ''} ${isUsed ? 'vocab-card-used' : ''}">
+          <div class="flex-1">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-black px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">${item.level}</span>
+              <span class="text-xs sm:text-sm font-black text-slate-900">${item.word}</span>
+              ${item.highlight ? `<span class="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-300 text-slate-950">🎯 Try Me</span>` : ''}
+            </div>
+            ${item.trans ? `<p class="text-[11px] text-slate-500 font-medium mt-0.5">${item.trans}</p>` : ''}
+          </div>
+          <div class="flex items-center gap-1 shrink-0" onclick="event.stopPropagation()">
+            <button data-s="${esc(item.word)}" onclick="speakText(this.dataset.s, this, 'teacher')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-xs font-bold" title="Listen">🔊</button>
+            <button data-s="${esc(item.word)}" onclick="translateTextDirect(this.dataset.s)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-xs font-bold" title="Translate">🌍</button>
+            <button onclick="toggleVocabUsed(${idx})" class="px-2 py-1 rounded text-xs font-black ${isUsed ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'}">${isUsed ? '✓' : '○'}</button>
+          </div>
+        </div>`;
+      }).join('');
+
+      updateLiveFrameSentence();
+      updateUsedCount();
+    }
+
+    function selectVocabFrame(idx) { curFrameIdx = idx; renderVocabPlayground(); }
+    function selectVocabCard(idx) { curVocabIdx = idx; LESSON_DATA.warmup.lessonVocab[idx].used = true; renderVocabPlayground(); }
+    function toggleVocabUsed(idx) { LESSON_DATA.warmup.lessonVocab[idx].used = !LESSON_DATA.warmup.lessonVocab[idx].used; renderVocabPlayground(); }
+
+    function dealThreeChallenge() {
+      LESSON_DATA.warmup.lessonVocab.forEach(v => v.highlight = false);
+      const idxs = LESSON_DATA.warmup.lessonVocab.map((_, i) => i).sort(() => Math.random() - 0.5).slice(0, 3);
+      idxs.forEach(i => LESSON_DATA.warmup.lessonVocab[i].highlight = true);
+      curVocabIdx = idxs[0];
+      renderVocabPlayground();
+    }
+
+    function updateLiveFrameSentence() {
+      const frames = LESSON_DATA.warmup.vocabFrames || [{ before: "I've already", after: "today." }];
+      const f = frames[curFrameIdx] || frames[0];
+      const item = LESSON_DATA.warmup.lessonVocab[curVocabIdx] || LESSON_DATA.warmup.lessonVocab[0];
+      const phrase = item.pastForm || item.word;
+      const sent = `${f.before} ${phrase} ${f.after}`.replace(/\s+/g, ' ').replace(/\s+([?.!,])/g, '$1');
+      document.getElementById('live-frame-sentence').innerText = sent;
+    }
+
+    function updateUsedCount() {
+      const c = LESSON_DATA.warmup.lessonVocab.filter(v => v.used).length;
+      document.getElementById('used-count').innerText = `${c} / ${LESSON_DATA.warmup.lessonVocab.length}`;
+    }
+
+    function renderListenModule() {
+      const m = LESSON_DATA.listening.mode || "voicemail";
+      const labels = { voicemail: "🎧 Standard Questions", spot_the_lie: "🤥 Spot 3 Mistakes", predict_ending: "🔮 Cliffhanger & Predict" };
+      document.getElementById('btn-listen-mode').innerText = `🎲 ${labels[m]}`;
+      const box = document.getElementById('listen-module-box');
+
+      if (m === "spot_the_lie") {
+        box.innerHTML = `
+          <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl space-y-2 select-text">
+            <span class="text-[10px] font-black uppercase px-2 py-0.5 bg-amber-300 text-slate-950 rounded">🤥 Spot the 3 Sneaky Mistakes!</span>
+            <p class="text-xs sm:text-sm font-bold text-slate-800">Listen to the audio and read this summary. Find the 3 things that are WRONG in the text below:</p>
+            <p class="p-3 bg-white rounded-lg border border-amber-300 text-xs sm:text-sm font-semibold text-slate-900">"${LESSON_DATA.listening.spotTheLieText || ''}"</p>
+            <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="px-2.5 py-1 bg-amber-900 text-white rounded text-xs font-bold">👁️ Check the 3 Mistakes</button>
+            <p class="hidden text-xs font-bold text-emerald-800 bg-emerald-50 p-2 rounded border border-emerald-200">${LESSON_DATA.listening.spotTheLieKey || ''}</p>
+          </div>`;
+      } else if (m === "predict_ending") {
+        box.innerHTML = `
+          <ol class="list-decimal pl-5 space-y-1 text-xs sm:text-sm font-semibold text-slate-800 select-text">
+            ${LESSON_DATA.listening.questions.slice(0, 2).map(q => `<li>${q}</li>`).join('')}
+          </ol>
+          <div class="bg-indigo-50 border border-indigo-200 p-3 rounded-xl text-xs sm:text-sm font-bold text-indigo-950 select-text">
+            ${LESSON_DATA.listening.predictPrompt || '🔮 What do you think happens next, or how would you reply?'}
+          </div>`;
+      } else {
+        box.innerHTML = `
+          <ol class="list-decimal pl-5 space-y-1 text-xs sm:text-sm font-semibold text-slate-800 select-text">
+            ${LESSON_DATA.listening.questions.map(q => `<li>${q}</li>`).join('')}
+          </ol>
+          <textarea class="w-full p-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm bg-white" rows="2" placeholder="Jot down key words you hear..."></textarea>`;
+      }
+    }
+
+    function cycleListenMode() {
+      const idx = listenModes.indexOf(LESSON_DATA.listening.mode || "voicemail");
+      LESSON_DATA.listening.mode = listenModes[(idx + 1) % listenModes.length];
+      renderListenModule();
+    }
+
+    function renderDrillsGrid() {
+      const badgeStyles = {
+        scramble: "bg-indigo-100 text-indigo-800",
+        bug_hunt: "bg-amber-100 text-amber-900",
+        upgrade: "bg-emerald-100 text-emerald-900"
+      };
+      document.getElementById('drills-grid').innerHTML = activeDrills.map(d =>
+        `<div class="drill-card bg-white p-4 rounded-2xl border border-slate-200 flex flex-col justify-between select-text">
+          <div>
+            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded ${badgeStyles[d.mode] || 'bg-rose-100 text-rose-800'}">${d.type}</span>
+            <p class="font-mono text-xs sm:text-sm font-bold text-slate-800 mt-2 mb-3">${d.prompt}</p>
+            <div class="ans-box hidden p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-950 text-xs font-bold mb-3">✅ "${d.answer}"</div>
+          </div>
+          <div class="flex justify-between pt-2 border-t border-slate-100">
+            <button onclick="this.closest('.drill-card').querySelector('.ans-box').classList.toggle('hidden')" class="px-2.5 py-1 rounded text-xs font-bold bg-indigo-50 text-indigo-800">👁 Check</button>
+            <div class="flex gap-1">
+              <button data-s="${esc(d.answer)}" onclick="speakText(this.dataset.s, this, 'student')" class="px-2.5 py-1 rounded text-xs font-bold bg-slate-100">🔊 Listen</button>
+              <button data-s="${esc(d.answer)}" onclick="translateTextDirect(this.dataset.s)" class="px-2.5 py-1 rounded text-xs font-bold bg-slate-100">🌍</button>
+            </div>
+          </div>
+        </div>`
+      ).join('');
+    }
+
+    function filterDrills(mode) { activeDrills = mode === 'ALL' ? [...LESSON_DATA.drills] : LESSON_DATA.drills.filter(d => d.mode === mode); renderDrillsGrid(); }
+    function shuffleDrills() { activeDrills = [...LESSON_DATA.drills].sort(() => Math.random() - 0.5).slice(0, 4); renderDrillsGrid(); }
+    function showAllDrillsCards() { activeDrills = [...LESSON_DATA.drills]; renderDrillsGrid(); }
+    function spinAllModules() { cycleWarmupMode(); cycleListenMode(); shuffleDrills(); }
+
+    function nextScenePhoto() {
+      photoIdx = (photoIdx + 1) % LESSON_DATA.photoPool.length;
+      const p = LESSON_DATA.photoPool[photoIdx];
+      const img = document.getElementById('warmup-img');
+      img.style.display = 'block';
+      img.src = p.url;
+    }
+    function loadPastedPhoto() {
+      const raw = document.getElementById('gdrive-input').value.trim();
+      if (!raw) return;
+      const m = raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      const url = m ? `https://lh3.googleusercontent.com/d/${m[1]}=w1200` : raw;
+      const img = document.getElementById('warmup-img');
+      img.style.display = 'block';
+      img.src = url;
+      document.getElementById('gdrive-input').value = "";
+    }
+    function playListening(rate, btnId) {
+      speakText(LESSON_DATA.listening.transcript, document.getElementById(btnId), 'teacher', rate);
+    }
+    function toggleVocabMask() {
+      vocabMasked = !vocabMasked;
+      document.querySelectorAll('.vocab-chunk').forEach(c => c.classList.toggle('chunk-masked', vocabMasked));
+    }
+    function toggleAllDrills() {
+      allDrillsShown = !allDrillsShown;
+      document.querySelectorAll('.ans-box').forEach(b => b.classList.toggle('hidden', !allDrillsShown));
+    }
+    function togglePart(n) {
+      const b = document.getElementById(`body-${n}`);
+      const c = b.classList.contains('collapsed');
+      if (c && focusMode) [1, 2, 3, 4].forEach(i => { document.getElementById(`body-${i}`).classList.add('collapsed'); document.getElementById(`chev-${i}`).classList.add('collapsed'); });
+      b.classList.toggle('collapsed', !c);
+      document.getElementById(`chev-${n}`).classList.toggle('collapsed', !c);
+      updatePills();
+      if (c) preloadPartAudio(n);
+    }
+    function focusPart(n) {
+      if (focusMode) [1, 2, 3, 4].forEach(i => { document.getElementById(`body-${i}`).classList.add('collapsed'); document.getElementById(`chev-${i}`).classList.add('collapsed'); });
+      document.getElementById(`body-${n}`).classList.remove('collapsed');
+      document.getElementById(`chev-${n}`).classList.remove('collapsed');
+      updatePills();
+      preloadPartAudio(n);
+    }
+    function expandAll() { [1, 2, 3, 4].forEach(i => { document.getElementById(`body-${i}`).classList.remove('collapsed'); document.getElementById(`chev-${i}`).classList.remove('collapsed'); }); updatePills(); }
+    function toggleFocusMode() { focusMode = !focusMode; document.getElementById('btn-focus').innerText = `🎯 Focus: ${focusMode ? 'ON' : 'OFF'}`; }
+    function updatePills() {
+      [1, 2, 3, 4].forEach(i => {
+        const open = !document.getElementById(`body-${i}`).classList.contains('collapsed');
+        document.getElementById(`pill-${i}`).className = open ? 'px-2.5 py-1 text-xs font-black rounded-lg bg-indigo-600 text-white' : 'px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600';
+      });
+    }
+    let fs = 16;
+    function changeFontSize(d) { fs = Math.min(24, Math.max(12, fs + d * 2)); document.documentElement.style.fontSize = fs + 'px'; }
+
+    // =====================================================================
+    // 🌍 21-LANGUAGE TRANSLATION ENGINE (HIGHLIGHT OR ONE-CLICK + RTL SUPPORT)
+    // =====================================================================
+    async function translateTextDirect(txt) {
+      if (!txt) return;
+      document.getElementById('translate-modal').style.display = 'block';
+      document.getElementById('t-modal-original').innerText = `"${txt}"`;
+      const resEl = document.getElementById('t-modal-result');
+      resEl.innerText = 'Translating...';
+      const tl = document.getElementById('targetLanguage').value;
+      try {
+        const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${tl}&dt=t&q=${encodeURIComponent(txt)}`);
+        const d = await r.json();
+        resEl.dir = ['ar', 'fa', 'he', 'ur'].includes(tl) ? 'rtl' : 'ltr';
+        resEl.innerText = d[0].map(c => c[0]).join('');
+      } catch (e) { resEl.innerText = 'Translation unavailable.'; }
+    }
+
+    let selTxt = "";
+    const tBtn = document.getElementById('highlight-translate-btn');
+    document.addEventListener('mouseup', e => {
+      if (e.target.closest('#highlight-translate-btn, #translate-modal')) return;
+      setTimeout(() => {
+        const s = window.getSelection().toString().trim();
+        if (s.length > 1) {
+          selTxt = s;
+          const r = window.getSelection().getRangeAt(0).getBoundingClientRect();
+          tBtn.style.left = `${Math.max(10, r.left + window.scrollX)}px`;
+          tBtn.style.top = `${r.top + window.scrollY - 40}px`;
+          tBtn.style.display = 'flex';
+        } else tBtn.style.display = 'none';
+      }, 15);
+    });
+    tBtn.onclick = () => {
+      tBtn.style.display = 'none';
+      translateTextDirect(selTxt);
+    };
+
+    window.addEventListener('load', renderApp);
+  </script>
+</body>
+</html>
